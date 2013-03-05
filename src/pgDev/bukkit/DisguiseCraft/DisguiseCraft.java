@@ -263,6 +263,7 @@ public class DisguiseCraft extends JavaPlugin {
     			}
     		});
     		
+    		// ProtocolLib Graph
     		Graph protocolGraph = metrics.createGraph("protocolGraph");
     		protocolGraph.addPlotter(new Metrics.Plotter("Using ProtocolLib") {
     			@Override
@@ -280,6 +281,24 @@ public class DisguiseCraft extends JavaPlugin {
     					}
     				} else {
     					return "yes";
+    				}
+    			}
+    		});
+    		
+    		// Update Notifications Graph
+    		Graph updateGraph = metrics.createGraph("updateGraph");
+    		updateGraph.addPlotter(new Metrics.Plotter("Checking for Updates") {
+    			@Override
+    			public int getValue() {
+    				return 1;
+    			}
+    			
+    			@Override
+    			public String getColumnName() {
+    				if (pluginSettings.updateNotification) {
+    					return "yes";
+    				} else {
+    					return "no";
     				}
     			}
     		});
