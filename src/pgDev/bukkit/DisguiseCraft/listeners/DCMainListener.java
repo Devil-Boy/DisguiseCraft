@@ -29,7 +29,6 @@ public class DCMainListener implements Listener {
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		DynamicClassFunctions.addNSH(player);
 		
 		// Show disguises to newly joined players
 		plugin.showWorldDisguises(player);
@@ -104,8 +103,6 @@ public class DCMainListener implements Listener {
 		
 		// Stop position updater
 		plugin.removePositionUpdater(player);
-		
-		DynamicClassFunctions.removeNSH(player);
 	}
 	
 	@EventHandler

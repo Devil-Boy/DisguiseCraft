@@ -1,5 +1,5 @@
 package pgDev.bukkit.DisguiseCraft;
-
+/*
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -11,8 +11,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
+*/
 public class DynamicClassFunctions {
+	/*
 	public static String nmsPrefix = "net.minecraft.server";
 	public static String obcPrefix = "org.bukkit.craftbukkit";
 	
@@ -243,5 +244,5 @@ public class DynamicClassFunctions {
 			DisguiseCraft.logger.log(Level.SEVERE, "Error constructing a " + equipmentChangePacketName, e);
 			return null;
 		}
-	}
+	}*/
 }

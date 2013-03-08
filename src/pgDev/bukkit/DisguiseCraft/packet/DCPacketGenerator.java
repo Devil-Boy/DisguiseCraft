@@ -1,10 +1,34 @@
 package pgDev.bukkit.DisguiseCraft.packet;
 
+import java.lang.reflect.Field;
 import java.util.LinkedList;
+import java.util.logging.Level;
+
+import net.minecraft.server.v1_4_R1.DataWatcher;
+import net.minecraft.server.v1_4_R1.MathHelper;
+import net.minecraft.server.v1_4_R1.Packet;
+import net.minecraft.server.v1_4_R1.Packet18ArmAnimation;
+import net.minecraft.server.v1_4_R1.Packet201PlayerInfo;
+import net.minecraft.server.v1_4_R1.Packet20NamedEntitySpawn;
+import net.minecraft.server.v1_4_R1.Packet22Collect;
+import net.minecraft.server.v1_4_R1.Packet23VehicleSpawn;
+import net.minecraft.server.v1_4_R1.Packet24MobSpawn;
+import net.minecraft.server.v1_4_R1.Packet28EntityVelocity;
+import net.minecraft.server.v1_4_R1.Packet29DestroyEntity;
+import net.minecraft.server.v1_4_R1.Packet32EntityLook;
+import net.minecraft.server.v1_4_R1.Packet33RelEntityMoveLook;
+import net.minecraft.server.v1_4_R1.Packet34EntityTeleport;
+import net.minecraft.server.v1_4_R1.Packet35EntityHeadRotation;
+import net.minecraft.server.v1_4_R1.Packet38EntityStatus;
+import net.minecraft.server.v1_4_R1.Packet40EntityMetadata;
+import net.minecraft.server.v1_4_R1.Packet5EntityEquipment;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_4_R1.inventory.CraftItemStack;
 
 import pgDev.bukkit.DisguiseCraft.*;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
@@ -22,7 +46,7 @@ public class DCPacketGenerator {
 	}
 	
 	// Vital packet methods
-	public Object getSpawnPacket(Player disguisee) {
+	public Packet getSpawnPacket(Player disguisee) {
 		if (d.type.isMob()) {
 			return getMobSpawnPacket(disguisee.getLocation());
 		} else if (d.type.isPlayer()) {
@@ -32,7 +56,7 @@ public class DCPacketGenerator {
 		}
 	}
 	
-	public Object getSpawnPacket(Location loc) {
+	public Packet getSpawnPacket(Location loc) {
 		if (d.type.isMob()) {
 			return getMobSpawnPacket(loc);
 		} else if (d.type.isPlayer()) {
@@ -42,8 +66,8 @@ public class DCPacketGenerator {
 		}
 	}
 	
-	public LinkedList<Object> getArmorPackets(Player player) {
-		LinkedList<Object> packets = new LinkedList<Object>();
+	public LinkedList<Packet> getArmorPackets(Player player) {
+		LinkedList<Packet> packets = new LinkedList<Packet>();
 		ItemStack[] armor;
 		if (player == null) {
 			armor = new  ItemStack[] {new ItemStack(0, 0), new ItemStack(0, 0), new ItemStack(0, 0), new ItemStack(0, 0)};
@@ -58,9 +82,9 @@ public class DCPacketGenerator {
 	
 	// Individual packet generation methods
 	public int[] getLocationVariables(Location loc) {
-		int x = DynamicClassFunctions.mathHelperFloor(loc.getX() *32D);
-		int y = DynamicClassFunctions.mathHelperFloor(loc.getY() *32D);
-		int z = DynamicClassFunctions.mathHelperFloor(loc.getZ() *32D);
+		int x = MathHelper.floor(loc.getX() *32D);
+		int y = MathHelper.floor(loc.getY() *32D);
+		int z = MathHelper.floor(loc.getZ() *32D);
 		if(firstpos) {
 			encposX = x;
 			encposY = y;
@@ -70,8 +94,7 @@ public class DCPacketGenerator {
 		return new int[] {x, y, z};
 	}
 	
-	public Object getMobSpawnPacket(Location loc) {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
+	public Packet24MobSpawn getMobSpawnPacket(Location loc) {
 		int[] locVars = getLocationVariables(loc);
 		
 		byte yaw = DisguiseCraft.degreeToByte(loc.getYaw());
@@ -82,38 +105,51 @@ public class DCPacketGenerator {
 			pitch = (byte) (pitch * -1);
 		}
 		
-		values.add(new PacketField("a", d.entityID));
-		values.add(new PacketField("b", d.type.id));
-		values.add(new PacketField("c", locVars[0]));
-		values.add(new PacketField("d", locVars[1]));
-		values.add(new PacketField("e", locVars[2]));
-		values.add(new PacketField("i", yaw));
-		values.add(new PacketField("j", pitch));
-		values.add(new PacketField("k", yaw));
-		values.add(new PacketField("s", d.metadata, false));
+		Packet24MobSpawn packet = new Packet24MobSpawn();
+		packet.a = d.entityID;
+		packet.b = d.type.id;
+		packet.c = locVars[0];
+		packet.d = locVars[1];
+		packet.e = locVars[2];
+		packet.i = yaw;
+		packet.j = pitch;
+		packet.k = yaw;
 		
-		return DynamicClassFunctions.constructPacket("Packet24MobSpawn", values);
+		try {
+			Field metadataField = packet.getClass().getDeclaredField("s");
+			metadataField.setAccessible(true);
+			metadataField.set(packet, d.metadata);
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set the metadata for a " + d.type.name() +  " disguise!", e);
+		}
+		return packet;
 	}
 	
-	public Object getPlayerSpawnPacket(Location loc, short item) {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
+	public Packet20NamedEntitySpawn getPlayerSpawnPacket(Location loc, short item) {
 		int[] locVars = getLocationVariables(loc);
 		
-		values.add(new PacketField("a", d.entityID));
-		values.add(new PacketField("b", d.data.getFirst()));
-		values.add(new PacketField("c", locVars[0]));
-		values.add(new PacketField("d", locVars[1]));
-		values.add(new PacketField("e", locVars[2]));
-		values.add(new PacketField("f", DisguiseCraft.degreeToByte(loc.getYaw())));
-		values.add(new PacketField("g", DisguiseCraft.degreeToByte(loc.getPitch())));
-		values.add(new PacketField("h", item));
-		values.add(new PacketField("i", d.metadata, false));
+		Packet20NamedEntitySpawn packet = new Packet20NamedEntitySpawn();
+		packet.a = d.entityID;
+		packet.b = d.data.getFirst();
+		packet.c = locVars[0];
+		packet.d = locVars[1];
+		packet.e = locVars[2];
+		packet.f = DisguiseCraft.degreeToByte(loc.getYaw());
+		packet.g = DisguiseCraft.degreeToByte(loc.getPitch());
+		packet.h = item;
 		
-        return DynamicClassFunctions.constructPacket("Packet20NamedEntitySpawn", values);
+		try {
+			Field metadataField = packet.getClass().getDeclaredField("i");
+			metadataField.setAccessible(true);
+			metadataField.set(packet, d.metadata);
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set the metadata for a player disguise!", e);
+		}
+		return packet;
 	}
 	
-	public Object getObjectSpawnPacket(Location loc) {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
+	public Packet23VehicleSpawn getObjectSpawnPacket(Location loc) {
+		Packet23VehicleSpawn packet = new Packet23VehicleSpawn();
 		int data = 1;
 		
 		// Block specific
@@ -134,29 +170,27 @@ public class DCPacketGenerator {
     	int[] locVars = getLocationVariables(loc);
     	byte[] yp = getYawPitch(loc);
 		
-		values.add(new PacketField("a", d.entityID));
-		values.add(new PacketField("b", locVars[0]));
-		values.add(new PacketField("c", locVars[1]));
-		values.add(new PacketField("d", locVars[2]));
-		values.add(new PacketField("e", 0));
-		values.add(new PacketField("f", 0));
-		values.add(new PacketField("g", 0));
-		values.add(new PacketField("h", yp[1]));
-		values.add(new PacketField("i", yp[0]));
-		values.add(new PacketField("j", d.type.id));
-		values.add(new PacketField("k", data));
+		packet.a = d.entityID;
+		packet.b = locVars[0];
+		packet.c = locVars[1];
+		packet.d = locVars[2];
+		packet.e = 0;
+		packet.f = 0;
+		packet.g = 0;
+		packet.h = yp[1];
+		packet.i = yp[0];
+		packet.j = d.type.id;
+		packet.k = data;
 		
-		return DynamicClassFunctions.constructPacket("Packet23VehicleSpawn", values);
+		return packet;
 	}
 	
-	public Object getEntityDestroyPacket() {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
-		values.add(new PacketField("a", new int[] {d.entityID}));
-		return DynamicClassFunctions.constructPacket("Packet29DestroyEntity", values);
+	public Packet29DestroyEntity getEntityDestroyPacket() {
+		return new Packet29DestroyEntity(new int[] {d.entityID});
 	}
 	
-	public Object getEquipmentChangePacket(short slot, ItemStack item) {
-		return DynamicClassFunctions.constructEquipmentChangePacket(d.entityID, slot, item);
+	public Packet5EntityEquipment getEquipmentChangePacket(short slot, ItemStack item) {
+		return new Packet5EntityEquipment(d.entityID, slot, (item == null) ? null : CraftItemStack.asNMSCopy(item));
 	}
 	
 	public byte[] getYawPitch(Location loc) {
@@ -172,21 +206,12 @@ public class DCPacketGenerator {
 		return new byte[] {yaw, pitch};
 	}
 	
-	public Object getEntityLookPacket(Location loc) {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
-		
+	public Packet32EntityLook getEntityLookPacket(Location loc) {
 		byte[] yp = getYawPitch(loc);
-		
-		values.add(new PacketField("a", d.entityID).setSuper(1));
-		values.add(new PacketField("e", yp[0]).setSuper(1));
-		values.add(new PacketField("f", yp[1]).setSuper(1));
-		
-		return DynamicClassFunctions.constructPacket("Packet32EntityLook", values);
+		return new Packet32EntityLook(d.entityID, yp[0], yp[1]);
 	}
 	
-	public Object getEntityMoveLookPacket(Location loc) {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
-		
+	public Packet33RelEntityMoveLook getEntityMoveLookPacket(Location loc) {
 		byte[] yp = getYawPitch(loc);
 		
 		MovementValues movement = getMovement(loc);
@@ -194,129 +219,90 @@ public class DCPacketGenerator {
 		encposY += movement.y;
 		encposZ += movement.z;
 		
-		values.add(new PacketField("a", d.entityID).setSuper(1));
-		values.add(new PacketField("b", (byte) movement.x).setSuper(1));
-		values.add(new PacketField("c", (byte) movement.y).setSuper(1));
-		values.add(new PacketField("d", (byte) movement.z).setSuper(1));
-		values.add(new PacketField("e", yp[0]).setSuper(1));
-		values.add(new PacketField("f", yp[1]).setSuper(1));
-		
-		return DynamicClassFunctions.constructPacket("Packet33RelEntityMoveLook", values);
+		return new Packet33RelEntityMoveLook(d.entityID,
+				(byte) movement.x, (byte) movement.y, (byte) movement.z,
+				yp[0], yp[1]);
 	}
 	
-	public Object getEntityTeleportPacket(Location loc) {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
-		
+	public Packet34EntityTeleport getEntityTeleportPacket(Location loc) {
 		byte[] yp = getYawPitch(loc);
 		
-		int x = (int) DynamicClassFunctions.mathHelperFloor(32D * loc.getX());
-		int y = (int) DynamicClassFunctions.mathHelperFloor(32D * loc.getY());
-		int z = (int) DynamicClassFunctions.mathHelperFloor(32D * loc.getZ());
+		int x = (int) MathHelper.floor(32D * loc.getX());
+		int y = (int) MathHelper.floor(32D * loc.getY());
+		int z = (int) MathHelper.floor(32D * loc.getZ());
 		
 		encposX = x;
 		encposY = y;
 		encposZ = z;
 		
-		values.add(new PacketField("a", d.entityID));
-		values.add(new PacketField("b", x));
-		values.add(new PacketField("c", y));
-		values.add(new PacketField("d", z));
-		values.add(new PacketField("e", yp[0]));
-		values.add(new PacketField("f", yp[1]));
-		
-		return DynamicClassFunctions.constructPacket("Packet34EntityTeleport", values);
+		return new Packet34EntityTeleport(d.entityID,
+				x, y, z,
+				yp[0], yp[1]);
 	}
 	
-	public Object getEntityMetadataPacket() {
-		return DynamicClassFunctions.constructMetadataPacket(d.entityID, d.metadata);
+	public Packet40EntityMetadata getEntityMetadataPacket() {
+		return new Packet40EntityMetadata(d.entityID, (DataWatcher) d.metadata, true); // 1.4.2 update: true-same method as 1.3.2
 	}
 	
-	public Object getPlayerInfoPacket(Player player, boolean show) {
+	public Packet201PlayerInfo getPlayerInfoPacket(Player player, boolean show) {
 		if (d.type.isPlayer()) {
-			LinkedList<PacketField> values = new LinkedList<PacketField>();
-			
 			int ping;
 			if (show) {
-				ping = DynamicClassFunctions.getPlayerPing(player);
+				ping = ((CraftPlayer) player).getHandle().ping;
 			} else {
 				ping = 9999;
 			}
 			
-			values.add(new PacketField("a", d.data.getFirst()));
-			values.add(new PacketField("b", show));
-			values.add(new PacketField("c", ping));
-			
-			return DynamicClassFunctions.constructPacket("Packet201PlayerInfo", values);
+			return new Packet201PlayerInfo(d.data.getFirst(), show, ping);
 		} else {
 			return null;
 		}
 	}
 	
 	public MovementValues getMovement(Location to) {
-		int x = DynamicClassFunctions.mathHelperFloor(to.getX() *32D);
-		int y = DynamicClassFunctions.mathHelperFloor(to.getY() *32D);
-		int z = DynamicClassFunctions.mathHelperFloor(to.getZ() *32D);
+		int x = MathHelper.floor(to.getX() *32D);
+		int y = MathHelper.floor(to.getY() *32D);
+		int z = MathHelper.floor(to.getZ() *32D);
 		int diffx = x - encposX;
 		int diffy = y - encposY;
 		int diffz = z - encposZ;
 		return new MovementValues(diffx, diffy, diffz, DisguiseCraft.degreeToByte(to.getYaw()), DisguiseCraft.degreeToByte(to.getPitch()));
 	}
 	
-	public Object getHeadRotatePacket(Location loc) {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
-		
-		values.add(new PacketField("a", d.entityID));
-		values.add(new PacketField("b", DisguiseCraft.degreeToByte(loc.getYaw())));
-		
-		return DynamicClassFunctions.constructPacket("Packet35EntityHeadRotation", values);
+	public Packet35EntityHeadRotation getHeadRotatePacket(Location loc) {
+		return new Packet35EntityHeadRotation(d.entityID, DisguiseCraft.degreeToByte(loc.getYaw()));
 	}
 	
-	public Object getAnimationPacket(int animation) {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
-		
-		values.add(new PacketField("a", d.entityID));
-		
+	public Packet18ArmAnimation getAnimationPacket(int animation) {
 		// 1 - Swing arm
 		// 2 Damage animation
 		// 5 Eat food
-		values.add(new PacketField("b", (byte) animation));
-		
-		return DynamicClassFunctions.constructPacket("Packet18ArmAnimation", values);
+		Packet18ArmAnimation packet = new Packet18ArmAnimation();
+		packet.a = d.entityID;
+		packet.b = animation;
+		return packet;
 	}
 	
-	public Object getStatusPacket(int status) {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
-		
-		values.add(new PacketField("a", d.entityID));
-		
+	public Packet38EntityStatus getStatusPacket(int status) {
 		// 2 - entity hurt
 		// 3 - entity dead
 		// 6 - wolf taming
 		// 7 - wolf tamed
 		// 8 - wolf shaking water
 		// 10 - sheep eating grass
-		values.add(new PacketField("b", (byte) status));
-		
-		return DynamicClassFunctions.constructPacket("Packet38EntityStatus", values);
+		return new Packet38EntityStatus(d.entityID, (byte) status);
 	}
 
-	public Object getPickupPacket(int item) {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
-		
-		values.add(new PacketField("a", item));
-		values.add(new PacketField("b", d.entityID));
-		
-		return DynamicClassFunctions.constructPacket("Packet22Collect", values);
+	public Packet22Collect getPickupPacket(int item) {
+		return new Packet22Collect(item, d.entityID);
 	}
 	
-	public Object getVelocityPacket(int x, int y, int z) {
-		LinkedList<PacketField> values = new LinkedList<PacketField>();
-		
-		values.add(new PacketField("a", d.entityID));
-		values.add(new PacketField("b", x));
-		values.add(new PacketField("c", y));
-		values.add(new PacketField("d", z));
-		
-		return DynamicClassFunctions.constructPacket("Packet28EntityVelocity", values);
+	public Packet28EntityVelocity getVelocityPacket(int x, int y, int z) {
+		Packet28EntityVelocity packet = new Packet28EntityVelocity();
+		packet.a = d.entityID;
+		packet.b = x;
+		packet.c = y;
+		packet.d = z;
+		return packet;
 	}
 }

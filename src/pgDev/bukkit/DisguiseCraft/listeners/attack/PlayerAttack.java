@@ -1,15 +1,24 @@
 package pgDev.bukkit.DisguiseCraft.listeners.attack;
 
+import net.minecraft.server.v1_4_R1.EntityPlayer;
+
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import pgDev.bukkit.DisguiseCraft.DynamicClassFunctions;
-
 public class PlayerAttack {
-	public Object attacker;
-	public Object victim;
+	public Player attacker;
+	public Player victim;
 	
 	public PlayerAttack(Player attacker, Player victim) {
-		this.attacker = DynamicClassFunctions.convertPlayerEntity(attacker);
-		this.victim = DynamicClassFunctions.convertPlayerEntity(victim);;
+		this.attacker = attacker;
+		this.victim = victim;
+	}
+	
+	public EntityPlayer attacker() {
+		return ((CraftPlayer) attacker).getHandle();
+	}
+	
+	public EntityPlayer victim() {
+		return ((CraftPlayer) victim).getHandle();
 	}
 }

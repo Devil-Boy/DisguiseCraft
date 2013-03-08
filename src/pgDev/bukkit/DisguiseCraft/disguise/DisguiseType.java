@@ -1,11 +1,15 @@
 package pgDev.bukkit.DisguiseCraft.disguise;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Level;
+
+import net.minecraft.server.v1_4_R1.DataWatcher;
+import net.minecraft.server.v1_4_R1.Entity;
+import net.minecraft.server.v1_4_R1.WatchableObject;
+import net.minecraft.server.v1_4_R1.World;
 
 import org.bukkit.entity.Animals;
 
@@ -74,18 +78,18 @@ public enum DisguiseType {
 	public static void getDataWatchers() {
 		// Get model datawatchers
     	try {
-    		Field watcherField = DynamicClassFunctions.classes.get("Entity").getDeclaredField("datawatcher");
+    		Field watcherField = Entity.class.getDeclaredField("datawatcher");
     		watcherField.setAccessible(true);
     		
 			for (DisguiseType m : values()) {
 				if (m.isMob()) {
-					String mobClass = DynamicClassFunctions.nmsPackage + ".Entity" + m.name();
+					String mobClass = "net.minecraft.server.v1_4_R1.Entity" + m.name();
 					if (m == DisguiseType.Giant) {
 	    				mobClass = mobClass + "Zombie";
 	    			}
 
 	        		try {
-	        			Object ent = Class.forName(mobClass).getConstructor(DynamicClassFunctions.classes.get("World")).newInstance((Object) null);
+	        			Object ent = Class.forName(mobClass).getConstructor(World.class).newInstance((Object) null);
 	        			modelData.put(m.id, watcherField.get(ent));
 	        		} catch (Exception e) {
 	        			missingDisguises.add(m);
@@ -98,7 +102,7 @@ public enum DisguiseType {
     	
     	// Store important fields
     	int searchingFor = 0; // 0 = Map, 1 = boolean
-		for (Field f : DynamicClassFunctions.classes.get("DataWatcher").getDeclaredFields()) {
+		for (Field f : DataWatcher.class.getDeclaredFields()) {
 			f.setAccessible(true);
 			if (searchingFor == 0) {
 				if (f.getType() == Map.class) {
@@ -228,21 +232,15 @@ public enum DisguiseType {
 	
 	//@SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
-	public Object newMetadata() {
+	public DataWatcher newMetadata() {
 		if (modelData.containsKey(id)) {
 			Object model = modelData.get(id);
-			Object w;
-			try {
-				w = DynamicClassFunctions.classes.get("DataWatcher").newInstance();
-			} catch (Exception e) {
-				DisguiseCraft.logger.log(Level.SEVERE, "Could not construct a new DataWatcher to insert values into", e);
-				return null;
-			}
+			DataWatcher w = new DataWatcher();
 			
 			// Clone Map
 			try {
-				HashMap<Integer, Object> modelMap = ((HashMap<Integer, Object>) mapField.get(model));
-				HashMap<Integer, Object> newMap = ((HashMap<Integer, Object>) mapField.get(w));
+				HashMap<Integer, WatchableObject> modelMap = ((HashMap<Integer, WatchableObject>) mapField.get(model));
+				HashMap<Integer, WatchableObject> newMap = ((HashMap<Integer, WatchableObject>) mapField.get(w));
 				for (Integer index : modelMap.keySet()) {
 					newMap.put(index, copyWatchable(modelMap.get(index)));
 				}
@@ -260,7 +258,7 @@ public enum DisguiseType {
 			return w;
 		} else {
 			try {
-				return DynamicClassFunctions.classes.get("DataWatcher").newInstance();
+				return new DataWatcher();
 			} catch (Exception e) {
 				DisguiseCraft.logger.log(Level.SEVERE, "Could not construct a new DataWatcher", e);
 				return null;
@@ -268,12 +266,9 @@ public enum DisguiseType {
 		}
 	}
 	
-	private Object copyWatchable(Object watchable) {
+	private WatchableObject copyWatchable(WatchableObject watchable) {
 		try {
-			Constructor<?> cotr = DynamicClassFunctions.classes.get("WatchableObject").getConstructor(int.class, int.class, Object.class);
-			return cotr.newInstance(DynamicClassFunctions.methods.get("WatchableObject.c()").invoke(watchable),
-					DynamicClassFunctions.methods.get("WatchableObject.a()").invoke(watchable),
-					DynamicClassFunctions.methods.get("WatchableObject.b()").invoke(watchable));
+			return new WatchableObject(watchable.c(), watchable.a(), watchable.b());
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not copy a WatchableObject", e);
 			return null;

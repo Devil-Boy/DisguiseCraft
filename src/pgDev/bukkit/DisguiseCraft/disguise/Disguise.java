@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.Map;
 
+import net.minecraft.server.v1_4_R1.DataWatcher;
+
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import pgDev.bukkit.DisguiseCraft.*;
@@ -29,7 +32,7 @@ public class Disguise {
 	 * The type of entity the disguise is
 	 */
 	public DisguiseType type;
-	public Object metadata;
+	public DataWatcher metadata;
 	
 	public DCPacketGenerator packetGenerator;
 	
@@ -194,7 +197,7 @@ public class Disguise {
 	
 	void mAdd(int index, Object value) {
 		try {
-			DynamicClassFunctions.methods.get("DataWatcher.a(int, Object)").invoke(metadata, index, value);
+			metadata.a(index, value);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not add metadata to DataWatcher for a " + type.name() + " disguise", e);
 		}
@@ -202,7 +205,7 @@ public class Disguise {
 	
 	void mWatch(int index, Object value) {
 		try {
-			DynamicClassFunctions.methods.get("DataWatcher.watch(int, Object)").invoke(metadata, index, value);
+			metadata.watch(index, value);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not edit metadata in DataWatcher for a " + type.name() + " disguise", e);
 		}
@@ -592,5 +595,35 @@ public class Disguise {
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * Provides the sound enum of this disguise being damaged
+	 * @return The damage sound or null if none could be found
+	 */
+	public Sound getDamageSound() {
+		if (type.isObject()) {
+			return null;
+		}
+		
+		String mob = type.name().toUpperCase();
+		if (type == DisguiseType.PigZombie) {
+			mob = "ZOMBIE_PIG";
+		} else if (type == DisguiseType.Ocelot) {
+			mob = "CAT";
+		}
+		
+		for (Sound sound : Sound.values()) {
+			if (type == DisguiseType.Spider) {
+				if (sound.name().equals(mob + "_IDLE")) {
+					return sound;
+				}
+			} else {
+				if (sound.name().equals(mob + "_HURT") || sound.name().equals(mob + "_HIT")) {
+					return sound;
+				}
+			}
+		}
+		return Sound.HURT_FLESH;
 	}
 }

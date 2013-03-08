@@ -1,6 +1,7 @@
 package pgDev.bukkit.DisguiseCraft.listeners.attack;
 
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import pgDev.bukkit.DisguiseCraft.*;
@@ -30,7 +31,7 @@ public class InvalidInteractHandler implements Runnable {
 				if (player.getItemInHand().getType() == Material.SHEARS) {
 					Disguise disguise = plugin.disguiseDB.get(attacked.getName());
 					if (disguise.type == DisguiseType.MushroomCow) {
-						DynamicClassFunctions.sendPacket(player, disguise.packetGenerator.getMobSpawnPacket(attacked.getLocation()));
+						((CraftPlayer) player).getHandle().playerConnection.sendPacket(disguise.packetGenerator.getMobSpawnPacket(attacked.getLocation()));
 					}
 				}
 			}

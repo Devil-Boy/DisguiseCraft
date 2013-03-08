@@ -2,6 +2,8 @@ package pgDev.bukkit.DisguiseCraft.listeners;
 
 import java.util.LinkedList;
 
+import net.minecraft.server.v1_4_R1.Packet;
+
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -30,8 +32,8 @@ public class WorldChangeUpdater implements Runnable {
 			Disguise disguise = plugin.disguiseDB.get(disguisee.getName());
 			
 			// Packets
-			LinkedList<Object> killPackets = new LinkedList<Object>();
-			LinkedList<Object> revivePackets = new LinkedList<Object>();
+			LinkedList<Packet> killPackets = new LinkedList<Packet>();
+			LinkedList<Packet> revivePackets = new LinkedList<Packet>();
 			killPackets.add(disguise.packetGenerator.getEntityDestroyPacket());
 			revivePackets.add(disguise.packetGenerator.getSpawnPacket(disguisee));
 			if (disguise.type.isPlayer()) {

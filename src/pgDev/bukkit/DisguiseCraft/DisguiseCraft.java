@@ -11,9 +11,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.minecraft.server.v1_4_R1.Packet;
+import net.minecraft.server.v1_4_R1.Packet201PlayerInfo;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_4_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -78,7 +82,7 @@ public class DisguiseCraft extends JavaPlugin {
     static public DCConfig pluginSettings;
     
     // Attack processor thread
-    public AttackProcessor attackProcessor = new AttackProcessor();
+    public AttackProcessor attackProcessor = new AttackProcessor(this);
     
     @Override
     public void onLoad() {
@@ -87,13 +91,6 @@ public class DisguiseCraft extends JavaPlugin {
     	
     	// Obtain logger
     	logger = getLogger();
-    	
-    	// Reflect
-    	if (!(DynamicClassFunctions.setPackages() && DynamicClassFunctions.setClasses()
-    			&& DynamicClassFunctions.setMethods() && DynamicClassFunctions.setFields())) {
-    		logger.log(Level.SEVERE, "Could not dynamically locate required resources!");
-    		loadFailure = true;
-    	}
     	
     	// Datawatchers
     	DisguiseType.getDataWatchers();
@@ -207,11 +204,6 @@ public class DisguiseCraft extends JavaPlugin {
             // Start up attack processing thread
             getServer().getScheduler().scheduleSyncRepeatingTask(this, attackProcessor, 1, pluginSettings.attackInterval);
             
-            // Add NetServerHandlers
-            for (Player player : getServer().getOnlinePlayers()) {
-            	DynamicClassFunctions.addNSH(player);
-            }
-            
             // Heyo!
             logger.log(Level.INFO, "Version " + pdfFile.getVersion() + " is enabled!");
     	}
@@ -240,9 +232,6 @@ public class DisguiseCraft extends JavaPlugin {
         	
         	// Wipe config
         	pluginSettings = null;
-        	
-        	// Clear NSH DataBase
-        	DynamicClassFunctions.netServerHandlers.clear();
     	}
     	
     	// Notify success
@@ -389,7 +378,7 @@ public class DisguiseCraft extends JavaPlugin {
     		}
     		
     		// Observer Handling
-    		LinkedList<Object> toObservers = new LinkedList<Object>();
+    		LinkedList<Packet> toObservers = new LinkedList<Packet>();
     		DroppedDisguise disguise = new DroppedDisguise(disguiseDB.get(name), name, player.getLocation());
     		if (disguise.type.isPlayer()) {
     			toObservers.add(disguise.packetGenerator.getPlayerInfoPacket(player, false));
@@ -432,7 +421,7 @@ public class DisguiseCraft extends JavaPlugin {
     }
     
     public void sendDisguise(Player disguised, Player observer) {
-    	LinkedList<Object> toSend = new LinkedList<Object>();
+    	LinkedList<Packet> toSend = new LinkedList<Packet>();
 		Disguise disguise = disguiseDB.get(disguised.getName());
 		toSend.add(disguise.packetGenerator.getSpawnPacket(disguised));
 		if (disguise.type.isPlayer()) { // Player disguise
@@ -463,7 +452,7 @@ public class DisguiseCraft extends JavaPlugin {
     }
     
     public void sendUnDisguise(Player disguised, Player observer) {
-    	LinkedList<Object> toSend = new LinkedList<Object>();
+    	LinkedList<Packet> toSend = new LinkedList<Packet>();
 		Disguise disguise = disguiseDB.get(disguised.getName());
 		toSend.add(disguise.packetGenerator.getEntityDestroyPacket());
 		if (disguise.type.isPlayer() && !pluginSettings.noTabHide) {
@@ -478,7 +467,7 @@ public class DisguiseCraft extends JavaPlugin {
     }
     
     public void sendMovement(Player disguised, Player observer, Vector vector, Location to) {
-    	LinkedList<Object> toSend = new LinkedList<Object>();
+    	LinkedList<Packet> toSend = new LinkedList<Packet>();
 		Disguise disguise = disguiseDB.get(disguised.getName());
 		
 		// Block lock
@@ -497,12 +486,11 @@ public class DisguiseCraft extends JavaPlugin {
 		
 		if (pluginSettings.bandwidthReduction) {
 			if (movement.x < -128 || movement.x > 128 || movement.y < -128 || movement.y > 128 || movement.z < -128 || movement.z > 128) { // That's like a teleport right there!
-    			Object packet = disguise.packetGenerator.getEntityTeleportPacket(to);
+    			Packet packet = disguise.packetGenerator.getEntityTeleportPacket(to);
     			if (observer == null) {
 					sendPacketToWorld(disguised.getWorld(), packet);
 				} else {
-					//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(packet);
-					DynamicClassFunctions.sendPacket(observer, packet);
+					((CraftPlayer) observer).getHandle().playerConnection.sendPacket(packet);
 				}
     		} else { // Relative movement
     			if (movement.x == 0 && movement.y == 0 && movement.z == 0) { // Just looked around
@@ -530,30 +518,27 @@ public class DisguiseCraft extends JavaPlugin {
 		}
     }
     
-    public void sendPacketToWorld(World world, Object packet) {
+    public void sendPacketToWorld(World world, Packet packet) {
     	for (Player observer : world.getPlayers()) {
-    		//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(packet);
-    		DynamicClassFunctions.sendPacket(observer, packet);
+    		((CraftPlayer) observer).getHandle().playerConnection.sendPacket(packet);
     	}
     }
     
-    public void sendPacketsToWorld(World world, LinkedList<Object> packets) {
+    public void sendPacketsToWorld(World world, LinkedList<Packet> packets) {
     	for (Player observer : world.getPlayers()) {
-    		for (Object p : packets) {
-    			//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
-    			DynamicClassFunctions.sendPacket(observer, p);
+    		for (Packet p : packets) {
+    			((CraftPlayer) observer).getHandle().playerConnection.sendPacket(p);
     		}
     	}
     }
     
-    public void sendPacketsToObserver(Player observer, LinkedList<Object> packets) {
-    	for (Object p : packets) {
-			//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
-    		DynamicClassFunctions.sendPacket(observer, p);
+    public void sendPacketsToObserver(Player observer, LinkedList<Packet> packets) {
+    	for (Packet p : packets) {
+			((CraftPlayer) observer).getHandle().playerConnection.sendPacket(p);
 		}
     }
     
-    public void disguiseToWorld(World world, Player player, LinkedList<Object> packets) {
+    public void disguiseToWorld(World world, Player player, LinkedList<Packet> packets) {
     	for (Player observer : world.getPlayers()) {
 	    	if (observer != player) {
 	    		if (!observer.hasPermission("disguisecraft.seer")) {
@@ -562,20 +547,18 @@ public class DisguiseCraft extends JavaPlugin {
 					}
 					observer.hidePlayer(player);
 				}
-	    		for (Object p : packets) {
-	    			//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
-	    			DynamicClassFunctions.sendPacket(observer, p);
+	    		for (Packet p : packets) {
+	    			((CraftPlayer) observer).getHandle().playerConnection.sendPacket(p);
 	    		}
     		}
     	}
     }
     
-    public void undisguiseToWorld(World world, Player player, LinkedList<Object> packets) {
+    public void undisguiseToWorld(World world, Player player, LinkedList<Packet> packets) {
     	for (Player observer : world.getPlayers()) {
     		if (observer != player) {
-	    		for (Object p : packets) {
-	    			//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
-	    			DynamicClassFunctions.sendPacket(observer, p);
+	    		for (Packet p : packets) {
+	    			((CraftPlayer) observer).getHandle().playerConnection.sendPacket(p);
 	    		}
 				observer.showPlayer(player);
     		}
@@ -590,12 +573,7 @@ public class DisguiseCraft extends JavaPlugin {
 					sendDisguise(disguised, observer);
 					
 					if (pluginSettings.noTabHide) {
-						//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(new Packet201PlayerInfo(disguisedName, true, ((CraftPlayer) disguised).getHandle().ping));
-						LinkedList<PacketField> values = new LinkedList<PacketField>();
-						values.add(new PacketField("a", disguisedName));
-						values.add(new PacketField("b", true));
-						values.add(new PacketField("c", DynamicClassFunctions.getPlayerPing(disguised)));
-						DynamicClassFunctions.sendPacket(observer, DynamicClassFunctions.constructPacket("Packet201PlayerInfo", values));
+						((CraftPlayer) observer).getHandle().playerConnection.sendPacket(new Packet201PlayerInfo(disguisedName, true, ((CraftPlayer) disguised).getHandle().ping));
 					}
 				}
 			}
