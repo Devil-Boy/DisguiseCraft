@@ -6,10 +6,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_4_R1.DataWatcher;
-import net.minecraft.server.v1_4_R1.Entity;
-import net.minecraft.server.v1_4_R1.WatchableObject;
-import net.minecraft.server.v1_4_R1.World;
+import net.minecraft.server.v1_5_R1.DataWatcher;
+import net.minecraft.server.v1_5_R1.Entity;
+import net.minecraft.server.v1_5_R1.WatchableObject;
+import net.minecraft.server.v1_5_R1.World;
 
 import org.bukkit.entity.Animals;
 
@@ -83,7 +83,7 @@ public enum DisguiseType {
     		
 			for (DisguiseType m : values()) {
 				if (m.isMob()) {
-					String mobClass = "net.minecraft.server.v1_4_R1.Entity" + m.name();
+					String mobClass = "net.minecraft.server.v1_5_R1.Entity" + m.name();
 					if (m == DisguiseType.Giant) {
 	    				mobClass = mobClass + "Zombie";
 	    			}

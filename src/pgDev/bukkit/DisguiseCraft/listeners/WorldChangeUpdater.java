@@ -2,7 +2,7 @@ package pgDev.bukkit.DisguiseCraft.listeners;
 
 import java.util.LinkedList;
 
-import net.minecraft.server.v1_4_R1.Packet;
+import net.minecraft.server.v1_5_R1.Packet;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
