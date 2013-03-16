@@ -523,6 +523,26 @@ public class Disguise {
 	}
 	
 	/**
+	 * Gets the Minecart-type ID relevant to this disguise (stored within metadata)
+	 * @return The cart ID (null if none found)
+	 */
+	public Integer getMinecartType() {
+		if (!data.isEmpty()) {
+			for (String one : data) {
+				if (one.startsWith("cartType:")) {
+					String[] parts = one.split(":");
+					try {
+						return Integer.decode(parts[1]);
+					} catch (NumberFormatException e) {
+						DisguiseCraft.logger.log(Level.WARNING, "Could not decode the integer of a disguise's cart type!");
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Checks if specified player has the permissions needed to wear this disguise
 	 * @param player The player to check the permissions of
 	 * @return Whether or not he has the permissions (true if yes)

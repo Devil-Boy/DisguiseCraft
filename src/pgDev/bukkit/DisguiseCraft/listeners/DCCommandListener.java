@@ -1205,6 +1205,164 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				} else {
 					player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a Wither " + type.name());
 				}
+			} else if (DisguiseType.getMinecartTypeID(args[0]) > 0) {
+				args[0] = args[0].toLowerCase().replace("chest", "storage").replace("furnace", "powered").replace("mobspawner", "spawner");
+				int cartID = DisguiseType.getMinecartTypeID(args[0]);
+				
+				if (cartID == 5) {
+					// hopper
+					DisguiseType type = DisguiseType.Minecart;
+					if (isConsole || player.hasPermission("disguisecraft.object.vehicle.minecart.hopper")) {
+						if (plugin.disguiseDB.containsKey(player.getName())) {
+							Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+							disguise.setType(type).setSingleData("cartType:" + cartID);
+							
+							// Pass the event
+							PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+							plugin.getServer().getPluginManager().callEvent(ev);
+							if (ev.isCancelled()) return true;
+							
+							plugin.changeDisguise(player, disguise);
+						} else {
+							Disguise disguise = new Disguise(plugin.getNextAvailableID(), "cartType:" + cartID, type);
+							
+							// Pass the event
+							PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+							plugin.getServer().getPluginManager().callEvent(ev);
+							if (ev.isCancelled()) return true;
+							
+							plugin.disguisePlayer(player, disguise);
+						}
+						player.sendMessage(ChatColor.GOLD + "You have been disguised as a Hopper Minecart");
+						if (isConsole) {
+							sender.sendMessage(player.getName() + " was disguised as a Hopper Minecart");
+						}
+					} else {
+						player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a Hopper Minecart");
+					}
+				} else if (cartID < 5) {
+					String o = WordUtils.capitalize(args[0]);
+					if (cartID == 3) {
+						o = "TNT";
+					}
+					
+					// others
+					if (args.length > 1) {
+						// specified entity
+						if (args[1].equalsIgnoreCase("minecart")) {
+							// minecart type
+							DisguiseType type = DisguiseType.Minecart;
+							if (isConsole || player.hasPermission("disguisecraft.object.vehicle.minecart." + args[0])) {
+								if (plugin.disguiseDB.containsKey(player.getName())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+									disguise.setType(type).setSingleData("cartType:" + cartID);
+									
+									// Pass the event
+									PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+									plugin.getServer().getPluginManager().callEvent(ev);
+									if (ev.isCancelled()) return true;
+									
+									plugin.changeDisguise(player, disguise);
+								} else {
+									Disguise disguise = new Disguise(plugin.getNextAvailableID(), "cartType:" + cartID, type);
+									
+									// Pass the event
+									PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+									plugin.getServer().getPluginManager().callEvent(ev);
+									if (ev.isCancelled()) return true;
+									
+									plugin.disguisePlayer(player, disguise);
+								}
+								
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + o + " Minecart");
+								if (isConsole) {
+									sender.sendMessage(player.getName() + " was disguised as a " + o + " Minecart");
+								}
+							} else {
+								player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a " + o + " Minecart");
+							}
+						} else {
+							// something else
+							sender.sendMessage(ChatColor.RED + "Only Minecarts can be of type: " + o);
+						}
+					} else {
+						// just subtype
+						Disguise disguise = null;
+						if (plugin.disguiseDB.containsKey(player.getName())) {
+							disguise = plugin.disguiseDB.get(player.getName());
+							if (disguise.type != DisguiseType.Minecart) disguise = null;
+						}
+						
+						if (disguise == null) {
+							// not minecart disguised
+							// Fallingblock-type check
+							Material block = Material.matchMaterial(remainingWords(args, 0));
+							if (block != null && block.isBlock() && block != Material.AIR) {
+								DisguiseType type = DisguiseType.FallingBlock;
+								if (isConsole || player.hasPermission("disguisecraft.object.block.fallingblock.material")) {
+									String newData = "blockID:" + block.getId();
+									if (plugin.disguiseDB.containsKey(player.getName())) {
+										disguise = plugin.disguiseDB.get(player.getName()).clone();
+										disguise.setType(type).setSingleData(newData);
+										
+										// Pass the event
+										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+										plugin.getServer().getPluginManager().callEvent(ev);
+										if (ev.isCancelled()) return true;
+										
+										plugin.changeDisguise(player, disguise);
+									} else {
+										disguise = new Disguise(plugin.getNextAvailableID(), newData, type);
+										
+										// Pass the event
+										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+										plugin.getServer().getPluginManager().callEvent(ev);
+										if (ev.isCancelled()) return true;
+										
+										plugin.disguisePlayer(player, disguise);
+									}
+									player.sendMessage(ChatColor.GOLD + "You have been disguised as " + block.name());
+									if (isConsole) {
+										sender.sendMessage(player.getName() + " was disguised as " + block.name());
+									}
+								} else {
+									player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a block of that material");
+								}
+							} else {
+								sender.sendMessage(ChatColor.RED + "That disguise type was not recognized.");
+							}
+						} else {
+							// in minecart disguise
+							disguise = plugin.disguiseDB.get(player.getName()).clone();
+							if (disguise.data.contains("cartType:" + cartID)) {
+								sender.sendMessage(ChatColor.RED + "Already a " + o + " Minecart");
+							} else {
+								Integer oldID = disguise.getMinecartType();
+								if (oldID != null) {
+									disguise.data.remove("cartType:" + oldID);
+								}
+								
+								disguise.addSingleData("cartType:" + cartID);
+								
+								// Check for permissions
+								if (isConsole || player.hasPermission("disguisecraft.object.vehicle.minecart." + args[0])) {
+									// Pass the event
+									PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+									plugin.getServer().getPluginManager().callEvent(ev);
+									if (ev.isCancelled()) return true;
+									
+									plugin.changeDisguise(player, disguise);
+									player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + o + " Minecart");
+									if (isConsole) {
+										sender.sendMessage(player.getName() + " was disguised as a " + o + " Minecart");
+									}
+								} else {
+									player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as a " + o + " Minecart");
+								}
+							}
+						}
+					}
+				}
 			} else if (args[0].equalsIgnoreCase("drop")) {
 				if (isConsole || player.hasPermission("disguisecraft.drop")) {
 					if (plugin.disguiseDB.containsKey(player.getName())) {
@@ -1316,6 +1474,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				} else {
+					// Fallingblock-type check
 					Material block = Material.matchMaterial(remainingWords(args, 0));
 					if (block != null && block.isBlock() && block != Material.AIR) {
 						type = DisguiseType.FallingBlock;

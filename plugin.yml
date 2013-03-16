@@ -522,20 +522,32 @@ permissions:
         children:
             disguisecraft.object.vehicle.boat: true
             disguisecraft.object.vehicle.minecart: true
-            disguisecraft.object.vehicle.poweredminecart: true
-            disguisecraft.object.vehicle.storageminecart: true
+            disguisecraft.object.vehicle.minecart.powered: true
+            disguisecraft.object.vehicle.minecart.storage: true
+            disguisecraft.object.vehicle.minecart.tnt: true
+            disguisecraft.object.vehicle.minecart.spawner: true
+            disguisecraft.object.vehicle.minecart.hopper: true
     disguisecraft.object.vehicle.boat:
         default: op
         description: Can disguise as a boat.
     disguisecraft.object.vehicle.minecart:
         default: op
         description: Can disguise as a minecart.
-    disguisecraft.object.vehicle.poweredminecart:
+    disguisecraft.object.vehicle.minecart.powered:
         default: op
         description: Can disguise as a powered minecart.
-    disguisecraft.object.vehicle.storageminecart:
+    disguisecraft.object.vehicle.minecart.storage:
         default: op
         description: Can disguise as a storage minecart.
+    disguisecraft.object.vehicle.minecart.tnt:
+        default: op
+        description: Can disguise as a TNT minecart.
+    disguisecraft.object.vehicle.minecart.spawner:
+        default: op
+        description: Can disguise as a spawner minecart.
+    disguisecraft.object.vehicle.minecart.hopper:
+        default: op
+        description: Can disguise as a hopper minecart.
     disguisecraft.object.block.*:
         default: op
         description: Can disguise as any block-like entity.

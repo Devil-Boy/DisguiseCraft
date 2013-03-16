@@ -6,6 +6,10 @@
   <name>DisguiseCraft ${project.version}</name>
   <url>http://dev.bukkit.org/server-mods/disguisecraft/</url>
   
+  <scm>
+  	<url>git://gitorious.org/disguisecraft/disguisecraft.git</url>
+  </scm>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -55,11 +59,6 @@
 
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.1</version>
-      </plugin>
-      <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
         <configuration>
@@ -67,10 +66,28 @@
           <target>1.6</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.1</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <outputDirectory>target/apidocs</outputDirectory>
+          <reportOutputDirectory>target/apidocs</reportOutputDirectory>
+          
+          <show>public</show>
+          <links>
+            <link>http://jd.bukkit.org/apidocs/</link>
+            <link>http://aadnk.github.com/ProtocolLib/Javadoc/</link>
+          </links>
+          <footer>Generated on ${maven.build.timestamp}</footer>
+          <sourcepath>/src/pgDev/bukkit/DisguiseCraft:/src/pgDe/.bukkit/DisguiseCraft/api:/src/pgDev/bukkit/DisguiseCraft/disguise</sourcepath>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
-  
-  <scm>
-  	<url>git://gitorious.org/disguisecraft/disguisecraft.git</url>
-  </scm>
 </project>

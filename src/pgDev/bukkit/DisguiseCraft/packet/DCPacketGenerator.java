@@ -116,7 +116,7 @@ public class DCPacketGenerator {
 		packet.k = yaw;
 		
 		try {
-			Field metadataField = packet.getClass().getDeclaredField("s");
+			Field metadataField = packet.getClass().getDeclaredField("t");
 			metadataField.setAccessible(true);
 			metadataField.set(packet, d.metadata);
 		} catch (Exception e) {
@@ -150,7 +150,7 @@ public class DCPacketGenerator {
 	
 	public Packet23VehicleSpawn getObjectSpawnPacket(Location loc) {
 		Packet23VehicleSpawn packet = new Packet23VehicleSpawn();
-		int data = 1;
+		int data = 0;
 		
 		// Block specific
     	if (d.type.isBlock()) {
@@ -164,6 +164,14 @@ public class DCPacketGenerator {
     			if (blockData != null) {
     				data = data | (((int) blockData) << 0xC);
     			}
+    		}
+    	}
+    	
+    	// Vehicle specific
+    	if (d.type.isVehicle()) {
+    		Integer cartID = d.getMinecartType();
+    		if (cartID != null) {
+    			data = cartID.intValue();
     		}
     	}
     	

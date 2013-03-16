@@ -57,8 +57,8 @@ public enum DisguiseType {
 	// Vehicles
 	Boat(1),
 	Minecart(10),
-	PoweredMinecart(12),
-	StorageMinecart(11),
+	//PoweredMinecart(12),
+	//StorageMinecart(11),
 	
 	//Blocks
 	EnderCrystal(51),
@@ -191,7 +191,7 @@ public enum DisguiseType {
 	 */
 	public boolean isVehicle() {
 		//return this.isSubclass(Vehicle.class) && this != Pig;
-		return this == Boat || this == Minecart || this == PoweredMinecart || this == StorageMinecart;
+		return this == Boat || this == Minecart;
 	}
 	
 	/**
@@ -273,6 +273,27 @@ public enum DisguiseType {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not copy a WatchableObject", e);
 			return null;
 		}
+	}
+	
+	/**
+	 * Returns the type ID of a minecart type
+	 * @param type The type of minecart (chest, furnace, hopper, etc.)
+	 * @return The code-side ID or -1 if String not identified
+	 */
+	public static int getMinecartTypeID(String type) {
+		int output = -1;
+		if (type.equalsIgnoreCase("chest") || type.equalsIgnoreCase("storage")) {
+			output = 1;
+		} else if (type.equalsIgnoreCase("furnace") || type.equalsIgnoreCase("powered")) {
+			output = 2;
+		} else if (type.equalsIgnoreCase("tnt")) {
+			output = 3;
+		} else if (type.equalsIgnoreCase("mobspawner") || type.equalsIgnoreCase("spawner")) {
+			output = 4;
+		} else if (type.equalsIgnoreCase("hopper")) {
+			output = 5;
+		}
+		return output;
 	}
 	
 	/**
