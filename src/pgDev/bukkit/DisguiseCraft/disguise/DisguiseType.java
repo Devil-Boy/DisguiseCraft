@@ -304,5 +304,6 @@ public enum DisguiseType {
 		"gray, green, lightblue, lime, magenta, orange, pink, purple, red, " +
 		"silver, white, yellow, sheared, charged, tiny, small, big, bigger, massive, godzilla, " +
 		"tamed, aggressive, tabby, tuxedo, siamese, burning, saddled, " +
-		"librarian, priest, blacksmith, butcher, generic, infected, wither";
+		"librarian, priest, blacksmith, butcher, generic, infected, wither, " +
+		"storage, powered, tnt, spawner, hopper";
 }
