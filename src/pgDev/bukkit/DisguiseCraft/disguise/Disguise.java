@@ -224,6 +224,17 @@ public class Disguise {
 		}
 	}
 	
+	public DataWatcher mobNameData(String name) {
+		DataWatcher out = DisguiseType.copyDataWatcher(metadata);
+		try {
+			out.watch(5, name);
+			out.watch(6, (byte) 1);
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not edit metadata in DataWatcher for a " + type.name() + " disguise", e);
+		}
+		return out;
+	}
+	
 	@SuppressWarnings("rawtypes")
 	public void safeAddData(int index, Object value, boolean forcemodify) {
 		try {

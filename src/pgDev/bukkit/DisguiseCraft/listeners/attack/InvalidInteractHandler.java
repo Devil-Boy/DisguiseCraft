@@ -31,7 +31,11 @@ public class InvalidInteractHandler implements Runnable {
 				if (player.getItemInHand().getType() == Material.SHEARS) {
 					Disguise disguise = plugin.disguiseDB.get(attacked.getName());
 					if (disguise.type == DisguiseType.MushroomCow) {
-						((CraftPlayer) player).getHandle().playerConnection.sendPacket(disguise.packetGenerator.getMobSpawnPacket(attacked.getLocation()));
+						if (player.hasPermission("disguisecraft.seer")) {
+							((CraftPlayer) player).getHandle().playerConnection.sendPacket(disguise.packetGenerator.getMobSpawnPacket(attacked.getLocation(), attacked.getName()));
+						} else {
+							((CraftPlayer) player).getHandle().playerConnection.sendPacket(disguise.packetGenerator.getMobSpawnPacket(attacked.getLocation(), null));
+						}
 					}
 				}
 			}

@@ -70,7 +70,7 @@ public enum DisguiseType {
 	 * the current Minecraft server version
 	 */
 	public static LinkedList<DisguiseType> missingDisguises = new LinkedList<DisguiseType>();
-	protected static HashMap<Byte, Object> modelData = new HashMap<Byte, Object>();
+	protected static HashMap<Byte, DataWatcher> modelData = new HashMap<Byte, DataWatcher>();
 	
 	public static Field mapField;
 	public static Field boolField;
@@ -90,7 +90,7 @@ public enum DisguiseType {
 
 	        		try {
 	        			Object ent = Class.forName(mobClass).getConstructor(World.class).newInstance((Object) null);
-	        			modelData.put(m.id, watcherField.get(ent));
+	        			modelData.put(m.id, (DataWatcher) watcherField.get(ent));
 	        		} catch (Exception e) {
 	        			missingDisguises.add(m);
 	        		}
@@ -230,32 +230,9 @@ public enum DisguiseType {
 		return null;
 	}
 	
-	//@SuppressWarnings("rawtypes")
-	@SuppressWarnings("unchecked")
 	public DataWatcher newMetadata() {
 		if (modelData.containsKey(id)) {
-			Object model = modelData.get(id);
-			DataWatcher w = new DataWatcher();
-			
-			// Clone Map
-			try {
-				HashMap<Integer, WatchableObject> modelMap = ((HashMap<Integer, WatchableObject>) mapField.get(model));
-				HashMap<Integer, WatchableObject> newMap = ((HashMap<Integer, WatchableObject>) mapField.get(w));
-				for (Integer index : modelMap.keySet()) {
-					newMap.put(index, copyWatchable(modelMap.get(index)));
-				}
-			} catch (Exception e) {
-				DisguiseCraft.logger.log(Level.SEVERE, "Could not clone map in a " + this.name() + "'s model datawatcher!");
-			}
-			
-			// Clone boolean
-			try {
-				boolField.setBoolean(w, boolField.getBoolean(model));
-			} catch (Exception e) {
-				DisguiseCraft.logger.log(Level.SEVERE, "Could not clone boolean in a " + this.name() + "'s model datawatcher!");
-			}
-			
-			return w;
+			return copyDataWatcher(modelData.get(id));
 		} else {
 			try {
 				return new DataWatcher();
@@ -266,7 +243,32 @@ public enum DisguiseType {
 		}
 	}
 	
-	private WatchableObject copyWatchable(WatchableObject watchable) {
+	@SuppressWarnings("unchecked")
+	public static DataWatcher copyDataWatcher(DataWatcher dw) {
+		DataWatcher w = new DataWatcher();
+		
+		// Clone Map
+		try {
+			HashMap<Integer, WatchableObject> modelMap = ((HashMap<Integer, WatchableObject>) mapField.get(dw));
+			HashMap<Integer, WatchableObject> newMap = ((HashMap<Integer, WatchableObject>) mapField.get(w));
+			for (Integer index : modelMap.keySet()) {
+				newMap.put(index, copyWatchable(modelMap.get(index)));
+			}
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not clone map in a datawatcher!");
+		}
+		
+		// Clone boolean
+		try {
+			boolField.setBoolean(w, boolField.getBoolean(dw));
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not clone boolean in a datawatcher!");
+		}
+		
+		return w;
+	}
+	
+	private static WatchableObject copyWatchable(WatchableObject watchable) {
 		try {
 			return new WatchableObject(watchable.c(), watchable.a(), watchable.b());
 		} catch (Exception e) {

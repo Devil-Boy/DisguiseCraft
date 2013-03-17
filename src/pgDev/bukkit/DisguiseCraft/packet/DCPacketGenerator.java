@@ -46,9 +46,9 @@ public class DCPacketGenerator {
 	}
 	
 	// Vital packet methods
-	public Packet getSpawnPacket(Player disguisee) {
+	public Packet getSpawnPacket(Player disguisee, String name) {
 		if (d.type.isMob()) {
-			return getMobSpawnPacket(disguisee.getLocation());
+			return getMobSpawnPacket(disguisee.getLocation(), name);
 		} else if (d.type.isPlayer()) {
 			return getPlayerSpawnPacket(disguisee.getLocation(), (short) disguisee.getItemInHand().getTypeId());
 		} else {
@@ -58,7 +58,7 @@ public class DCPacketGenerator {
 	
 	public Packet getSpawnPacket(Location loc) {
 		if (d.type.isMob()) {
-			return getMobSpawnPacket(loc);
+			return getMobSpawnPacket(loc, null);
 		} else if (d.type.isPlayer()) {
 			return getPlayerSpawnPacket(loc, (short) 0);
 		} else {
@@ -94,7 +94,7 @@ public class DCPacketGenerator {
 		return new int[] {x, y, z};
 	}
 	
-	public Packet24MobSpawn getMobSpawnPacket(Location loc) {
+	public Packet24MobSpawn getMobSpawnPacket(Location loc, String name) {
 		int[] locVars = getLocationVariables(loc);
 		
 		byte yaw = DisguiseCraft.degreeToByte(loc.getYaw());
@@ -115,10 +115,15 @@ public class DCPacketGenerator {
 		packet.j = pitch;
 		packet.k = yaw;
 		
+		DataWatcher metadata = d.metadata;
+		if (name != null) {
+			metadata = d.mobNameData(name);
+		}
+			
 		try {
 			Field metadataField = packet.getClass().getDeclaredField("t");
 			metadataField.setAccessible(true);
-			metadataField.set(packet, d.metadata);
+			metadataField.set(packet, metadata);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set the metadata for a " + d.type.name() +  " disguise!", e);
 		}

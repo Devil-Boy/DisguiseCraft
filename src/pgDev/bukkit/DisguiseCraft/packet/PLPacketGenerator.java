@@ -2,6 +2,7 @@ package pgDev.bukkit.DisguiseCraft.packet;
 
 import java.util.logging.Level;
 
+import net.minecraft.server.v1_5_R1.DataWatcher;
 import net.minecraft.server.v1_5_R1.Packet20NamedEntitySpawn;
 import net.minecraft.server.v1_5_R1.Packet24MobSpawn;
 import net.minecraft.server.v1_5_R1.Packet29DestroyEntity;
@@ -26,7 +27,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 	
 	// Packet creation methods
 	@Override
-	public Packet24MobSpawn getMobSpawnPacket(Location loc) {
+	public Packet24MobSpawn getMobSpawnPacket(Location loc, String name) {
 		// Make values
 		int[] locVars = getLocationVariables(loc);
 		int eID = d.entityID;
@@ -64,9 +65,15 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		} catch (FieldAccessException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the bytes for a " + d.type.name() +  " disguise!", e);
 		}
+		
+		DataWatcher metadata = d.metadata;
+		if (name != null) {
+			metadata = d.mobNameData(name);
+		}
+		
 		try {
 			pC.getDataWatcherModifier().
-				write(0, new WrappedDataWatcher(d.metadata));
+				write(0, new WrappedDataWatcher(metadata));
 		} catch (FieldAccessException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the metadata for a " + d.type.name() +  " disguise!", e);
 		}

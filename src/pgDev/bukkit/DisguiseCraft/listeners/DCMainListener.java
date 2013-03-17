@@ -44,7 +44,7 @@ public class DCMainListener implements Listener {
 			Disguise disguise = plugin.disguiseDB.get(player.getName());
 			if (disguise.hasPermission(player)) {
 				plugin.disguiseIDs.put(disguise.entityID, player);
-				plugin.sendDisguise(player, null);
+				plugin.disguiseToWorld(player, player.getWorld());
 				if (disguise.type.isPlayer()) {
 					player.sendMessage(ChatColor.GOLD + "You were redisguised as player: " + disguise.data.getFirst());
 				} else {
@@ -94,7 +94,7 @@ public class DCMainListener implements Listener {
 				plugin.unDisguisePlayer(player);
 				plugin.disguiseQuitters.add(player.getName());
 			} else {
-				plugin.sendUnDisguise(player, null);
+				plugin.undisguiseToWorld(player, player.getWorld());
 			}
 		}
 		

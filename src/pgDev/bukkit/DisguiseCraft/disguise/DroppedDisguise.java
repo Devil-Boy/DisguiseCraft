@@ -35,9 +35,9 @@ public class DroppedDisguise extends Disguise {
 		this.location = location;
 	}
 	
-	public LinkedList<Packet> getSpawnPackets(Player player) {
+	public LinkedList<Packet> getSpawnPackets(Player player, String name) {
 		LinkedList<Packet> packets = new LinkedList<Packet>();
-		packets.add(packetGenerator.getSpawnPacket(player));
+		packets.add(packetGenerator.getSpawnPacket(player, name));
 		packets.add(packetGenerator.getEquipmentChangePacket((short) 0, player.getItemInHand()));
 		if (!data.contains("noarmor")) {
 			packets.addAll(packetGenerator.getArmorPackets(player));
