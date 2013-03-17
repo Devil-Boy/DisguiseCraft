@@ -30,20 +30,12 @@ public class PLPacketGenerator extends DCPacketGenerator {
 	public Packet24MobSpawn getMobSpawnPacket(Location loc, String name) {
 		// Make values
 		int[] locVars = getLocationVariables(loc);
+		byte[] yp = getYawPitch(loc);
 		int eID = d.entityID;
 		int mobID = d.type.id;
 		int xPos = locVars[0];
 		int yPos = locVars[1];
 		int zPos = locVars[2];
-		byte bodyYaw = DisguiseCraft.degreeToByte(loc.getYaw());
-		byte headPitch = DisguiseCraft.degreeToByte(loc.getPitch());
-		if (d.type == DisguiseType.EnderDragon) { // Ender Dragon fix
-			bodyYaw = (byte) (bodyYaw - 128);
-		}
-		if (d.type == DisguiseType.Chicken) { // Chicken fix
-			headPitch = (byte) (headPitch * -1);
-		}
-		byte headYaw = bodyYaw;
 		
 		// Make packet
 		PacketContainer pC = pM.createPacket(24);
@@ -59,9 +51,9 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		}
 		try {
 			pC.getBytes().
-				write(0, bodyYaw).
-				write(1, headPitch).
-				write(2, headYaw);
+				write(0, yp[0]).
+				write(1, yp[1]).
+				write(2, yp[0]);
 		} catch (FieldAccessException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the bytes for a " + d.type.name() +  " disguise!", e);
 		}
@@ -84,13 +76,12 @@ public class PLPacketGenerator extends DCPacketGenerator {
 	public Packet20NamedEntitySpawn getPlayerSpawnPacket(Location loc, short item) {
 		// Make Values
 		int[] locVars = getLocationVariables(loc);
+		byte[] yp = getYawPitch(loc);
 		int eID = d.entityID;
         String name = d.data.getFirst();
         int xPos = locVars[0];
         int yPos = locVars[1];
         int zPos = locVars[2];
-        byte yaw = DisguiseCraft.degreeToByte(loc.getYaw());
-        byte pitch = DisguiseCraft.degreeToByte(loc.getPitch());
         
         // Make Packet
         PacketContainer pC = pM.createPacket(20);
@@ -112,8 +103,8 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		}
 		try {
 			pC.getBytes().
-				write(0, yaw).
-				write(1, pitch);
+				write(0, yp[0]).
+				write(1, yp[1]);
 		} catch (FieldAccessException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the bytes for a player disguise!", e);
 		}

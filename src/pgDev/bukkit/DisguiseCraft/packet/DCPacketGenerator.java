@@ -96,14 +96,7 @@ public class DCPacketGenerator {
 	
 	public Packet24MobSpawn getMobSpawnPacket(Location loc, String name) {
 		int[] locVars = getLocationVariables(loc);
-		
-		byte yaw = DisguiseCraft.degreeToByte(loc.getYaw());
-		byte pitch = DisguiseCraft.degreeToByte(loc.getPitch());
-		if (d.type == DisguiseType.EnderDragon) { // Ender Dragon fix
-			yaw = (byte) (yaw - 128);
-		} else if (d.type == DisguiseType.Chicken) { // Chicken fix
-			pitch = (byte) (pitch * -1);
-		}
+		byte[] yp = getYawPitch(loc);
 		
 		Packet24MobSpawn packet = new Packet24MobSpawn();
 		packet.a = d.entityID;
@@ -111,9 +104,9 @@ public class DCPacketGenerator {
 		packet.c = locVars[0];
 		packet.d = locVars[1];
 		packet.e = locVars[2];
-		packet.i = yaw;
-		packet.j = pitch;
-		packet.k = yaw;
+		packet.i = yp[0];
+		packet.j = yp[1];
+		packet.k = yp[0];
 		
 		DataWatcher metadata = d.metadata;
 		if (name != null) {
@@ -132,6 +125,7 @@ public class DCPacketGenerator {
 	
 	public Packet20NamedEntitySpawn getPlayerSpawnPacket(Location loc, short item) {
 		int[] locVars = getLocationVariables(loc);
+		byte[] yp = getYawPitch(loc);
 		
 		Packet20NamedEntitySpawn packet = new Packet20NamedEntitySpawn();
 		packet.a = d.entityID;
@@ -139,8 +133,8 @@ public class DCPacketGenerator {
 		packet.c = locVars[0];
 		packet.d = locVars[1];
 		packet.e = locVars[2];
-		packet.f = DisguiseCraft.degreeToByte(loc.getYaw());
-		packet.g = DisguiseCraft.degreeToByte(loc.getPitch());
+		packet.f = yp[0];
+		packet.g = yp[1];
 		packet.h = item;
 		
 		try {
@@ -211,9 +205,9 @@ public class DCPacketGenerator {
 		byte pitch = DisguiseCraft.degreeToByte(loc.getPitch());
 		if (d.type == DisguiseType.EnderDragon) { // EnderDragon specific
 			yaw = (byte) (yaw - 128);
-		} else if (d.type == DisguiseType.Chicken) { // Chicken fix
+		}/* else if (d.type == DisguiseType.Chicken) { // Chicken fix
 			pitch = (byte) (pitch * -1);
-		} else if (d.type.isVehicle()) { // Vehicle fix
+		}*/ else if (d.type.isVehicle()) { // Vehicle fix
 			yaw = (byte) (yaw - 64);
 		}
 		return new byte[] {yaw, pitch};
