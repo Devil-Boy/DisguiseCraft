@@ -43,7 +43,7 @@
     <defaultGoal>clean package</defaultGoal>
     <directory>target</directory>
     <outputDirectory>target/classes</outputDirectory>
-    <finalName>DisguiseCraft-dev</finalName>
+    <finalName>DisguiseCraft</finalName>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     
     <resources>
