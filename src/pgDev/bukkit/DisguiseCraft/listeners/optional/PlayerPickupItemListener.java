@@ -15,14 +15,12 @@ public class PlayerPickupItemListener implements Listener {
 		this.plugin = plugin;
 	}
 	
-	@EventHandler(priority = EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPickup(PlayerPickupItemEvent event) {
-		if (!event.isCancelled()) {
-			Player player = event.getPlayer();
-			if (plugin.disguiseDB.containsKey(player.getName())) {
-				if (!plugin.disguiseDB.get(player.getName()).type.isObject()) {
-					plugin.sendPacketToWorld(player.getWorld(), plugin.disguiseDB.get(player.getName()).packetGenerator.getPickupPacket(event.getItem().getEntityId()));
-				}
+		Player player = event.getPlayer();
+		if (plugin.disguiseDB.containsKey(player.getName())) {
+			if (!plugin.disguiseDB.get(player.getName()).type.isObject()) {
+				plugin.sendPacketToWorld(player.getWorld(), plugin.disguiseDB.get(player.getName()).packetGenerator.getPickupPacket(event.getItem().getEntityId()));
 			}
 		}
 	}

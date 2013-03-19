@@ -16,22 +16,20 @@ public class EntityDamageListener implements Listener {
 		this.plugin = plugin;
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onDamage(EntityDamageEvent event) {
-		if (!event.isCancelled()) {
-			if (event.getEntity() instanceof Player) {
-				Player player = (Player) event.getEntity();
-				if (plugin.disguiseDB.containsKey(player.getName())) {
-					Disguise disguise = plugin.disguiseDB.get(player.getName());
-					
-					// Send the damage animation
-					plugin.sendPacketToWorld(player.getWorld(), disguise.packetGenerator.getAnimationPacket(2));
-					
-					// Play sound
-					Sound sound = disguise.getDamageSound();
-					if (sound != null) {
-						player.getWorld().playSound(player.getLocation(), sound, 1.0F, 1.0F);
-					}
+		if (event.getEntity() instanceof Player) {
+			Player player = (Player) event.getEntity();
+			if (plugin.disguiseDB.containsKey(player.getName())) {
+				Disguise disguise = plugin.disguiseDB.get(player.getName());
+				
+				// Send the damage animation
+				plugin.sendPacketToWorld(player.getWorld(), disguise.packetGenerator.getAnimationPacket(2));
+				
+				// Play sound
+				Sound sound = disguise.getDamageSound();
+				if (sound != null) {
+					player.getWorld().playSound(player.getLocation(), sound, 1.0F, 1.0F);
 				}
 			}
 		}

@@ -14,15 +14,13 @@ public class PlayerToggleSneakListener implements Listener {
 		this.plugin = plugin;
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onSneak(PlayerToggleSneakEvent event) {
-		if (!event.isCancelled()) {
-			if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
-				Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
-				if (disguise.type.isHumanoid()) {
-					disguise.setCrouch(event.isSneaking());
-					plugin.sendPacketToWorld(event.getPlayer().getWorld(), disguise.packetGenerator.getEntityMetadataPacket());
-				}
+		if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
+			Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
+			if (disguise.type.isHumanoid()) {
+				disguise.setCrouch(event.isSneaking());
+				plugin.sendPacketToWorld(event.getPlayer().getWorld(), disguise.packetGenerator.getEntityMetadataPacket());
 			}
 		}
 	}

@@ -16,15 +16,13 @@ public class PlayerAnimationListener implements Listener {
 		this.plugin = plugin;
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onAnimation(PlayerAnimationEvent event) {
-		if (!event.isCancelled()) {
-			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
-				if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
-					Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
-					if (disguise.type.isPlayer() || disguise.type == DisguiseType.IronGolem) {
-						plugin.sendPacketToWorld(event.getPlayer().getWorld(), disguise.packetGenerator.getAnimationPacket(1));
-					}
+		if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
+			if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
+				Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
+				if (disguise.type.isPlayer() || disguise.type == DisguiseType.IronGolem) {
+					plugin.sendPacketToWorld(event.getPlayer().getWorld(), disguise.packetGenerator.getAnimationPacket(1));
 				}
 			}
 		}

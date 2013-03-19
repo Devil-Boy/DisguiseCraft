@@ -118,21 +118,22 @@ public class DCMainListener implements Listener {
 			// Respawn disguise
 			plugin.sendPacketToWorld(player.getWorld(), plugin.disguiseDB.get(player.getName()).packetGenerator.getSpawnPacket(event.getRespawnLocation()));
 		}
+		
+		//Show the disguises to the player
+		plugin.showWorldDisguises(player);
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onTarget(EntityTargetEvent event) {
-		if (!event.isCancelled()) {
-			if (event.getTarget() instanceof Player) {
-				Player player = (Player) event.getTarget();
-				if (plugin.disguiseDB.containsKey(player.getName())) {
-					if (player.hasPermission("disguisecraft.notarget")) {
-						if (player.hasPermission("disguisecraft.notarget.strict")) {
+		if (event.getTarget() instanceof Player) {
+			Player player = (Player) event.getTarget();
+			if (plugin.disguiseDB.containsKey(player.getName())) {
+				if (player.hasPermission("disguisecraft.notarget")) {
+					if (player.hasPermission("disguisecraft.notarget.strict")) {
+						event.setCancelled(true);
+					} else {
+						if (!plugin.disguiseDB.get(player.getName()).type.isPlayer() && (event.getReason() == TargetReason.CLOSEST_PLAYER || event.getReason() == TargetReason.RANDOM_TARGET)) {
 							event.setCancelled(true);
-						} else {
-							if (!plugin.disguiseDB.get(player.getName()).type.isPlayer() && (event.getReason() == TargetReason.CLOSEST_PLAYER || event.getReason() == TargetReason.RANDOM_TARGET)) {
-								event.setCancelled(true);
-							}
 						}
 					}
 				}
@@ -140,14 +141,12 @@ public class DCMainListener implements Listener {
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPickup(PlayerPickupItemEvent event) {
-		if (!event.isCancelled()) {
-			if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
-				Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
-				if (disguise.data != null && disguise.data.contains("nopickup")) {
-					event.setCancelled(true);
-				}
+		if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
+			Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
+			if (disguise.data != null && disguise.data.contains("nopickup")) {
+				event.setCancelled(true);
 			}
 		}
 	}
