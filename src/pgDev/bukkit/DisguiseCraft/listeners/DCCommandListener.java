@@ -1527,9 +1527,11 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 								for (Entity ent : ents) {
 									if (ent instanceof Player) {
 										Player p = (Player) ent;
-										plugin.unDisguisePlayer(p);
-										undisguisedPlayers.add(p.getName());
-										p.sendMessage(ChatColor.GOLD + "You were undisguised by " + ChatColor.DARK_GREEN + sender.getName());
+										if (plugin.disguiseDB.containsKey(p.getName())) {
+											plugin.unDisguisePlayer(p);
+											undisguisedPlayers.add(p.getName());
+											p.sendMessage(ChatColor.GOLD + "You were undisguised by " + ChatColor.DARK_GREEN + sender.getName());
+										}
 									}
 								}
 								
@@ -1605,7 +1607,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 	}
 	
 	public void sayUndisguised(CommandSender sender, List<String> undisguised) {
-		if (undisguised.size() == 0) {
+		if (undisguised.isEmpty()) {
 			sender.sendMessage(ChatColor.RED + "There was no one to undisguise.");
 		} else {
 			String playerNames = "";
