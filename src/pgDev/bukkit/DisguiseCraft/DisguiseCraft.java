@@ -503,20 +503,16 @@ public class DisguiseCraft extends JavaPlugin {
 			}
 		}
     	
-		if (observer != player) {
-    		if (observer.hasPermission("disguisecraft.seer")) {
-    			toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, player.getName()));
-			} else {
-				toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
-				if (pluginSettings.noTabHide) {
-					packetListener.recentlyDisguised.add(player.getName());
-				}
+		if (observer.hasPermission("disguisecraft.seer")) {
+			toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, player.getName()));
+			if (pluginSettings.noTabHide) {
+				packetListener.recentlyDisguised.add(player.getName());
 			}
-    		observer.hidePlayer(player);
-    		for (Packet p : toSend) {
-    			((CraftPlayer) observer).getHandle().playerConnection.sendPacket(p);
-    		}
+		} else {
+			toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
 		}
+		observer.hidePlayer(player);
+		sendPacketsToObserver(observer, toSend);
     }
     
     public void disguiseToWorld(Player player, World world) {
@@ -541,16 +537,14 @@ public class DisguiseCraft extends JavaPlugin {
 	    	if (observer != player) {
 	    		if (observer.hasPermission("disguisecraft.seer")) {
 	    			toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, player.getName()));
-				} else {
-					toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
-					if (pluginSettings.noTabHide) {
+	    			if (pluginSettings.noTabHide) {
 						packetListener.recentlyDisguised.add(player.getName());
 					}
+				} else {
+					toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
 				}
 	    		observer.hidePlayer(player);
-	    		for (Packet p : toSend) {
-	    			((CraftPlayer) observer).getHandle().playerConnection.sendPacket(p);
-	    		}
+	    		sendPacketsToObserver(observer, toSend);
     		}
     	}
     }
@@ -565,9 +559,7 @@ public class DisguiseCraft extends JavaPlugin {
     	
     	for (Player observer : world.getPlayers()) {
     		if (observer != player) {
-	    		for (Packet p : toSend) {
-	    			((CraftPlayer) observer).getHandle().playerConnection.sendPacket(p);
-	    		}
+    			sendPacketsToObserver(observer, toSend);
 				observer.showPlayer(player);
     		}
     	}
