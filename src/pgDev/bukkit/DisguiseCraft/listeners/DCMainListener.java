@@ -119,8 +119,8 @@ public class DCMainListener implements Listener {
 			plugin.sendPacketToWorld(player.getWorld(), plugin.disguiseDB.get(player.getName()).packetGenerator.getSpawnPacket(event.getRespawnLocation()));
 		}
 		
-		//Show the disguises to the player
-		plugin.showWorldDisguises(player);
+		//Show the disguises to the player (in later ticks)
+		plugin.getServer().getScheduler().runTaskLater(plugin, new DisguiseViewResetter(plugin, player), DisguiseCraft.pluginSettings.respawnResetDelay);
 	}
 	
 	@EventHandler(ignoreCancelled = true)

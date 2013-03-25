@@ -85,3 +85,12 @@ attackInterval=2
 #	you can prevent players from having their name
 #	removed from the client tab list when they disguise.
 noTabHide=false
+
+# Respawn Disguise-View Reset Delay
+#	When a player dies and respawns, the packets for
+#	disguises around him need to be re-sent in order
+#	to prevent invisibility. This option is the number
+#	of ticks to wait after the player has respawned
+#	before sending him the packets of all the disguises
+#	around him.
+respawnResetDelay=20

@@ -1528,6 +1528,11 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									if (ent instanceof Player) {
 										Player p = (Player) ent;
 										if (plugin.disguiseDB.containsKey(p.getName())) {
+											// Pass the event
+											PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(p);
+											plugin.getServer().getPluginManager().callEvent(ev);
+											if (ev.isCancelled()) continue;
+											
 											plugin.unDisguisePlayer(p);
 											undisguisedPlayers.add(p.getName());
 											p.sendMessage(ChatColor.GOLD + "You were undisguised by " + ChatColor.DARK_GREEN + sender.getName());

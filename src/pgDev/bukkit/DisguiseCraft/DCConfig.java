@@ -36,6 +36,7 @@ public class DCConfig {
 	public boolean nopickupDefault;
 	public int attackInterval;
 	public boolean noTabHide;
+	public int respawnResetDelay;
 	
 	public DCConfig(Properties p, final DisguiseCraft plugin) {
 		properties = p;
@@ -69,6 +70,7 @@ public class DCConfig {
         nopickupDefault = getBoolean("nopickupDefault", false);
         attackInterval = getInt("attackInterval", 2);
         noTabHide = getBoolean("noTabHide", false);
+        respawnResetDelay = getInt("respawnResetDelay", 20);
 	}
 	
 	// Value obtaining functions down below
@@ -271,6 +273,15 @@ public class DCConfig {
     		out.write("#	you can prevent players from having their name\r\n");
     		out.write("#	removed from the client tab list when they disguise.\r\n");
     		out.write("noTabHide=" + noTabHide + "\r\n");
+    		out.write("\r\n");
+    		out.write("# Respawn Disguise-View Reset Delay\r\n");
+    		out.write("#	When a player dies and respawns, the packets for\r\n");
+    		out.write("#	disguises around him need to be re-sent in order\r\n");
+    		out.write("#	to prevent invisibility. This option is the number\r\n");
+    		out.write("#	of ticks to wait after the player has respawned\r\n");
+    		out.write("#	before sending him the packets of all the disguises\r\n");
+    		out.write("#	around him.\r\n");
+    		out.write("respawnResetDelay=" + respawnResetDelay + "\r\n");
     		out.close();
     	} catch (Exception e) {
     		DisguiseCraft.logger.log(Level.SEVERE, "There was a problem while writing config to disk", e);
