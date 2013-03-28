@@ -505,7 +505,13 @@ public class DisguiseCraft extends JavaPlugin {
     	
 		if (observer.hasPermission("disguisecraft.seer")) {
 			toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, player.getName()));
-			packetListener.recentlyDisguised.add(player.getName());
+			
+			// Keep them in tab list
+			if (pluginSettings.noTabHide) {
+				packetListener.recentlyDisguised.add(player.getName());
+			} else {
+				toSend.add(new Packet201PlayerInfo(player.getName(), true, ((CraftPlayer) player).getHandle().ping));
+			}
 		} else {
 			toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
 			if (pluginSettings.noTabHide) {
@@ -538,7 +544,13 @@ public class DisguiseCraft extends JavaPlugin {
 	    	if (observer != player) {
 	    		if (observer.hasPermission("disguisecraft.seer")) {
 	    			toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, player.getName()));
-	    			packetListener.recentlyDisguised.add(player.getName());
+	    			
+	    			// Keep them in tab list
+	    			if (pluginSettings.noTabHide) {
+	    				packetListener.recentlyDisguised.add(player.getName());
+	    			} else {
+	    				toSend.add(new Packet201PlayerInfo(player.getName(), true, ((CraftPlayer) player).getHandle().ping));
+	    			}
 				} else {
 					toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
 					if (pluginSettings.noTabHide) {
