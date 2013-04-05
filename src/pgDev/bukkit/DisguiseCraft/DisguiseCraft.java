@@ -92,6 +92,11 @@ public class DisguiseCraft extends JavaPlugin {
     	// Obtain logger
     	logger = getLogger();
     	
+    	// Dynamic package detection
+    	if (!DynamicClassFunctions.setPackages()) {
+    		logger.log(Level.WARNING, "NMS/OBC package could not be detected, using " + DynamicClassFunctions.nmsPackage + " and " + DynamicClassFunctions.obcPackage);
+    	}
+    	
     	// Datawatchers
     	DisguiseType.getDataWatchers();
     }

@@ -83,7 +83,7 @@ public enum DisguiseType {
     		
 			for (DisguiseType m : values()) {
 				if (m.isMob()) {
-					String mobClass = "net.minecraft.server.v1_5_R2.Entity" + m.name();
+					String mobClass = DynamicClassFunctions.nmsPackage + ".Entity" + m.name();
 					if (m == DisguiseType.Giant) {
 	    				mobClass = mobClass + "Zombie";
 	    			}

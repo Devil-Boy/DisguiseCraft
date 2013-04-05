@@ -1,24 +1,25 @@
 package pgDev.bukkit.DisguiseCraft;
-/*
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
+
+//import java.lang.reflect.Constructor;
+//import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.logging.Level;
+//import java.util.LinkedList;
+//import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-*/
+//import org.bukkit.inventory.ItemStack;
+
 public class DynamicClassFunctions {
-	/*
-	public static String nmsPrefix = "net.minecraft.server";
-	public static String obcPrefix = "org.bukkit.craftbukkit";
 	
-	public static String nmsPackage = "";
-	public static String obcPackage = "";
+	//public static String nmsPrefix = "net.minecraft.server";
+	//public static String obcPrefix = "org.bukkit.craftbukkit";
+	
+	public static String nmsPackage = "net.minecraft.server.v1_5_R2";
+	public static String obcPackage = "org.bukkit.craftbukkit.v1_5_R2";
 	
 	public static HashMap<Player, Object> netServerHandlers = new HashMap<Player, Object>();
 
@@ -39,6 +40,7 @@ public class DynamicClassFunctions {
 		return false;
 	}
 	
+	/*
 	public static HashMap<String, Class<?>> classes = new HashMap<String, Class<?>>();
 	public static boolean setClasses() {
 		try {
