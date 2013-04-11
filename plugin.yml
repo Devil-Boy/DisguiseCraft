@@ -31,7 +31,7 @@ permissions:
             disguisecraft.drop: true
             disguisecraft.nopickup: true
             disguisecraft.blocklock: true
-            disguisecraft.player: true
+            disguisecraft.player.*: true
             disguisecraft.mob.*: true
             disguisecraft.object.*: true
             disguisecraft.nopickup: true
