@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>pgDev</groupId>
   <artifactId>DisguiseCraft</artifactId>
-  <version>4.6</version>
+  <version>4.7</version>
   <name>DisguiseCraft ${project.version}</name>
   <url>http://dev.bukkit.org/server-mods/disguisecraft/</url>
   
@@ -29,7 +29,7 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>craftbukkit</artifactId>
-      <version>1.5.1-R0.1-SNAPSHOT</version>
+      <version>1.5.1-R0.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.comphenix.protocol</groupId>

@@ -1,6 +1,5 @@
 package pgDev.bukkit.DisguiseCraft.listeners.optional;
 
-import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,7 +21,7 @@ public class EntityDamageListener implements Listener {
 	public void onDamage(EntityDamageEvent event) {
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
-			if (player.getGameMode() != GameMode.CREATIVE) {
+			if (event.getDamage() <= 0) {
 				if (plugin.disguiseDB.containsKey(player.getName())) {
 					Disguise disguise = plugin.disguiseDB.get(player.getName());
 					
