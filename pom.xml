@@ -23,6 +23,10 @@
       <id>comphenix-rep</id>
       <url>http://repo.comphenix.net/content/groups/public</url>
     </repository>
+    <repository>
+      <id>comphenix-main-repo</id>
+      <url>http://assets.comphenix.net/plugin/repository/everything/</url>
+    </repository>
   </repositories>
   
   <dependencies>
