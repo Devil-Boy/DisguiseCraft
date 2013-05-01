@@ -6,10 +6,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_5_R2.DataWatcher;
-import net.minecraft.server.v1_5_R2.Entity;
-import net.minecraft.server.v1_5_R2.WatchableObject;
-import net.minecraft.server.v1_5_R2.World;
+import net.minecraft.server.v1_5_R3.DataWatcher;
+import net.minecraft.server.v1_5_R3.Entity;
+import net.minecraft.server.v1_5_R3.WatchableObject;
+import net.minecraft.server.v1_5_R3.World;
 
 import org.bukkit.entity.Animals;
 
