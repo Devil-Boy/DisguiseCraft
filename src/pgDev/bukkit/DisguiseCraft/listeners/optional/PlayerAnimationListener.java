@@ -22,7 +22,8 @@ public class PlayerAnimationListener implements Listener {
 			if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
 				Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
 				if (disguise.type.isPlayer() || disguise.type == DisguiseType.IronGolem ||
-						disguise.type == DisguiseType.Zombie || disguise.type == DisguiseType.PigZombie || disguise.type == DisguiseType.Skeleton) {
+						disguise.type == DisguiseType.Zombie || disguise.type == DisguiseType.PigZombie || disguise.type == DisguiseType.Skeleton ||
+						disguise.type == DisguiseType.Giant) {
 					plugin.sendPacketToWorld(event.getPlayer().getWorld(), disguise.packetGenerator.getAnimationPacket(1));
 				}
 			}
