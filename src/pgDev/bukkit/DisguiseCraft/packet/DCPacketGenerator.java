@@ -161,7 +161,7 @@ public class DCPacketGenerator {
     			
     			Byte blockData = d.getBlockData();
     			if (blockData != null) {
-    				data = data | (((int) blockData) << 0xC);
+    				data = data | (((int) blockData) << 0x10);
     			}
     		}
     	}
