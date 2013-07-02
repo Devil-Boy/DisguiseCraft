@@ -6,10 +6,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_5_R3.DataWatcher;
-import net.minecraft.server.v1_5_R3.Entity;
-import net.minecraft.server.v1_5_R3.WatchableObject;
-import net.minecraft.server.v1_5_R3.World;
+import net.minecraft.server.v1_6_R1.DataWatcher;
+import net.minecraft.server.v1_6_R1.Entity;
+import net.minecraft.server.v1_6_R1.WatchableObject;
+import net.minecraft.server.v1_6_R1.World;
 
 import org.bukkit.entity.Animals;
 
@@ -35,6 +35,7 @@ public enum DisguiseType {
 	Enderman(58),
 	Ghast(56),
 	Giant(53),
+	Horse(100),
 	IronGolem(99),
 	MagmaCube(62),
 	MushroomCow(96),
