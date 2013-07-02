@@ -11,6 +11,7 @@ import net.minecraft.server.v1_6_R1.Entity;
 import net.minecraft.server.v1_6_R1.WatchableObject;
 import net.minecraft.server.v1_6_R1.World;
 
+import org.bukkit.craftbukkit.v1_6_R1.CraftWorld;
 import org.bukkit.entity.Animals;
 
 import pgDev.bukkit.DisguiseCraft.*;
@@ -76,7 +77,7 @@ public enum DisguiseType {
 	public static Field mapField;
 	public static Field boolField;
 	
-	public static void getDataWatchers() {
+	public static void getDataWatchers(org.bukkit.World world) {
 		// Get model datawatchers
     	try {
     		Field watcherField = Entity.class.getDeclaredField("datawatcher");
@@ -90,7 +91,7 @@ public enum DisguiseType {
 	    			}
 
 	        		try {
-	        			Object ent = Class.forName(mobClass).getConstructor(World.class).newInstance((Object) null);
+	        			Object ent = Class.forName(mobClass).getConstructor(World.class).newInstance(((CraftWorld) world).getHandle());
 	        			modelData.put(m.id, (DataWatcher) watcherField.get(ent));
 	        		} catch (Exception e) {
 	        			missingDisguises.add(m);

@@ -96,9 +96,6 @@ public class DisguiseCraft extends JavaPlugin {
     	if (!DynamicClassFunctions.setPackages()) {
     		logger.log(Level.WARNING, "NMS/OBC package could not be detected, using " + DynamicClassFunctions.nmsPackage + " and " + DynamicClassFunctions.obcPackage);
     	}
-    	
-    	// Datawatchers
-    	DisguiseType.getDataWatchers();
     }
     
     @Override
@@ -192,6 +189,9 @@ public class DisguiseCraft extends JavaPlugin {
             // Set up statistics!
             setupMetrics();
             
+            // Datawatchers
+        	DisguiseType.getDataWatchers(getServer().getWorlds().get(0));
+            
             // Any mobs missing?
             String missings = "";
             for (DisguiseType mob : DisguiseType.missingDisguises) {
@@ -203,7 +203,7 @@ public class DisguiseCraft extends JavaPlugin {
             	
             }
             if (!missings.equals("")) {
-        		logger.log(Level.WARNING, "The following mobs are not present in this MineCraft version: " + missings);
+        		logger.log(Level.WARNING, "The following mob(s) are not present in this MineCraft version: " + missings);
         	}
             
             // Start up attack processing thread
