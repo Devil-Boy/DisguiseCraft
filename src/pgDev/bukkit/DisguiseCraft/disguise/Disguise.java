@@ -407,6 +407,16 @@ public class Disguise {
 			if (data.contains("wither")) {
 				mWatch(13, (byte) 1);
 			}
+			
+			if (data.contains("donkey")) {
+				mWatch(19, (byte) 1);
+			} else if (data.contains("mule")) {
+				mWatch(19, (byte) 2);
+			} else if (data.contains("undead")) {
+				mWatch(19, (byte) 3);
+			} else if (data.contains("skeletal")) {
+				mWatch(19, (byte) 4);
+			}
 		}
 	}
 	

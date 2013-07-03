@@ -98,6 +98,7 @@ permissions:
             disguisecraft.mob.enderman.hold.metadata: true
             disguisecraft.mob.ghast: true
             disguisecraft.mob.giant: true
+            disguisecraft.mob.horse: true
             disguisecraft.mob.irongolem: true
             disguisecraft.mob.magmacube: true
             disguisecraft.mob.magmacube.size.*: true
@@ -180,6 +181,29 @@ permissions:
     disguisecraft.mob.giant:
         default: op
         description: Can disguise as a giant.
+    disguisecraft.mob.horse:
+        default: op
+        description: Can disguise as a horse.
+    disguisecraft.mob.horse.type.*:
+        default: op
+        description: Can disguise as any horse type.
+        children:
+            disguisecraft.mob.horse.type.donkey: true
+            disguisecraft.mob.horse.type.mule: true
+            disguisecraft.mob.horse.type.undead: true
+            disguisecraft.mob.horse.type.skeletal: true
+    disguisecraft.mob.horse.type.donkey:
+        default: op
+        description: Can disguise as a donkey.
+    disguisecraft.mob.horse.type.mule:
+        default: op
+        description: Can disguise as a mulee.
+    disguisecraft.mob.horse.type.undead:
+        default: op
+        description: Can disguise as an undead horse.
+    disguisecraft.mob.horse.type.skeletal:
+        default: op
+        description: Can disguise as a skeletal horse.
     disguisecraft.mob.irongolem:
         default: op
         description: Can disguise as an iron golem.

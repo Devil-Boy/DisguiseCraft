@@ -309,5 +309,5 @@ public enum DisguiseType {
 		"silver, white, yellow, sheared, charged, tiny, small, big, bigger, massive, godzilla, " +
 		"tamed, aggressive, tabby, tuxedo, siamese, burning, saddled, " +
 		"librarian, priest, blacksmith, butcher, generic, infected, wither, " +
-		"storage, powered, tnt, spawner, hopper";
+		"storage, powered, tnt, spawner, hopper, donkey, mule, undead, skeletal";
 }
