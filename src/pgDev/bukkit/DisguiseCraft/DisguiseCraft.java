@@ -25,8 +25,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
-import org.mcstats.Metrics;
-import org.mcstats.Metrics.Graph;
 
 import pgDev.bukkit.DisguiseCraft.api.DisguiseCraftAPI;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
@@ -37,6 +35,8 @@ import pgDev.bukkit.DisguiseCraft.listeners.attack.AttackProcessor;
 import pgDev.bukkit.DisguiseCraft.listeners.movement.DCPlayerMoveListener;
 import pgDev.bukkit.DisguiseCraft.listeners.movement.DCPlayerPositionUpdater;
 import pgDev.bukkit.DisguiseCraft.packet.MovementValues;
+import pgDev.bukkit.DisguiseCraft.stats.Metrics;
+import pgDev.bukkit.DisguiseCraft.stats.Metrics.Graph;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
