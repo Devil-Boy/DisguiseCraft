@@ -18,8 +18,8 @@ public class DynamicClassFunctions {
 	//public static String nmsPrefix = "net.minecraft.server";
 	//public static String obcPrefix = "org.bukkit.craftbukkit";
 	
-	public static String nmsPackage = "net.minecraft.server.v1_6_R1";
-	public static String obcPackage = "org.bukkit.craftbukkit.v1_6_R1";
+	public static String nmsPackage = "net.minecraft.server.v1_6_R2";
+	public static String obcPackage = "org.bukkit.craftbukkit.v1_6_R2";
 	
 	public static HashMap<Player, Object> netServerHandlers = new HashMap<Player, Object>();
 
