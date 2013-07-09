@@ -848,7 +848,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					if (type == null) {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
-						if (type == DisguiseType.Pig) {
+						if (type == DisguiseType.Pig || type == DisguiseType.Horse) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".saddled")) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();

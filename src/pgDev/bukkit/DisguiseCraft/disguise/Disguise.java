@@ -227,8 +227,8 @@ public class Disguise {
 	public DataWatcher mobNameData(String name) {
 		DataWatcher out = DisguiseType.copyDataWatcher(metadata);
 		try {
-			out.watch(5, name);
-			out.watch(6, (byte) 1);
+			out.watch(10, name);
+			out.watch(11, (byte) 1);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not edit metadata in DataWatcher for a " + type.name() + " disguise", e);
 		}
@@ -353,15 +353,15 @@ public class Disguise {
 			if (type == DisguiseType.Wolf) {
 				byte flags = 0;
 				if (data.contains("sitting")) {
-					firstIndex = (byte) (flags | 0x01);
+					flags = (byte) (flags | 0x01);
 				}
 				if (data.contains("aggressive")) {
-					firstIndex = (byte) (flags | 0x02);
+					flags = (byte) (flags | 0x02);
 				}
 				if (data.contains("tamed")) {
-					firstIndex = (byte) (flags | 0x04);
+					flags = (byte) (flags | 0x04);
 				}
-				mWatch(16, firstIndex);
+				mWatch(16, flags);
 			}
 			
 			if (data.contains("tabby")) {
@@ -372,7 +372,7 @@ public class Disguise {
 				mWatch(18, (byte) 3);
 			}
 			
-			if (data.contains("saddled")) {
+			if (type == DisguiseType.Pig && data.contains("saddled")) {
 				mWatch(16, (byte) 1);
 			}
 			
@@ -408,14 +408,31 @@ public class Disguise {
 				mWatch(13, (byte) 1);
 			}
 			
-			if (data.contains("donkey")) {
-				mWatch(19, (byte) 1);
-			} else if (data.contains("mule")) {
-				mWatch(19, (byte) 2);
-			} else if (data.contains("undead")) {
-				mWatch(19, (byte) 3);
-			} else if (data.contains("skeletal")) {
-				mWatch(19, (byte) 4);
+			if (type == DisguiseType.Horse) {
+				if (data.contains("donkey")) {
+					mWatch(19, (byte) 1);
+				} else if (data.contains("mule")) {
+					mWatch(19, (byte) 2);
+				} else if (data.contains("undead")) {
+					mWatch(19, (byte) 3);
+				} else if (data.contains("skeletal")) {
+					mWatch(19, (byte) 4);
+				}
+				
+				int flags = 0;
+				if (data.contains("saddled")) {
+					flags = (byte) (flags | 0x04);
+				}
+				if (data.contains("carrier")) {
+					flags = (byte) (flags | 0x08);
+				}
+				if (data.contains("rearing")) {
+					flags = (byte) (flags | 0x64);
+				}
+				if (data.contains("openmouth")) {
+					flags = (byte) (flags | 0x128);
+				}
+				mWatch(16, flags);
 			}
 		}
 	}

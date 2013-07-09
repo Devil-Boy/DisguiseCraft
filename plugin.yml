@@ -99,6 +99,7 @@ permissions:
             disguisecraft.mob.ghast: true
             disguisecraft.mob.giant: true
             disguisecraft.mob.horse: true
+            disguisecraft.mob.horse.saddled: true
             disguisecraft.mob.irongolem: true
             disguisecraft.mob.magmacube: true
             disguisecraft.mob.magmacube.size.*: true
@@ -184,6 +185,9 @@ permissions:
     disguisecraft.mob.horse:
         default: op
         description: Can disguise as a horse.
+    disguisecraft.mob.horse.saddled:
+        default: op
+        description: Can disguise as a saddled horse.
     disguisecraft.mob.horse.type.*:
         default: op
         description: Can disguise as any horse type.
