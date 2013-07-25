@@ -18,6 +18,8 @@ public class DCPlayerPositionUpdater implements Runnable {
 
 	@Override
 	public void run() {
-		plugin.sendMovement(player, null, player.getVelocity(), player.getLocation());
+		if (!disguise.data.contains("nomove")) {
+			plugin.sendMovement(player, null, player.getVelocity(), player.getLocation());
+		}
 	}
 }

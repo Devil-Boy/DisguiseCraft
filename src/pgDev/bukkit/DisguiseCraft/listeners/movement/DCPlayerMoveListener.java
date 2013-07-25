@@ -5,6 +5,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
+import pgDev.bukkit.DisguiseCraft.disguise.Disguise;
 
 public class DCPlayerMoveListener implements Listener {
 	final DisguiseCraft plugin;
@@ -16,8 +17,11 @@ public class DCPlayerMoveListener implements Listener {
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
 		// Track player movements in order to synchronize their disguise
-		if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
-			plugin.sendMovement(event.getPlayer(), null, event.getPlayer().getVelocity(), event.getTo());
+		Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
+		if (disguise != null) {
+			if (!disguise.data.contains("nomove")) {
+				plugin.sendMovement(event.getPlayer(), null, event.getPlayer().getVelocity(), event.getTo());
+			}
 		}
 	}
 }
