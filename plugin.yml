@@ -100,6 +100,7 @@ permissions:
             disguisecraft.mob.giant: true
             disguisecraft.mob.horse: true
             disguisecraft.mob.horse.saddled: true
+            disguisecraft.mob.horse.type.*: true
             disguisecraft.mob.irongolem: true
             disguisecraft.mob.magmacube: true
             disguisecraft.mob.magmacube.size.*: true
