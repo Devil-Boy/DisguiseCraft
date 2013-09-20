@@ -2,10 +2,10 @@ package pgDev.bukkit.DisguiseCraft.packet;
 
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_6_R2.DataWatcher;
-import net.minecraft.server.v1_6_R2.Packet20NamedEntitySpawn;
-import net.minecraft.server.v1_6_R2.Packet24MobSpawn;
-import net.minecraft.server.v1_6_R2.Packet29DestroyEntity;
+import net.minecraft.server.v1_6_R3.DataWatcher;
+import net.minecraft.server.v1_6_R3.Packet20NamedEntitySpawn;
+import net.minecraft.server.v1_6_R3.Packet24MobSpawn;
+import net.minecraft.server.v1_6_R3.Packet29DestroyEntity;
 
 import org.bukkit.Location;
 
