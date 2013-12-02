@@ -1,8 +1,10 @@
 package pgDev.bukkit.DisguiseCraft.disguise;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -75,7 +77,7 @@ public enum DisguiseType {
 	protected static HashMap<Byte, DataWatcher> modelData = new HashMap<Byte, DataWatcher>();
 	
 	public static Field mapField;
-	public static Field boolField;
+	public static List<Field> boolFields = new LinkedList<Field>();
 	
 	public static void getDataWatchers(org.bukkit.World world) {
 		// Get model datawatchers
@@ -103,29 +105,26 @@ public enum DisguiseType {
 		}
     	
     	// Store important fields
-    	int searchingFor = 0; // 0 = Map, 1 = boolean
-		for (Field f : DataWatcher.class.getDeclaredFields()) {
-			f.setAccessible(true);
-			if (searchingFor == 0) {
-				if (f.getType() == Map.class) {
-					try {
-						mapField = f;
-					} catch (Exception e) {
-						DisguiseCraft.logger.log(Level.SEVERE, "Could not find the DataWatcher Map");
-					}
-					searchingFor++;
-				}
-			} else if (searchingFor == 1) {
-				if (f.getType() == boolean.class) {
-					try {
-						boolField = f;
-					} catch (Exception e) {
-						DisguiseCraft.logger.log(Level.SEVERE, "Could not find the DataWatcher boolean!");
-					}
-					searchingFor++;
-				}
-			}
-		}
+    	for (Field f : DataWatcher.class.getDeclaredFields()) {
+    		if (f.getType() == Map.class) {
+    			if (!Modifier.isStatic(f.getModifiers())) {
+    				f.setAccessible(true);
+    				mapField = f;
+    			}
+    		} else if (f.getType() == boolean.class) {
+    			if (!Modifier.isStatic(f.getModifiers())) {
+    				f.setAccessible(true);
+    				boolFields.add(f);
+    			}
+    		}
+    	}
+    	
+    	if (mapField == null) {
+    		DisguiseCraft.logger.log(Level.SEVERE, "Could not find the DataWatcher Map");
+    	}
+    	if (boolFields.isEmpty()) {
+    		DisguiseCraft.logger.log(Level.SEVERE, "Could not find any DataWatcher booleans!");
+    	}
 	}
 	
 	/**
@@ -237,7 +236,7 @@ public enum DisguiseType {
 			return copyDataWatcher(modelData.get(id));
 		} else {
 			try {
-				return new DataWatcher();
+				return new DataWatcher(null);
 			} catch (Exception e) {
 				DisguiseCraft.logger.log(Level.SEVERE, "Could not construct a new DataWatcher", e);
 				return null;
@@ -247,7 +246,7 @@ public enum DisguiseType {
 	
 	@SuppressWarnings("unchecked")
 	public static DataWatcher copyDataWatcher(DataWatcher dw) {
-		DataWatcher w = new DataWatcher();
+		DataWatcher w = new DataWatcher(null);
 		
 		// Clone Map
 		try {
@@ -262,7 +261,9 @@ public enum DisguiseType {
 		
 		// Clone boolean
 		try {
-			boolField.setBoolean(w, boolField.getBoolean(dw));
+			for (Field boolField : boolFields) {
+				boolField.setBoolean(w, boolField.getBoolean(dw));
+			}
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not clone boolean in a datawatcher!");
 		}

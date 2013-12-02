@@ -3,9 +3,9 @@ package pgDev.bukkit.DisguiseCraft.packet;
 import java.util.logging.Level;
 
 import net.minecraft.server.v1_7_R1.DataWatcher;
-import net.minecraft.server.v1_7_R1.Packet20NamedEntitySpawn;
-import net.minecraft.server.v1_7_R1.Packet24MobSpawn;
-import net.minecraft.server.v1_7_R1.Packet29DestroyEntity;
+import net.minecraft.server.v1_7_R1.PacketPlayOutNamedEntitySpawn;
+import net.minecraft.server.v1_7_R1.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.server.v1_7_R1.PacketPlayOutEntityDestroy;
 
 import org.bukkit.Location;
 
@@ -27,7 +27,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 	
 	// Packet creation methods
 	@Override
-	public Packet24MobSpawn getMobSpawnPacket(Location loc, String name) {
+	public PacketPlayOutSpawnEntityLiving getMobSpawnPacket(Location loc, String name) {
 		// Make values
 		int[] locVars = getLocationVariables(loc);
 		byte[] yp = getYawPitch(loc);
@@ -69,11 +69,11 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		} catch (FieldAccessException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the metadata for a " + d.type.name() +  " disguise!", e);
 		}
-		return (Packet24MobSpawn) pC.getHandle();
+		return (PacketPlayOutSpawnEntityLiving) pC.getHandle();
 	}
 	
 	@Override
-	public Packet20NamedEntitySpawn getPlayerSpawnPacket(Location loc, short item) {
+	public PacketPlayOutNamedEntitySpawn getPlayerSpawnPacket(Location loc, short item) {
 		// Make Values
 		int[] locVars = getLocationVariables(loc);
 		byte[] yp = getYawPitch(loc);
@@ -114,11 +114,11 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		} catch (FieldAccessException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the metadata for a player disguise!", e);
 		}
-        return (Packet20NamedEntitySpawn) pC.getHandle();
+        return (PacketPlayOutNamedEntitySpawn) pC.getHandle();
 	}
 	
 	@Override
-	public Packet29DestroyEntity getEntityDestroyPacket() {
+	public PacketPlayOutEntityDestroy getEntityDestroyPacket() {
 		PacketContainer pC = pM.createPacket(29);
 		StructureModifier<int[]> intPos = pC.getIntegerArrays();
 		if (intPos.size() > 0) {
@@ -136,6 +136,6 @@ public class PLPacketGenerator extends DCPacketGenerator {
 				DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the integer for a destroy packet!", e);
 			}
 		}
-		return (Packet29DestroyEntity) pC.getHandle();
+		return (PacketPlayOutEntityDestroy) pC.getHandle();
 	}
 }

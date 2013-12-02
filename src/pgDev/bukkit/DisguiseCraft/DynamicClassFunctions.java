@@ -61,21 +61,21 @@ public class DynamicClassFunctions {
 			classes.put("EntityHuman", Class.forName(nmsPackage + ".EntityHuman"));
 			
 			// Packets
-			classes.put("Packet24MobSpawn", Class.forName(nmsPackage + ".Packet24MobSpawn"));
-			classes.put("Packet20NamedEntitySpawn", Class.forName(nmsPackage + ".Packet20NamedEntitySpawn"));
-			classes.put("Packet23VehicleSpawn", Class.forName(nmsPackage + ".Packet23VehicleSpawn"));
-			classes.put("Packet29DestroyEntity", Class.forName(nmsPackage + ".Packet29DestroyEntity"));
-			classes.put("Packet5EntityEquipment", Class.forName(nmsPackage + ".Packet5EntityEquipment"));
-			classes.put("Packet32EntityLook", Class.forName(nmsPackage + ".Packet32EntityLook"));
-			classes.put("Packet33RelEntityMoveLook", Class.forName(nmsPackage + ".Packet33RelEntityMoveLook"));
-			classes.put("Packet34EntityTeleport", Class.forName(nmsPackage + ".Packet34EntityTeleport"));
-			classes.put("Packet40EntityMetadata", Class.forName(nmsPackage + ".Packet40EntityMetadata"));
-			classes.put("Packet201PlayerInfo", Class.forName(nmsPackage + ".Packet201PlayerInfo"));
-			classes.put("Packet35EntityHeadRotation", Class.forName(nmsPackage + ".Packet35EntityHeadRotation"));
-			classes.put("Packet18ArmAnimation", Class.forName(nmsPackage + ".Packet18ArmAnimation"));
-			classes.put("Packet38EntityStatus", Class.forName(nmsPackage + ".Packet38EntityStatus"));
-			classes.put("Packet22Collect", Class.forName(nmsPackage + ".Packet22Collect"));
-			classes.put("Packet28EntityVelocity", Class.forName(nmsPackage + ".Packet28EntityVelocity"));
+			classes.put("PacketPlayOutSpawnEntityLiving", Class.forName(nmsPackage + ".PacketPlayOutSpawnEntityLiving"));
+			classes.put("PacketPlayOutNamedEntitySpawn", Class.forName(nmsPackage + ".PacketPlayOutNamedEntitySpawn"));
+			classes.put("PacketPlayOutSpawnEntity", Class.forName(nmsPackage + ".PacketPlayOutSpawnEntity"));
+			classes.put("PacketPlayOutEntityDestroy", Class.forName(nmsPackage + ".PacketPlayOutEntityDestroy"));
+			classes.put("PacketPlayOutEntityEquipment", Class.forName(nmsPackage + ".PacketPlayOutEntityEquipment"));
+			classes.put("PacketPlayOutEntityLook", Class.forName(nmsPackage + ".PacketPlayOutEntityLook"));
+			classes.put("PacketPlayOutRelEntityMoveLook", Class.forName(nmsPackage + ".PacketPlayOutRelEntityMoveLook"));
+			classes.put("PacketPlayOutEntityTeleport", Class.forName(nmsPackage + ".PacketPlayOutEntityTeleport"));
+			classes.put("PacketPlayOutEntityMetadata", Class.forName(nmsPackage + ".PacketPlayOutEntityMetadata"));
+			classes.put("PacketPlayOutPlayerInfo", Class.forName(nmsPackage + ".PacketPlayOutPlayerInfo"));
+			classes.put("PacketPlayOutEntityHeadRotation", Class.forName(nmsPackage + ".PacketPlayOutEntityHeadRotation"));
+			classes.put("PacketPlayOutAnimation", Class.forName(nmsPackage + ".PacketPlayOutAnimation"));
+			classes.put("PacketPlayOutEntityStatus", Class.forName(nmsPackage + ".PacketPlayOutEntityStatus"));
+			classes.put("PacketPlayOutCollect", Class.forName(nmsPackage + ".PacketPlayOutCollect"));
+			classes.put("PacketPlayOutEntityVelocity", Class.forName(nmsPackage + ".PacketPlayOutEntityVelocity"));
 			return true;
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not aquire a required class", e);
@@ -220,7 +220,7 @@ public class DynamicClassFunctions {
 		}
 	}
 	
-	public static String equipmentChangePacketName = "Packet5EntityEquipment";
+	public static String equipmentChangePacketName = "PacketPlayOutEntityEquipment";
 	public static Object constructEquipmentChangePacket(int entityID, short slot, ItemStack item) {
 		try {
 			Constructor<?> ctor = classes.get(equipmentChangePacketName).getConstructor(int.class, int.class, classes.get("ItemStack"));
@@ -237,7 +237,7 @@ public class DynamicClassFunctions {
 		}
 	}
 	
-	public static String entityMetadataPacketName = "Packet40EntityMetadata";
+	public static String entityMetadataPacketName = "PacketPlayOutEntityMetadata";
 	public static Object constructMetadataPacket(int entityID, Object dataWatcher) {
 		try {
 			Constructor<?> ctor = classes.get(entityMetadataPacketName).getConstructor(int.class, classes.get("DataWatcher"), boolean.class);

@@ -7,21 +7,22 @@ import java.util.logging.Level;
 import net.minecraft.server.v1_7_R1.DataWatcher;
 import net.minecraft.server.v1_7_R1.MathHelper;
 import net.minecraft.server.v1_7_R1.Packet;
-import net.minecraft.server.v1_7_R1.Packet18ArmAnimation;
-import net.minecraft.server.v1_7_R1.Packet201PlayerInfo;
-import net.minecraft.server.v1_7_R1.Packet20NamedEntitySpawn;
-import net.minecraft.server.v1_7_R1.Packet22Collect;
-import net.minecraft.server.v1_7_R1.Packet23VehicleSpawn;
-import net.minecraft.server.v1_7_R1.Packet24MobSpawn;
-import net.minecraft.server.v1_7_R1.Packet28EntityVelocity;
-import net.minecraft.server.v1_7_R1.Packet29DestroyEntity;
-import net.minecraft.server.v1_7_R1.Packet32EntityLook;
-import net.minecraft.server.v1_7_R1.Packet33RelEntityMoveLook;
-import net.minecraft.server.v1_7_R1.Packet34EntityTeleport;
-import net.minecraft.server.v1_7_R1.Packet35EntityHeadRotation;
-import net.minecraft.server.v1_7_R1.Packet38EntityStatus;
-import net.minecraft.server.v1_7_R1.Packet40EntityMetadata;
-import net.minecraft.server.v1_7_R1.Packet5EntityEquipment;
+import net.minecraft.server.v1_7_R1.PacketPlayOutAnimation;
+import net.minecraft.server.v1_7_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_7_R1.PacketPlayOutNamedEntitySpawn;
+import net.minecraft.server.v1_7_R1.PacketPlayOutCollect;
+import net.minecraft.server.v1_7_R1.PacketPlayOutSpawnEntity;
+import net.minecraft.server.v1_7_R1.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.server.v1_7_R1.PacketPlayOutEntityVelocity;
+import net.minecraft.server.v1_7_R1.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_7_R1.PacketPlayOutEntityLook;
+import net.minecraft.server.v1_7_R1.PacketPlayOutRelEntityMoveLook;
+import net.minecraft.server.v1_7_R1.PacketPlayOutEntityTeleport;
+import net.minecraft.server.v1_7_R1.PacketPlayOutEntityHeadRotation;
+import net.minecraft.server.v1_7_R1.PacketPlayOutEntityStatus;
+import net.minecraft.server.v1_7_R1.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_7_R1.PacketPlayOutEntityEquipment;
+import net.minecraft.util.com.mojang.authlib.GameProfile;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -94,61 +95,96 @@ public class DCPacketGenerator {
 		return new int[] {x, y, z};
 	}
 	
-	public Packet24MobSpawn getMobSpawnPacket(Location loc, String name) {
+	public PacketPlayOutSpawnEntityLiving getMobSpawnPacket(Location loc, String name) {
 		int[] locVars = getLocationVariables(loc);
 		byte[] yp = getYawPitch(loc);
-		
-		Packet24MobSpawn packet = new Packet24MobSpawn();
-		packet.a = d.entityID;
-		packet.b = d.type.id;
-		packet.c = locVars[0];
-		packet.d = locVars[1];
-		packet.e = locVars[2];
-		packet.i = yp[0];
-		packet.j = yp[1];
-		packet.k = yp[0];
 		
 		DataWatcher metadata = d.metadata;
 		if (name != null) {
 			metadata = d.mobNameData(name);
 		}
-			
+		
+		PacketPlayOutSpawnEntityLiving packet = new PacketPlayOutSpawnEntityLiving();
+		
 		try {
-			Field metadataField = packet.getClass().getDeclaredField("t");
+			Field idField = packet.getClass().getDeclaredField("a");
+			Field typeField = packet.getClass().getDeclaredField("b");
+			Field xField = packet.getClass().getDeclaredField("c");
+			Field yField = packet.getClass().getDeclaredField("d");
+			Field zField = packet.getClass().getDeclaredField("e");
+			Field yawField = packet.getClass().getDeclaredField("i");
+			Field pitchField = packet.getClass().getDeclaredField("j");
+			Field headYawField = packet.getClass().getDeclaredField("k");
+			Field metadataField = packet.getClass().getDeclaredField("l");
+			
+			idField.setAccessible(true);
+			typeField.setAccessible(true);
+			xField.setAccessible(true);
+			yField.setAccessible(true);
+			zField.setAccessible(true);
+			yawField.setAccessible(true);
+			pitchField.setAccessible(true);
+			headYawField.setAccessible(true);
 			metadataField.setAccessible(true);
+			
+			idField.set(packet, d.entityID);
+			typeField.set(packet, d.type.id);
+			xField.set(packet, locVars[0]);
+			yField.set(packet, locVars[1]);
+			zField.set(packet, locVars[2]);
+			yawField.set(packet, yp[0]);
+			pitchField.set(packet, yp[1]);
+			headYawField.set(packet, yp[0]);
 			metadataField.set(packet, metadata);
 		} catch (Exception e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set the metadata for a " + d.type.name() +  " disguise!", e);
+			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set a field for a " + d.type.name() +  " disguise!", e);
 		}
 		return packet;
 	}
 	
-	public Packet20NamedEntitySpawn getPlayerSpawnPacket(Location loc, short item) {
+	public PacketPlayOutNamedEntitySpawn getPlayerSpawnPacket(Location loc, short item) {
 		int[] locVars = getLocationVariables(loc);
 		byte[] yp = getYawPitch(loc);
 		
-		Packet20NamedEntitySpawn packet = new Packet20NamedEntitySpawn();
-		packet.a = d.entityID;
-		packet.b = d.data.getFirst();
-		packet.c = locVars[0];
-		packet.d = locVars[1];
-		packet.e = locVars[2];
-		packet.f = yp[0];
-		packet.g = yp[1];
-		packet.h = item;
+		PacketPlayOutNamedEntitySpawn packet = new PacketPlayOutNamedEntitySpawn();
 		
 		try {
+			Field idField = packet.getClass().getDeclaredField("a");
+			Field profileField = packet.getClass().getDeclaredField("b");
+			Field xField = packet.getClass().getDeclaredField("c");
+			Field yField = packet.getClass().getDeclaredField("d");
+			Field zField = packet.getClass().getDeclaredField("e");
+			Field yawField = packet.getClass().getDeclaredField("f");
+			Field pitchField = packet.getClass().getDeclaredField("g");
+			Field itemField = packet.getClass().getDeclaredField("h");
 			Field metadataField = packet.getClass().getDeclaredField("i");
+			
+			idField.setAccessible(true);
+			profileField.setAccessible(true);
+			xField.setAccessible(true);
+			yField.setAccessible(true);
+			zField.setAccessible(true);
+			yawField.setAccessible(true);
+			pitchField.setAccessible(true);
+			itemField.setAccessible(true);
 			metadataField.setAccessible(true);
+			
+			idField.set(packet, d.entityID);
+			profileField.set(packet, new GameProfile(d.data.getFirst(), d.data.getFirst())); // Constructor: public GameProfile(String id, String name)
+			xField.set(packet, locVars[0]);
+			yField.set(packet, locVars[1]);
+			zField.set(packet, locVars[2]);
+			yawField.set(packet, yp[0]);
+			pitchField.set(packet, yp[1]);
+			itemField.set(packet, item);
 			metadataField.set(packet, d.metadata);
 		} catch (Exception e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set the metadata for a player disguise!", e);
+			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set a field for a player disguise!", e);
 		}
 		return packet;
 	}
 	
-	public Packet23VehicleSpawn getObjectSpawnPacket(Location loc) {
-		Packet23VehicleSpawn packet = new Packet23VehicleSpawn();
+	public PacketPlayOutSpawnEntity getObjectSpawnPacket(Location loc) {
 		int data = 0;
 		
 		// Block specific
@@ -176,28 +212,58 @@ public class DCPacketGenerator {
     	
     	int[] locVars = getLocationVariables(loc);
     	byte[] yp = getYawPitch(loc);
-		
-		packet.a = d.entityID;
-		packet.b = locVars[0];
-		packet.c = locVars[1];
-		packet.d = locVars[2];
-		packet.e = 0;
-		packet.f = 0;
-		packet.g = 0;
-		packet.h = yp[1];
-		packet.i = yp[0];
-		packet.j = d.type.id;
-		packet.k = data;
+    	
+    	PacketPlayOutSpawnEntity packet = new PacketPlayOutSpawnEntity();
+    	
+    	try {
+    		Field idField = packet.getClass().getDeclaredField("a");
+    		Field locXField = packet.getClass().getDeclaredField("b");
+    		Field locYField = packet.getClass().getDeclaredField("c");
+    		Field locZField = packet.getClass().getDeclaredField("d");
+    		Field velXField = packet.getClass().getDeclaredField("e");
+    		Field velYField = packet.getClass().getDeclaredField("f");
+    		Field velZField = packet.getClass().getDeclaredField("g");
+    		Field pitchField = packet.getClass().getDeclaredField("h");
+    		Field yawField = packet.getClass().getDeclaredField("i");
+    		Field typeField = packet.getClass().getDeclaredField("j");
+    		Field dataField = packet.getClass().getDeclaredField("k");
+    		
+    		idField.setAccessible(true);
+    		locXField.setAccessible(true);
+    		locYField.setAccessible(true);
+    		locZField.setAccessible(true);
+    		velXField.setAccessible(true);
+    		velYField.setAccessible(true);
+    		velZField.setAccessible(true);
+    		pitchField.setAccessible(true);
+    		yawField.setAccessible(true);
+    		typeField.setAccessible(true);
+    		dataField.setAccessible(true);
+    		
+    		idField.set(packet, d.entityID);
+    		locXField.set(packet, locVars[0]);
+    		locYField.set(packet, locVars[1]);
+    		locZField.set(packet, locVars[2]);
+    		velXField.set(packet, 0);
+    		velYField.set(packet, 0);
+    		velZField.set(packet, 0);
+    		pitchField.set(packet, yp[1]);
+    		yawField.set(packet, yp[0]);
+    		typeField.set(packet, d.type.id);
+    		dataField.set(packet, data);
+    	} catch (Exception e) {
+    		DisguiseCraft.logger.log(Level.SEVERE, "Unable to set a field for a " + d.type.name() +  " disguise!", e);
+		}
 		
 		return packet;
 	}
 	
-	public Packet29DestroyEntity getEntityDestroyPacket() {
-		return new Packet29DestroyEntity(new int[] {d.entityID});
+	public PacketPlayOutEntityDestroy getEntityDestroyPacket() {
+		return new PacketPlayOutEntityDestroy(new int[] {d.entityID});
 	}
 	
-	public Packet5EntityEquipment getEquipmentChangePacket(short slot, ItemStack item) {
-		return new Packet5EntityEquipment(d.entityID, slot, (item == null) ? null : CraftItemStack.asNMSCopy(item));
+	public PacketPlayOutEntityEquipment getEquipmentChangePacket(short slot, ItemStack item) {
+		return new PacketPlayOutEntityEquipment(d.entityID, slot, (item == null) ? null : CraftItemStack.asNMSCopy(item));
 	}
 	
 	public byte[] getYawPitch(Location loc) {
@@ -213,12 +279,12 @@ public class DCPacketGenerator {
 		return new byte[] {yaw, pitch};
 	}
 	
-	public Packet32EntityLook getEntityLookPacket(Location loc) {
+	public PacketPlayOutEntityLook getEntityLookPacket(Location loc) {
 		byte[] yp = getYawPitch(loc);
-		return new Packet32EntityLook(d.entityID, yp[0], yp[1]);
+		return new PacketPlayOutEntityLook(d.entityID, yp[0], yp[1]);
 	}
 	
-	public Packet33RelEntityMoveLook getEntityMoveLookPacket(Location loc) {
+	public PacketPlayOutRelEntityMoveLook getEntityMoveLookPacket(Location loc) {
 		byte[] yp = getYawPitch(loc);
 		
 		MovementValues movement = getMovement(loc);
@@ -226,12 +292,12 @@ public class DCPacketGenerator {
 		encposY += movement.y;
 		encposZ += movement.z;
 		
-		return new Packet33RelEntityMoveLook(d.entityID,
+		return new PacketPlayOutRelEntityMoveLook(d.entityID,
 				(byte) movement.x, (byte) movement.y, (byte) movement.z,
 				yp[0], yp[1]);
 	}
 	
-	public Packet34EntityTeleport getEntityTeleportPacket(Location loc) {
+	public PacketPlayOutEntityTeleport getEntityTeleportPacket(Location loc) {
 		byte[] yp = getYawPitch(loc);
 		
 		int x = (int) MathHelper.floor(32D * loc.getX());
@@ -242,16 +308,16 @@ public class DCPacketGenerator {
 		encposY = y;
 		encposZ = z;
 		
-		return new Packet34EntityTeleport(d.entityID,
+		return new PacketPlayOutEntityTeleport(d.entityID,
 				x, y, z,
 				yp[0], yp[1]);
 	}
 	
-	public Packet40EntityMetadata getEntityMetadataPacket() {
-		return new Packet40EntityMetadata(d.entityID, (DataWatcher) d.metadata, true); // 1.4.2 update: true-same method as 1.3.2
+	public PacketPlayOutEntityMetadata getEntityMetadataPacket() {
+		return new PacketPlayOutEntityMetadata(d.entityID, (DataWatcher) d.metadata, true); // 1.4.2 update: true-same method as 1.3.2
 	}
 	
-	public Packet201PlayerInfo getPlayerInfoPacket(Player player, boolean show) {
+	public PacketPlayOutPlayerInfo getPlayerInfoPacket(Player player, boolean show) {
 		if (d.type.isPlayer()) {
 			int ping;
 			if (show) {
@@ -260,7 +326,7 @@ public class DCPacketGenerator {
 				ping = 9999;
 			}
 			
-			return new Packet201PlayerInfo(d.data.getFirst(), show, ping);
+			return new PacketPlayOutPlayerInfo(d.data.getFirst(), show, ping);
 		} else {
 			return null;
 		}
@@ -276,40 +342,98 @@ public class DCPacketGenerator {
 		return new MovementValues(diffx, diffy, diffz, DisguiseCraft.degreeToByte(to.getYaw()), DisguiseCraft.degreeToByte(to.getPitch()));
 	}
 	
-	public Packet35EntityHeadRotation getHeadRotatePacket(Location loc) {
-		return new Packet35EntityHeadRotation(d.entityID, DisguiseCraft.degreeToByte(loc.getYaw()));
-	}
-	
-	public Packet18ArmAnimation getAnimationPacket(int animation) {
-		// 1 - Swing arm
-		// 2 Damage animation
-		// 5 Eat food
-		Packet18ArmAnimation packet = new Packet18ArmAnimation();
-		packet.a = d.entityID;
-		packet.b = animation;
+	public PacketPlayOutEntityHeadRotation getHeadRotatePacket(Location loc) {
+		PacketPlayOutEntityHeadRotation packet = new PacketPlayOutEntityHeadRotation();
+		
+		try {
+			Field idField = packet.getClass().getDeclaredField("a");
+			Field yawField = packet.getClass().getDeclaredField("b");
+			
+			idField.setAccessible(true);
+			yawField.setAccessible(true);
+			
+			idField.set(packet, d.entityID);
+			yawField.set(packet, DisguiseCraft.degreeToByte(loc.getYaw()));
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set a field for a head rotation packet!", e);
+		}
+		
 		return packet;
 	}
 	
-	public Packet38EntityStatus getStatusPacket(int status) {
+	public PacketPlayOutAnimation getAnimationPacket(int animation) {
+		// 1 - Swing arm
+		// 2 Damage animation
+		// 5 Eat food
+		PacketPlayOutAnimation packet = new PacketPlayOutAnimation();
+		
+		try {
+			Field idField = packet.getClass().getDeclaredField("a");
+			Field animationField = packet.getClass().getDeclaredField("b");
+			
+			idField.setAccessible(true);
+			animationField.setAccessible(true);
+			
+			idField.set(packet, d.entityID);
+			animationField.set(packet, animation);
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set a field for an animation packet!", e);
+		}
+		
+		return packet;
+	}
+	
+	public PacketPlayOutEntityStatus getStatusPacket(int status) {
 		// 2 - entity hurt
 		// 3 - entity dead
 		// 6 - wolf taming
 		// 7 - wolf tamed
 		// 8 - wolf shaking water
 		// 10 - sheep eating grass
-		return new Packet38EntityStatus(d.entityID, (byte) status);
+		PacketPlayOutEntityStatus packet = new PacketPlayOutEntityStatus();
+		
+		try {
+			Field idField = packet.getClass().getDeclaredField("a");
+			Field statusField = packet.getClass().getDeclaredField("b");
+			
+			idField.setAccessible(true);
+			statusField.setAccessible(true);
+			
+			idField.set(packet, d.entityID);
+			statusField.set(packet, (byte) status);
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set a field for an entity status packet!", e);
+		}
+		
+		return packet;
 	}
 
-	public Packet22Collect getPickupPacket(int item) {
-		return new Packet22Collect(item, d.entityID);
+	public PacketPlayOutCollect getPickupPacket(int item) {
+		return new PacketPlayOutCollect(item, d.entityID);
 	}
 	
-	public Packet28EntityVelocity getVelocityPacket(int x, int y, int z) {
-		Packet28EntityVelocity packet = new Packet28EntityVelocity();
-		packet.a = d.entityID;
-		packet.b = x;
-		packet.c = y;
-		packet.d = z;
+	public PacketPlayOutEntityVelocity getVelocityPacket(int x, int y, int z) {
+		PacketPlayOutEntityVelocity packet = new PacketPlayOutEntityVelocity();
+		
+		try {
+			Field idField = packet.getClass().getDeclaredField("a");
+			Field xField = packet.getClass().getDeclaredField("b");
+			Field yField = packet.getClass().getDeclaredField("c");
+			Field zField = packet.getClass().getDeclaredField("d");
+			
+			idField.setAccessible(true);
+			xField.setAccessible(true);
+			yField.setAccessible(true);
+			zField.setAccessible(true);
+			
+			idField.set(packet, d.entityID);
+			xField.set(packet, x);
+			yField.set(packet, y);
+			zField.set(packet, z);
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set a field for a velocity packet!", e);
+		}
+		
 		return packet;
 	}
 }

@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.minecraft.server.v1_7_R1.Packet;
-import net.minecraft.server.v1_7_R1.Packet201PlayerInfo;
+import net.minecraft.server.v1_7_R1.PacketPlayOutPlayerInfo;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -518,7 +518,7 @@ public class DisguiseCraft extends JavaPlugin {
     				if (pluginSettings.noTabHide) {
     					packetListener.recentlyDisguised.add(player.getName());
     				} else {
-    					toSend.add(new Packet201PlayerInfo(player.getName(), true, ((CraftPlayer) player).getHandle().ping));
+    					toSend.add(new PacketPlayOutPlayerInfo(player.getName(), true, ((CraftPlayer) player).getHandle().ping));
     				}
     			} else {
     				toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
@@ -568,7 +568,7 @@ public class DisguiseCraft extends JavaPlugin {
     		    			if (pluginSettings.noTabHide) {
     		    				packetListener.recentlyDisguised.add(player.getName());
     		    			} else {
-    		    				toSend.add(new Packet201PlayerInfo(player.getName(), true, ((CraftPlayer) player).getHandle().ping));
+    		    				toSend.add(new PacketPlayOutPlayerInfo(player.getName(), true, ((CraftPlayer) player).getHandle().ping));
     		    			}
     					} else {
     						toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
@@ -677,7 +677,7 @@ public class DisguiseCraft extends JavaPlugin {
 					disguiseToPlayer(disguised, observer);
 
 					if (pluginSettings.noTabHide) {
-						((CraftPlayer) observer).getHandle().playerConnection.sendPacket(new Packet201PlayerInfo(disguisedName, true, ((CraftPlayer) disguised).getHandle().ping));
+						((CraftPlayer) observer).getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(disguisedName, true, ((CraftPlayer) disguised).getHandle().ping));
 					}
 				}
 			}
