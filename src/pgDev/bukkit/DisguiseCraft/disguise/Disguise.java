@@ -208,7 +208,6 @@ public class Disguise {
 			metadata.watch(index, value);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not edit metadata in DataWatcher for a " + type.name() + " disguise", e);
-			e.printStackTrace();
 		}
 	}
 	

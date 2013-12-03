@@ -148,7 +148,7 @@ public enum DisguiseType {
 		try {
 			return cls.isAssignableFrom(Class.forName("org.bukkit.entity." + name()));
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			DisguiseCraft.logger.log(Level.WARNING, "Can't find entity class for the DisguiseType: " + name(), e);
 		}
 		return false;
 	}
