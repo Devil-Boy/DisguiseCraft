@@ -24,6 +24,7 @@ public class DCConfig {
 	
 	// List of Config Options
 	public boolean disguisePVP;
+	public boolean usePVPFallback;
 	public int pvpThreads;
 	public boolean updateNotification;
 	public int biggerCube;
@@ -58,6 +59,7 @@ public class DCConfig {
         	}
         }
         disguisePVP = getBoolean("disguisePVP", true);
+        usePVPFallback = getBoolean("usePVPFallback", true);
         pvpThreads = getInt("pvpThreads", 1);
         updateNotification = getBoolean("updateNotification", true);
         biggerCube = getInt("bigger", 20);
@@ -191,11 +193,16 @@ public class DCConfig {
     		out.write("#\r\n");
     		out.write("\r\n");
     		out.write("# Disguise PVP\r\n");
-    		out.write("#	In order for players to be able to attack those who\r\n");
-    		out.write("#	are disguised, you must have the ProtocolLib plugin\r\n");
-    		out.write("#	installed on your server:\r\n");
+    		out.write("#	If you want players to be able to attack those who\r\n");
+    		out.write("#	are disguised, you should install the ProtocolLib\r\n");
+    		out.write("#	plugin on your server:\r\n");
     		out.write("#		http://dev.bukkit.org/server-mods/protocollib/\r\n");
+    		out.write("#\r\n");
+    		out.write("#	If you do not want to install ProtocolLib, DisguiseCraft\r\n");
+    		out.write("#	can try using its fallback method. However, this can\r\n");
+    		out.write("#	be dangerous for your server.\r\n");
     		out.write("disguisePVP=" + disguisePVP + "\r\n");
+    		out.write("usePVPFallback=" + usePVPFallback + "\r\n");
     		out.write("pvpThreads=" + pvpThreads + "\r\n");
     		out.write("\r\n");
     		out.write("# Optional Event Listeners\r\n");

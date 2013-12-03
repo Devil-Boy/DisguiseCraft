@@ -3,11 +3,16 @@
 #
 
 # Disguise PVP
-#	In order for players to be able to attack those who
-#	are disguised, you must have the ProtocolLib plugin
-#	installed on your server:
+#	If you want players to be able to attack those who
+#	are disguised, you should install the ProtocolLib
+#	plugin on your server:
 #		http://dev.bukkit.org/server-mods/protocollib/
+#
+#	If you do not want to install ProtocolLib, DisguiseCraft
+#	can try using its fallback method. However, this can
+#	be dangerous for your server.
 disguisePVP=true
+usePVPFallback=true
 pvpThreads=1
 
 # Optional Event Listeners

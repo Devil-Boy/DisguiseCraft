@@ -60,7 +60,7 @@ public class DCPacketInListener extends PlayerConnection {
 
 	@Override
 	public void a(PacketPlayInUseEntity packet) {
-		if (!hookFail) {
+		if (hookFail) {
 			super.a(packet);
 		} else {
 			if (this.player.dead) return;

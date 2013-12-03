@@ -304,7 +304,7 @@ public class DisguiseCraft extends JavaPlugin {
     		Plugin protocolLib = this.getServer().getPluginManager().getPlugin("ProtocolLib");
         	
         	if (protocolLib == null) {
-        		if (DCPacketInListener.hookFail) {
+        		if (!pluginSettings.usePVPFallback || DCPacketInListener.hookFail) {
         			protocolHook = ProtocolHook.None;
         		} else {
         			protocolHook = ProtocolHook.DisguiseCraft;
