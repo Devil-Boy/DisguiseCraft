@@ -519,7 +519,7 @@ public class DisguiseCraft extends JavaPlugin {
     			Disguise disguise = disguiseDB.get(player.getName());
     			
     			if (disguise.type.isPlayer()) { // Player disguise
-    				if (!pluginSettings.noTabHide) {
+    				if (!(pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib)) {
     					toSend.add(disguise.packetGenerator.getPlayerInfoPacket(player, true));
     				}
     				if (!disguise.data.contains("noarmor")) {
@@ -536,14 +536,14 @@ public class DisguiseCraft extends JavaPlugin {
     				toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, player.getName()));
     				
     				// Keep them in tab list
-    				if (pluginSettings.noTabHide) {
+    				if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
     					packetListener.recentlyDisguised.add(player.getName());
     				} else {
     					toSend.add(new PacketPlayOutPlayerInfo(player.getName(), true, ((CraftPlayer) player).getHandle().ping));
     				}
     			} else {
     				toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
-    				if (pluginSettings.noTabHide) {
+    				if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
     					packetListener.recentlyDisguised.add(player.getName());
     				}
     			}
@@ -567,7 +567,7 @@ public class DisguiseCraft extends JavaPlugin {
     			Disguise disguise = disguiseDB.get(player.getName());
     			
     			if (disguise.type.isPlayer()) { // Player disguise
-    				if (!pluginSettings.noTabHide) {
+    				if (!(pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib)) {
     					toSend.add(disguise.packetGenerator.getPlayerInfoPacket(player, true));
     				}
     				if (!disguise.data.contains("noarmor")) {
@@ -586,14 +586,14 @@ public class DisguiseCraft extends JavaPlugin {
     		    			toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, player.getName()));
     		    			
     		    			// Keep them in tab list
-    		    			if (pluginSettings.noTabHide) {
+    		    			if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
     		    				packetListener.recentlyDisguised.add(player.getName());
     		    			} else {
     		    				toSend.add(new PacketPlayOutPlayerInfo(player.getName(), true, ((CraftPlayer) player).getHandle().ping));
     		    			}
     					} else {
     						toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
-    						if (pluginSettings.noTabHide) {
+    						if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
     							packetListener.recentlyDisguised.add(player.getName());
     						}
     					}
@@ -618,7 +618,7 @@ public class DisguiseCraft extends JavaPlugin {
     			LinkedList<Packet> toSend = new LinkedList<Packet>();
     			Disguise disguise = disguiseDB.get(player.getName());
     			toSend.add(disguise.packetGenerator.getEntityDestroyPacket());
-    			if (disguise.type.isPlayer() && !pluginSettings.noTabHide) {
+    			if (disguise.type.isPlayer() && !(pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib)) {
     				toSend.add(disguise.packetGenerator.getPlayerInfoPacket(player, false));
     			}
     	    	
@@ -645,7 +645,7 @@ public class DisguiseCraft extends JavaPlugin {
     			LinkedList<Packet> toSend = new LinkedList<Packet>();
     			Disguise disguise = disguiseDB.get(player.getName());
     			toSend.add(disguise.packetGenerator.getEntityDestroyPacket());
-    			if (disguise.type.isPlayer() && !pluginSettings.noTabHide) {
+    			if (disguise.type.isPlayer() && !(pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib)) {
     				toSend.add(disguise.packetGenerator.getPlayerInfoPacket(player, false));
     			}
     	    	
@@ -697,7 +697,7 @@ public class DisguiseCraft extends JavaPlugin {
 				if (disguised.getWorld() == observer.getWorld()) {
 					disguiseToPlayer(disguised, observer);
 
-					if (pluginSettings.noTabHide) {
+					if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
 						((CraftPlayer) observer).getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(disguisedName, true, ((CraftPlayer) disguised).getHandle().ping));
 					}
 				}
