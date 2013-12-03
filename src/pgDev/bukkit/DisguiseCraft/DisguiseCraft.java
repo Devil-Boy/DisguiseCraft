@@ -30,10 +30,11 @@ import pgDev.bukkit.DisguiseCraft.api.DisguiseCraftAPI;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
 import pgDev.bukkit.DisguiseCraft.listeners.DCCommandListener;
 import pgDev.bukkit.DisguiseCraft.listeners.DCMainListener;
-import pgDev.bukkit.DisguiseCraft.listeners.DCPacketListener;
 import pgDev.bukkit.DisguiseCraft.listeners.attack.AttackProcessor;
 import pgDev.bukkit.DisguiseCraft.listeners.movement.DCPlayerMoveListener;
 import pgDev.bukkit.DisguiseCraft.listeners.movement.DCPlayerPositionUpdater;
+import pgDev.bukkit.DisguiseCraft.listeners.protocol.DCPacketInListener;
+import pgDev.bukkit.DisguiseCraft.listeners.protocol.PLPacketListener;
 import pgDev.bukkit.DisguiseCraft.packet.MovementValues;
 import pgDev.bukkit.DisguiseCraft.stats.Metrics;
 import pgDev.bukkit.DisguiseCraft.stats.Metrics.Graph;
@@ -60,13 +61,21 @@ public class DisguiseCraft extends JavaPlugin {
     // Bukkit Logger (Console Output)
     public static Logger logger;
     
-    // Protocol Hooks
+    // Protocol Hook
+    public enum ProtocolHook {
+    	DisguiseCraft,
+    	ProtocolLib,
+    	None;
+    }
+    public static ProtocolHook protocolHook;
+    
+    // ProtocolLib's Hook
     public static ProtocolManager protocolManager;
     
     // Listeners
     DCMainListener mainListener;
     DCPlayerMoveListener moveListener;
-    DCPacketListener packetListener; // Not a real listener o.o
+    PLPacketListener packetListener; // Not a real listener o.o
     
     // Disguise database
     public ConcurrentHashMap<String, Disguise> disguiseDB = new ConcurrentHashMap<String, Disguise>();
@@ -170,21 +179,7 @@ public class DisguiseCraft extends JavaPlugin {
             }
             
             // Set up the protocol hook!
-            boolean plEnabled = setupProtocol();
-            if (pluginSettings.disguisePVP) {
-            	if (plEnabled) {
-            		packetListener.setupAttackListener();
-            	} else {
-            		logger.log(Level.WARNING, "You have \"disguisePVP\" enabled in the configuration, but do not have the ProtocolLib plugin installed! Players wearing disguises can not be attacked by melee!");
-            	}
-            }
-            if (pluginSettings.noTabHide) {
-            	if (plEnabled) {
-            		packetListener.setupTabListListener();
-            	} else {
-            		logger.log(Level.SEVERE, "You have \"noTabHide\" enabled in the configuration, but do not have the ProtocolLib plugin installed!");
-            	}
-            }
+            setupProtocol();
             
             // Set up statistics!
             setupMetrics();
@@ -304,15 +299,41 @@ public class DisguiseCraft extends JavaPlugin {
     }
     
     // Protocol Library
-    public boolean setupProtocol() {
-    	Plugin protocolLib = this.getServer().getPluginManager().getPlugin("ProtocolLib");
-    	
-    	if (protocolLib == null) {
-    		return false;
-    	} else {
-    		protocolManager = ProtocolLibrary.getProtocolManager();
-    		packetListener = new DCPacketListener(this);
-    		return true;
+    public void setupProtocol() {
+    	if (pluginSettings.disguisePVP || pluginSettings.noTabHide) {
+    		Plugin protocolLib = this.getServer().getPluginManager().getPlugin("ProtocolLib");
+        	
+        	if (protocolLib == null) {
+        		if (DCPacketInListener.hookFail) {
+        			protocolHook = ProtocolHook.None;
+        		} else {
+        			protocolHook = ProtocolHook.DisguiseCraft;
+        		}
+        	} else {
+        		protocolManager = ProtocolLibrary.getProtocolManager();
+        		packetListener = new PLPacketListener(this);
+        		
+        		protocolHook = ProtocolHook.ProtocolLib;
+        	}
+        	
+        	if (pluginSettings.disguisePVP) {
+            	if (protocolHook == ProtocolHook.ProtocolLib) {
+            		packetListener.setupAttackListener();
+            	} else if (protocolHook == ProtocolHook.DisguiseCraft) {
+            		logger.log(Level.INFO, "Using the built-in disguise-attack detection hack");
+            	} else {
+            		logger.log(Level.WARNING, "You have \"disguisePVP\" enabled in the configuration, but do not have the ProtocolLib plugin installed! Players wearing disguises can not be attacked by melee!");
+            	}
+            }
+        	
+        	
+        	if (pluginSettings.noTabHide) {
+        		if (protocolHook == ProtocolHook.ProtocolLib) {
+        			packetListener.setupTabListListener();
+        		} else {
+        			logger.log(Level.SEVERE, "You have \"noTabHide\" enabled in the configuration, but do not have the ProtocolLib plugin installed!");
+        		}
+    		}
     	}
     }
     

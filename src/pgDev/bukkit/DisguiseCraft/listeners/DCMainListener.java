@@ -11,8 +11,10 @@ import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
 import org.bukkit.event.player.*;
 
 import pgDev.bukkit.DisguiseCraft.*;
+import pgDev.bukkit.DisguiseCraft.DisguiseCraft.ProtocolHook;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
 import pgDev.bukkit.DisguiseCraft.listeners.attack.InvalidInteractHandler;
+import pgDev.bukkit.DisguiseCraft.listeners.protocol.DCPacketInListener;
 import pgDev.bukkit.DisguiseCraft.threading.NamedThreadFactory;
 import pgDev.bukkit.DisguiseCraft.update.DCUpdateNotifier;
 
@@ -29,6 +31,11 @@ public class DCMainListener implements Listener {
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
+		
+		// DC Attack Hack
+		if (DisguiseCraft.protocolHook == ProtocolHook.DisguiseCraft) {
+			DCPacketInListener.overrideConnection(player);
+		}
 		
 		// Show disguises to newly joined players
 		plugin.showWorldDisguises(player);
@@ -65,15 +72,14 @@ public class DCMainListener implements Listener {
 			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new DCUpdateNotifier(plugin, player));
 			
 			// Bad configuration?
-			if (DisguiseCraft.protocolManager == null) {
-				if (DisguiseCraft.pluginSettings.disguisePVP) {
-					player.sendMessage(ChatColor.RED + "DisguiseCraft's configuration has " + ChatColor.GOLD + "\"disguisePVP\" " +
-							ChatColor.RED + "set to " + ChatColor.GOLD + "true " + ChatColor.RED + "but ProtocolLib is not installed!");
-				}
-				if (DisguiseCraft.pluginSettings.noTabHide) {
-					player.sendMessage(ChatColor.RED + "DisguiseCraft's configuration has " + ChatColor.GOLD + "\"noTabHide\" " +
-							ChatColor.RED + "set to " + ChatColor.GOLD + "true " + ChatColor.RED + "but ProtocolLib is not installed!");
-				}
+			if (DisguiseCraft.pluginSettings.disguisePVP && DisguiseCraft.protocolHook == ProtocolHook.None) {
+				player.sendMessage(ChatColor.RED + "DisguiseCraft's configuration has " + ChatColor.GOLD + "\"disguisePVP\" " +
+						ChatColor.RED + "set to " + ChatColor.GOLD + "true " + ChatColor.RED + "but ProtocolLib is not installed!");
+			}
+			
+			if (DisguiseCraft.pluginSettings.noTabHide && DisguiseCraft.protocolHook != ProtocolHook.ProtocolLib) {
+				player.sendMessage(ChatColor.RED + "DisguiseCraft's configuration has " + ChatColor.GOLD + "\"noTabHide\" " +
+						ChatColor.RED + "set to " + ChatColor.GOLD + "true " + ChatColor.RED + "but ProtocolLib is not installed!");
 			}
 		}
 	}

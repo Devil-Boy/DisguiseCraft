@@ -1,4 +1,4 @@
-package pgDev.bukkit.DisguiseCraft.listeners;
+package pgDev.bukkit.DisguiseCraft.listeners.protocol;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
@@ -14,14 +14,15 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.FieldAccessException;
 
 import pgDev.bukkit.DisguiseCraft.*;
+import pgDev.bukkit.DisguiseCraft.listeners.PlayerInvalidInteractEvent;
 
-public class DCPacketListener {
+public class PLPacketListener {
 	final DisguiseCraft plugin;
 	ProtocolManager pM = DisguiseCraft.protocolManager;
 	
 	public ConcurrentLinkedQueue<String> recentlyDisguised;
 	
-	public DCPacketListener(final DisguiseCraft plugin) {
+	public PLPacketListener(final DisguiseCraft plugin) {
 		this.plugin = plugin;
 	}
 	
