@@ -9,6 +9,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
 import pgDev.bukkit.DisguiseCraft.disguise.Disguise;
+import pgDev.bukkit.DisguiseCraft.disguise.DisguiseType;
 
 public class EntityDamageListener implements Listener {
 	final DisguiseCraft plugin;
@@ -26,7 +27,7 @@ public class EntityDamageListener implements Listener {
 					Disguise disguise = plugin.disguiseDB.get(player.getName());
 					
 					// Send the damage animation
-					plugin.sendPacketToWorld(player.getWorld(), disguise.packetGenerator.getAnimationPacket(2));
+					plugin.sendPacketToWorld(player.getWorld(), disguise.packetGenerator.getAnimationPacket(1));
 					
 					// Play sound
 					Sound sound = disguise.getDamageSound();

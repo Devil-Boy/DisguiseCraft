@@ -384,7 +384,9 @@ public class DCPacketGenerator {
 	}
 	
 	public PacketPlayOutEntityStatus getStatusPacket(int status) {
-		// 2 - entity hurt
+		// 0 - ?
+		// 1 - entity hurt
+		// 2 - ?
 		// 3 - entity dead
 		// 6 - wolf taming
 		// 7 - wolf tamed
