@@ -236,7 +236,7 @@ public enum DisguiseType {
 			return copyDataWatcher(modelData.get(id));
 		} else {
 			try {
-				return new DataWatcher(null);
+				return new DCDataWatcher(null);
 			} catch (Exception e) {
 				DisguiseCraft.logger.log(Level.SEVERE, "Could not construct a new DataWatcher", e);
 				return null;
@@ -246,7 +246,7 @@ public enum DisguiseType {
 	
 	@SuppressWarnings("unchecked")
 	public static DataWatcher copyDataWatcher(DataWatcher dw) {
-		DataWatcher w = new DataWatcher(null);
+		DataWatcher w = new DCDataWatcher(null);
 		
 		// Clone Map
 		try {

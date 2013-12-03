@@ -399,8 +399,8 @@ public class DCPacketGenerator {
 			idField.setAccessible(true);
 			statusField.setAccessible(true);
 			
-			idField.set(packet, d.entityID);
-			statusField.set(packet, (byte) status);
+			idField.setInt(packet, d.entityID);
+			statusField.setByte(packet, (byte) status);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set a field for an entity status packet!", e);
 		}
@@ -426,7 +426,7 @@ public class DCPacketGenerator {
 			yField.setAccessible(true);
 			zField.setAccessible(true);
 			
-			idField.set(packet, d.entityID);
+			idField.setInt(packet, d.entityID);
 			xField.set(packet, x);
 			yField.set(packet, y);
 			zField.set(packet, z);
