@@ -6,13 +6,14 @@ import net.minecraft.server.v1_7_R1.DataWatcher;
 import net.minecraft.server.v1_7_R1.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.server.v1_7_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_7_R1.PacketPlayOutEntityDestroy;
+import net.minecraft.util.com.mojang.authlib.GameProfile;
 
 import org.bukkit.Location;
 
+import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.FieldAccessException;
-import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 
 import pgDev.bukkit.DisguiseCraft.*;
@@ -38,7 +39,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		int zPos = locVars[2];
 		
 		// Make packet
-		PacketContainer pC = pM.createPacket(24);
+		PacketContainer pC = pM.createPacket(PacketType.Play.Server.MOB_SPAWN);
 		try {
 			pC.getIntegers().
 				write(0, eID).
@@ -78,13 +79,13 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		int[] locVars = getLocationVariables(loc);
 		byte[] yp = getYawPitch(loc);
 		int eID = d.entityID;
-        String name = d.data.getFirst();
+		GameProfile gp = new GameProfile(d.data.getFirst(), d.data.getFirst());
         int xPos = locVars[0];
         int yPos = locVars[1];
         int zPos = locVars[2];
         
         // Make Packet
-        PacketContainer pC = pM.createPacket(20);
+        PacketContainer pC = pM.createPacket(PacketType.Play.Server.NAMED_ENTITY_SPAWN);
 		try {
 			pC.getIntegers().
 				write(0, eID).
@@ -96,10 +97,10 @@ public class PLPacketGenerator extends DCPacketGenerator {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the integers for a player disguise!", e);
 		}
 		try {
-			pC.getStrings().
-				write(0, name);
+			pC.getSpecificModifier(GameProfile.class).
+				write(0, gp);
 		} catch (FieldAccessException e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the name for a player disguise!", e);
+			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the GameProfile for a player disguise!", e);
 		}
 		try {
 			pC.getBytes().
@@ -119,22 +120,12 @@ public class PLPacketGenerator extends DCPacketGenerator {
 	
 	@Override
 	public PacketPlayOutEntityDestroy getEntityDestroyPacket() {
-		PacketContainer pC = pM.createPacket(29);
-		StructureModifier<int[]> intPos = pC.getIntegerArrays();
-		if (intPos.size() > 0) {
-			try {
-				int[] intArray = {d.entityID};
-				intPos.write(0, intArray);
-			} catch (FieldAccessException e) {
-				DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the integer array for a destroy packet!", e);
-			}
-		} else {
-			try {
-				pC.getSpecificModifier(int.class)
-					.write(0, d.entityID);
-			} catch (FieldAccessException e) {
-				DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the integer for a destroy packet!", e);
-			}
+		PacketContainer pC = pM.createPacket(PacketType.Play.Server.DESTROY_ENTITY);
+		try {
+			pC.getIntegerArrays().
+				write(0, new int[] {d.entityID});
+		} catch (FieldAccessException e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the integer array for a destroy packet!", e);
 		}
 		return (PacketPlayOutEntityDestroy) pC.getHandle();
 	}

@@ -132,9 +132,9 @@ public class DCPacketGenerator {
 			xField.set(packet, locVars[0]);
 			yField.set(packet, locVars[1]);
 			zField.set(packet, locVars[2]);
-			yawField.set(packet, yp[0]);
-			pitchField.set(packet, yp[1]);
-			headYawField.set(packet, yp[0]);
+			yawField.setByte(packet, yp[0]);
+			pitchField.setByte(packet, yp[1]);
+			headYawField.setByte(packet, yp[0]);
 			metadataField.set(packet, metadata);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Unable to set a field for a " + d.type.name() +  " disguise!", e);
