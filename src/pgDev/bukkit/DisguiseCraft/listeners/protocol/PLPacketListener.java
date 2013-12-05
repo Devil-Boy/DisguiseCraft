@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketAdapter.AdapterParameteters;
+import com.comphenix.protocol.events.PacketAdapter.AdapterParameters;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.FieldAccessException;
@@ -27,7 +27,7 @@ public class PLPacketListener {
 	}
 	
 	public void setupAttackListener() {
-		AdapterParameteters ap = PacketAdapter.params();
+		AdapterParameters ap = PacketAdapter.params();
 		ap.plugin(plugin);
 		ap.clientSide();
 		ap.types(PacketType.Play.Client.USE_ENTITY);
@@ -39,10 +39,10 @@ public class PLPacketListener {
 			        if (event.getPacketType() == PacketType.Play.Client.USE_ENTITY) {
 			            try {
 			            	PacketContainer packet = event.getPacket();
-			                int target = packet.getSpecificModifier(int.class).read(1);
-			                int action = packet.getSpecificModifier(int.class).read(2);
+			                int target = packet.getSpecificModifier(int.class).read(0);
+			                int action = packet.getSpecificModifier(int.class).read(1);
 			                
-			                if (packet.getEntityModifier(player.getWorld()).read(1) == null) {
+			                if (packet.getEntityModifier(player.getWorld()).read(0) == null) {
 			                	PlayerInvalidInteractEvent newEvent = new PlayerInvalidInteractEvent(player, target, action);
 			                    plugin.getServer().getPluginManager().callEvent(newEvent);
 			                }
@@ -59,7 +59,7 @@ public class PLPacketListener {
 		recentlyDisguised = new ConcurrentLinkedQueue<String>();
 		
 		// Set up listener
-		AdapterParameteters ap = PacketAdapter.params();
+		AdapterParameters ap = PacketAdapter.params();
 		ap.plugin(plugin);
 		ap.serverSide();
 		ap.types(PacketType.Play.Server.PLAYER_INFO);
