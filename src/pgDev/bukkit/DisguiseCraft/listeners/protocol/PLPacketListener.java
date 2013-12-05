@@ -5,10 +5,10 @@ import java.util.logging.Level;
 
 import org.bukkit.entity.Player;
 
+import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.ConnectionSide;
-import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketAdapter.AdapterParameteters;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.FieldAccessException;
@@ -27,12 +27,16 @@ public class PLPacketListener {
 	}
 	
 	public void setupAttackListener() {
-		pM.addPacketListener(new PacketAdapter(plugin,
-			ConnectionSide.CLIENT_SIDE, ListenerPriority.NORMAL, 0x07) {
+		AdapterParameteters ap = PacketAdapter.params();
+		ap.plugin(plugin);
+		ap.clientSide();
+		ap.types(PacketType.Play.Client.USE_ENTITY);
+		
+		pM.addPacketListener(new PacketAdapter(ap) {
 			    @Override
 			    public void onPacketReceiving(PacketEvent event) {
 			    	Player player = event.getPlayer();
-			        if (event.getPacketID() == 0x07) {
+			        if (event.getPacketType() == PacketType.Play.Client.USE_ENTITY) {
 			            try {
 			            	PacketContainer packet = event.getPacket();
 			                int target = packet.getSpecificModifier(int.class).read(1);
@@ -55,11 +59,15 @@ public class PLPacketListener {
 		recentlyDisguised = new ConcurrentLinkedQueue<String>();
 		
 		// Set up listener
-		pM.addPacketListener(new PacketAdapter(plugin,
-			ConnectionSide.SERVER_SIDE, ListenerPriority.NORMAL, 0xC9) {
+		AdapterParameteters ap = PacketAdapter.params();
+		ap.plugin(plugin);
+		ap.serverSide();
+		ap.types(PacketType.Play.Server.PLAYER_INFO);
+		
+		pM.addPacketListener(new PacketAdapter(ap) {
 			    @Override
 			    public void onPacketSending(PacketEvent event) {
-			        if (event.getPacketID() == 0xC9) {
+			        if (event.getPacketType() == PacketType.Play.Server.PLAYER_INFO) {
 			        	try {
 				        	if (recentlyDisguised.remove(event.getPacket().getStrings().read(0))) {
 				        		event.setCancelled(true);

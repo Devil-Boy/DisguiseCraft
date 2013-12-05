@@ -39,7 +39,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		int zPos = locVars[2];
 		
 		// Make packet
-		PacketContainer pC = pM.createPacket(PacketType.Play.Server.MOB_SPAWN);
+		PacketContainer pC = pM.createPacket(PacketType.Play.Server.SPAWN_ENTITY_LIVING);
 		try {
 			pC.getIntegers().
 				write(0, eID).
@@ -120,7 +120,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 	
 	@Override
 	public PacketPlayOutEntityDestroy getEntityDestroyPacket() {
-		PacketContainer pC = pM.createPacket(PacketType.Play.Server.DESTROY_ENTITY);
+		PacketContainer pC = pM.createPacket(PacketType.Play.Server.SPAWN_ENTITY_LIVING);
 		try {
 			pC.getIntegerArrays().
 				write(0, new int[] {d.entityID});
