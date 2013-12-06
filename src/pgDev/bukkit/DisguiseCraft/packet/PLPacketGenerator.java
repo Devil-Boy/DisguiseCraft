@@ -6,7 +6,6 @@ import net.minecraft.server.v1_7_R1.DataWatcher;
 import net.minecraft.server.v1_7_R1.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.server.v1_7_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_7_R1.PacketPlayOutEntityDestroy;
-import net.minecraft.util.com.mojang.authlib.GameProfile;
 
 import org.bukkit.Location;
 
@@ -15,6 +14,7 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import com.comphenix.protocol.wrappers.WrappedGameProfile;
 
 import pgDev.bukkit.DisguiseCraft.*;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
@@ -79,7 +79,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		int[] locVars = getLocationVariables(loc);
 		byte[] yp = getYawPitch(loc);
 		int eID = d.entityID;
-		GameProfile gp = new GameProfile(d.data.getFirst(), d.data.getFirst());
+		WrappedGameProfile gp = new WrappedGameProfile(d.data.getFirst(), d.data.getFirst());
         int xPos = locVars[0];
         int yPos = locVars[1];
         int zPos = locVars[2];
@@ -97,7 +97,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the integers for a player disguise!", e);
 		}
 		try {
-			pC.getSpecificModifier(GameProfile.class).
+			pC.getGameProfiles().
 				write(0, gp);
 		} catch (FieldAccessException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the GameProfile for a player disguise!", e);
