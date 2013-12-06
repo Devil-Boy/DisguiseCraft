@@ -120,7 +120,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 	
 	@Override
 	public PacketPlayOutEntityDestroy getEntityDestroyPacket() {
-		PacketContainer pC = pM.createPacket(PacketType.Play.Server.SPAWN_ENTITY_LIVING);
+		PacketContainer pC = pM.createPacket(PacketType.Play.Server.ENTITY_DESTROY);
 		try {
 			pC.getIntegerArrays().
 				write(0, new int[] {d.entityID});
