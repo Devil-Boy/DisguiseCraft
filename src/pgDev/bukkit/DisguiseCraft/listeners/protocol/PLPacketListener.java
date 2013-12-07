@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketAdapter.AdapterParameters;
+import com.comphenix.protocol.events.PacketAdapter.AdapterParameteters;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.FieldAccessException;
@@ -29,7 +29,7 @@ public class PLPacketListener {
 	}
 	
 	public void setupAttackListener() {
-		AdapterParameters ap = PacketAdapter.params();
+		AdapterParameteters ap = PacketAdapter.params();
 		ap.plugin(plugin);
 		ap.clientSide();
 		ap.types(PacketType.Play.Client.USE_ENTITY);
@@ -61,7 +61,7 @@ public class PLPacketListener {
 		recentlyDisguised = new ConcurrentLinkedQueue<String>();
 		
 		// Set up listener
-		AdapterParameters ap = PacketAdapter.params();
+		AdapterParameteters ap = PacketAdapter.params();
 		ap.plugin(plugin);
 		ap.serverSide();
 		ap.types(PacketType.Play.Server.PLAYER_INFO);
