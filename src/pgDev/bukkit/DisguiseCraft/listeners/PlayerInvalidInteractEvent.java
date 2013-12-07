@@ -9,10 +9,17 @@ public class PlayerInvalidInteractEvent extends PlayerEvent {
     private final int target;
     private final boolean action;
 
-    public PlayerInvalidInteractEvent(final Player player, final int target, final int action) {
+    public PlayerInvalidInteractEvent(final Player player, final int target, final String action) {
         super(player);
         this.target = target;
-        this.action = (action == 1);
+        
+        if (action.equalsIgnoreCase("ATTACK")) {
+        	this.action = true;
+        } else if (action.equalsIgnoreCase("INTERACT")) {
+        	this.action = false;
+        } else {
+        	throw new IllegalArgumentException("Unidentified action type");
+        }
     }
 
     /**

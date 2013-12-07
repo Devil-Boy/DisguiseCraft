@@ -3,6 +3,8 @@ package pgDev.bukkit.DisguiseCraft.listeners.protocol;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
+import net.minecraft.server.v1_7_R1.EnumEntityUseAction;
+
 import org.bukkit.entity.Player;
 
 import com.comphenix.protocol.PacketType;
@@ -40,14 +42,14 @@ public class PLPacketListener {
 			            try {
 			            	PacketContainer packet = event.getPacket();
 			                int target = packet.getSpecificModifier(int.class).read(0);
-			                int action = packet.getSpecificModifier(int.class).read(1);
+			                String action = packet.getSpecificModifier(EnumEntityUseAction.class).read(0).name();
 			                
 			                if (packet.getEntityModifier(player.getWorld()).read(0) == null) {
 			                	PlayerInvalidInteractEvent newEvent = new PlayerInvalidInteractEvent(player, target, action);
 			                    plugin.getServer().getPluginManager().callEvent(newEvent);
 			                }
 			            } catch (FieldAccessException e) {
-			                DisguiseCraft.logger.log(Level.SEVERE, "Couldn't access a field in an 0x07-UseEntity packet!", e);
+			                DisguiseCraft.logger.log(Level.SEVERE, "Couldn't access a field in a UseEntity packet!", e);
 			            }
 			        }
 			    }
@@ -73,7 +75,7 @@ public class PLPacketListener {
 				        		event.setCancelled(true);
 				        	}
 			        	} catch (FieldAccessException e) {
-			                DisguiseCraft.logger.log(Level.SEVERE, "Couldn't access a field in an 0xC9-PlayerInfo packet!", e);
+			                DisguiseCraft.logger.log(Level.SEVERE, "Couldn't access a field in a PlayerInfo packet!", e);
 			            }
 			        }
 			    }

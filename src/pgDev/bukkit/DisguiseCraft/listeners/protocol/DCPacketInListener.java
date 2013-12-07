@@ -13,7 +13,6 @@ import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
 import pgDev.bukkit.DisguiseCraft.listeners.PlayerInvalidInteractEvent;
 import net.minecraft.server.v1_7_R1.Entity;
 import net.minecraft.server.v1_7_R1.EntityPlayer;
-import net.minecraft.server.v1_7_R1.EnumEntityUseAction;
 import net.minecraft.server.v1_7_R1.MinecraftServer;
 import net.minecraft.server.v1_7_R1.NetworkManager;
 import net.minecraft.server.v1_7_R1.PacketPlayInUseEntity;
@@ -24,7 +23,6 @@ public class DCPacketInListener extends PlayerConnection {
 	public static boolean hookFail;
 	
 	static Field targetField;
-	static Field actionField;
 	
 	static {
 		// Find the target entity field
@@ -35,21 +33,9 @@ public class DCPacketInListener extends PlayerConnection {
 			}
 		}
 		
-		// Find the action type field
-		for (Field f : EnumEntityUseAction.class.getDeclaredFields()) {
-			if (f.getType() == int.class && !Modifier.isStatic(f.getModifiers())) {
-				f.setAccessible(true);
-				actionField = f;
-			}
-		}
-		
 		hookFail = false;
 		if (targetField == null) {
 			DisguiseCraft.logger.log(Level.WARNING, "Attack hook could not find target entity field");
-			hookFail = true;
-		}
-		if (actionField == null) {
-			DisguiseCraft.logger.log(Level.WARNING, "Attack hook could not find action type field");
 			hookFail = true;
 		}
 	}
@@ -70,13 +56,13 @@ public class DCPacketInListener extends PlayerConnection {
 		    this.player.w();
 		    if (entity == null) {
 		    	int target = 0;
-		    	int action = 0;
 				try {
 					target = targetField.getInt(packet);
-					action = actionField.getInt(packet.c());
 				} catch (Exception e) {
 					DisguiseCraft.logger.log(Level.WARNING, "Could not access a field in the use entity packet", e);
 				}
+				
+				String action = packet.c().name();
 		    	
 		    	PlayerInvalidInteractEvent newEvent = new PlayerInvalidInteractEvent(((CraftServer) Bukkit.getServer()).getPlayer(this.player), target, action);
 		        Bukkit.getServer().getPluginManager().callEvent(newEvent);
