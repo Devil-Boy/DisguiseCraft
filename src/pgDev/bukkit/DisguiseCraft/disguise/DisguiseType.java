@@ -77,7 +77,7 @@ public enum DisguiseType {
 	protected static HashMap<Byte, DataWatcher> modelData = new HashMap<Byte, DataWatcher>();
 	
 	public static Field mapField;
-	public static List<Field> boolFields = new LinkedList<Field>();
+	public static List<Field> boolFields;
 	
 	public static void getDataWatchers(org.bukkit.World world) {
 		// Get model datawatchers
@@ -104,9 +104,13 @@ public enum DisguiseType {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not access datawatchers!");
 		}
     	
-    	// Store important fields
+    	// Begin: Store important fields
+    	mapField = null;
+    	boolFields = new LinkedList<Field>();
+    	
+    	// Search for the fields (Use Spigot's backward compatibility)
     	for (Field f : DataWatcher.class.getDeclaredFields()) {
-    		if (f.getType() == Map.class) {
+    		if (f.getType() == Map.class && mapField == null) {
     			if (!Modifier.isStatic(f.getModifiers())) {
     				f.setAccessible(true);
     				mapField = f;
@@ -250,13 +254,13 @@ public enum DisguiseType {
 		
 		// Clone Map
 		try {
-			HashMap<Integer, WatchableObject> modelMap = ((HashMap<Integer, WatchableObject>) mapField.get(dw));
-			HashMap<Integer, WatchableObject> newMap = ((HashMap<Integer, WatchableObject>) mapField.get(w));
+			Map<Integer, WatchableObject> modelMap = ((Map<Integer, WatchableObject>) mapField.get(dw));
+			Map<Integer, WatchableObject> newMap = ((Map<Integer, WatchableObject>) mapField.get(w));
 			for (Integer index : modelMap.keySet()) {
 				newMap.put(index, copyWatchable(modelMap.get(index)));
 			}
 		} catch (Exception e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Could not clone map in a datawatcher!");
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not clone map in a datawatcher!", e);
 		}
 		
 		// Clone boolean
@@ -265,7 +269,7 @@ public enum DisguiseType {
 				boolField.setBoolean(w, boolField.getBoolean(dw));
 			}
 		} catch (Exception e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Could not clone boolean in a datawatcher!");
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not clone boolean in a datawatcher!", e);
 		}
 		
 		return w;
