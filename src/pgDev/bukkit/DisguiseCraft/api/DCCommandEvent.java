@@ -57,10 +57,19 @@ public class DCCommandEvent extends Event implements Cancellable {
     
     /**
 	 * Get the command arguments
+	 * Modifications to this array will be applied to the command
 	 * @return The command arguments (e.g. aggressive)
 	 */
     public String[] getArgs() {
     	return args;
+    }
+    
+    /**
+     * Set the command arguments
+     * @param args The new set of arguments for the command
+     */
+    public void setArgs(String[] args) {
+    	this.args = args;
     }
     
     // Cancel methods

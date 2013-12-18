@@ -56,6 +56,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 		DCCommandEvent cEv = new DCCommandEvent(sender, player, label, args);
 		plugin.getServer().getPluginManager().callEvent(cEv);
 		if (cEv.isCancelled()) return true;
+		args = cEv.getArgs();
 		
 		// Some conveniences
 		if (args.length != 0) {
