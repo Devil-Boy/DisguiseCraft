@@ -6,6 +6,7 @@ import java.util.Map;
 
 import net.minecraft.server.v1_7_R1.DataWatcher;
 
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -643,8 +644,14 @@ public class Disguise {
 			}
 		} else if (type.isObject()) {
 			if (type.isBlock()) {
-				if (!player.hasPermission("disguisecraft.object.block." + type.name().toLowerCase())) {
-					return false;
+				if (type == DisguiseType.FallingBlock) {
+					if (!player.hasPermission("disguisecraft.object.block.fallingblock." + Material.getMaterial(getBlockID()).name().toLowerCase())) {
+						return false;
+					}
+				} else {
+					if (!player.hasPermission("disguisecraft.object.block." + type.name().toLowerCase())) {
+						return false;
+					}
 				}
 			} else if (type.isVehicle()) {
 				if (!player.hasPermission("disguisecraft.object.vehicle." + type.name().toLowerCase())) {

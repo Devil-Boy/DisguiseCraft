@@ -29,8 +29,6 @@ permissions:
             disguisecraft.notarget.strict: true
             disguisecraft.burning: true
             disguisecraft.drop: true
-            disguisecraft.nopickup: true
-            disguisecraft.blocklock: true
             disguisecraft.player.*: true
             disguisecraft.mob.*: true
             disguisecraft.object.*: true
@@ -56,7 +54,7 @@ permissions:
         default: false
         description: Can see through disguises.
     disguisecraft.notarget:
-        default: true
+        default: op
         description: Is not targeted by mobs while disguised.
     disguisecraft.notarget.strict:
         default: op
@@ -582,22 +580,14 @@ permissions:
         description: Can disguise as any block-like entity.
         children:
             disguisecraft.object.block.endercrystal: true
-            disguisecraft.object.block.fallingblock: true
-            disguisecraft.object.block.fallingblock.material: true
-            disguisecraft.object.block.fallingblock.material.metadata: true
+            disguisecraft.object.block.fallingblock.*: true
             disguisecraft.object.block.tntprimed: true
     disguisecraft.object.block.endercrystal:
         default: op
         description: Can disguise as an endercrystal.
-    disguisecraft.object.block.fallingblock:
+    disguisecraft.object.block.fallingblock.*:
         default: op
-        description: Can disguise as a falling block.
-    disguisecraft.object.block.fallingblock.material:
-        default: op
-        description: Can change material of the falling block.
-    disguisecraft.object.block.fallingblock.material.metadata:
-        default: op
-        description: Can change the metadata of the falling block.
+        description: Can disguise as a falling block of any type.
     disguisecraft.object.block.tntprimed:
         default: op
         description: Can disguise as primed TNT.

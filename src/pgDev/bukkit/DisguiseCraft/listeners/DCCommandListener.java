@@ -1417,8 +1417,16 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 							// Fallingblock-type check
 							Material block = Material.matchMaterial(remainingWords(args, 0));
 							if (block != null && block.isBlock() && block != Material.AIR) {
+								String permission = "disguisecraft.object.block.fallingblock." + block.name().toLowerCase();
+								
+								// Dynamically add the player name as a child for the disguisecraft.player.* node
+								try {
+									plugin.getServer().getPluginManager().addPermission(new Permission(permission).addParent("disguisecraft.object.block.fallingblock.*", true));
+								} catch (Exception e) {
+								}
+								
 								DisguiseType type = DisguiseType.FallingBlock;
-								if (isConsole || player.hasPermission("disguisecraft.object.block.fallingblock.material")) {
+								if (isConsole || player.hasPermission(permission)) {
 									String newData = "blockID:" + block.getId();
 									if (plugin.disguiseDB.containsKey(player.getName())) {
 										disguise = plugin.disguiseDB.get(player.getName()).clone();
@@ -1498,13 +1506,15 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				}
 			} else if (args[0].equalsIgnoreCase("player") || args[0].equalsIgnoreCase("p") || args[0].equalsIgnoreCase("pl") || args[0].equalsIgnoreCase("plyr")) {
 				if (args.length > 1) {
+					String permission = "disguisecraft.player." + args[1].toLowerCase();
+					
 					// Dynamically add the player name as a child for the disguisecraft.player.* node
 					try {
-						plugin.getServer().getPluginManager().addPermission(new Permission("disguisecraft.player." + args[1].toLowerCase()).addParent("disguisecraft.player.*", true));
+						plugin.getServer().getPluginManager().addPermission(new Permission(permission).addParent("disguisecraft.player.*", true));
 					} catch (Exception e) {
 					}
 					
-					if (isConsole || player.hasPermission("disguisecraft.player." + args[1].toLowerCase())) {
+					if (isConsole || player.hasPermission(permission)) {
 						if (args[1].length() <= 16) {
 							if (plugin.disguiseDB.containsKey(player.getName())) {
 								Disguise disguise = plugin.disguiseDB.get(player.getName());
