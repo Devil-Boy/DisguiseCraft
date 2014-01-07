@@ -21,10 +21,12 @@
     </repository>
     <repository>
       <id>comphenix-rep</id>
+      <name>Comphenix Repository</name>
       <url>http://repo.comphenix.net/content/groups/public</url>
     </repository>
     <repository>
       <id>comphenix-main-repo</id>
+      <name>Comphenix Backup Repository</name>
       <url>http://assets.comphenix.net/plugin/repository/everything/</url>
     </repository>
   </repositories>
@@ -38,7 +40,7 @@
     <dependency>
       <groupId>com.comphenix.protocol</groupId>
       <artifactId>ProtocolLib</artifactId>
-      <version>3.0.0-SNAPSHOT</version>
+      <version>3.1.0</version>
       <optional>true</optional>
     </dependency>
   </dependencies>

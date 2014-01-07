@@ -362,9 +362,13 @@ public class DCPacketGenerator {
 	}
 	
 	public PacketPlayOutAnimation getAnimationPacket(int animation) {
-		// 1 - Swing arm
-		// 2 Damage animation
-		// 5 Eat food
+		// Stolen from protocol wiki (http://wiki.vg/Protocol):
+		// 0 - Swing arm
+		// 1 - Damage animation
+		// 2 - Leave bed
+		// 3 - Eat food
+		// 4 - Critical effect
+		// 5 - Magic critical effect
 		PacketPlayOutAnimation packet = new PacketPlayOutAnimation();
 		
 		try {
@@ -384,6 +388,7 @@ public class DCPacketGenerator {
 	}
 	
 	public PacketPlayOutEntityStatus getStatusPacket(int status) {
+		// May no longer be up-to-date:
 		// 0 - ?
 		// 1 - entity hurt
 		// 2 - ?
