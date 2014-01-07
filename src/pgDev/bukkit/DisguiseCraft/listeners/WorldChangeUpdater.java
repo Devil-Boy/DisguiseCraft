@@ -28,19 +28,19 @@ public class WorldChangeUpdater implements Runnable {
 			Player disguisee = event.getPlayer();
 			Disguise disguise = plugin.disguiseDB.get(disguisee.getName());
 			
-			plugin.undisguiseToWorld(disguisee, event.getFrom());
+			plugin.undisguiseToWorld(disguisee, event.getFrom(), true);
 			
 			if (disguise.hasPermission(disguisee)) {
 				// Show the disguise to the people in the new world
 				plugin.disguiseToWorld(disguisee, disguisee.getWorld());
 			} else {
 				// Pass the event
-				PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(disguisee);
+				PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(disguisee, true);
 				plugin.getServer().getPluginManager().callEvent(ev);
 				if (ev.isCancelled()) {
 					plugin.disguiseToWorld(disguisee, disguisee.getWorld());
 				} else {
-					plugin.unDisguisePlayer(disguisee);
+					plugin.unDisguisePlayer(disguisee, ev.getShowPlayer());
 					disguisee.sendMessage(ChatColor.RED + "You've been undisguised because you do not have permissions to wear that disguise in this world.");
 				}
 			}

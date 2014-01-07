@@ -1658,11 +1658,11 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 										Player p = (Player) ent;
 										if (plugin.disguiseDB.containsKey(p.getName())) {
 											// Pass the event
-											PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(p);
+											PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(p, true);
 											plugin.getServer().getPluginManager().callEvent(ev);
 											if (ev.isCancelled()) continue;
 											
-											plugin.unDisguisePlayer(p);
+											plugin.unDisguisePlayer(p, ev.getShowPlayer());
 											undisguisedPlayers.add(p.getName());
 											p.sendMessage(ChatColor.GOLD + "You were undisguised by " + ChatColor.DARK_GREEN + sender.getName());
 										}
@@ -1683,11 +1683,11 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						} else {
 							if (plugin.disguiseDB.containsKey(toUndisguise.getName())) {
 								// Pass the event
-								PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(toUndisguise);
+								PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(toUndisguise, true);
 								plugin.getServer().getPluginManager().callEvent(ev);
 								if (ev.isCancelled()) return true;
 								
-								plugin.unDisguisePlayer(toUndisguise);
+								plugin.unDisguisePlayer(toUndisguise, ev.getShowPlayer());
 								sender.sendMessage(ChatColor.GOLD + "You have undisguised " + toUndisguise.getName());
 								toUndisguise.sendMessage(ChatColor.GOLD + "You were undisguised by " + player.getName());
 							} else {
@@ -1701,11 +1701,11 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 			} else {
 				if (plugin.disguiseDB.containsKey(player.getName())) {
 					// Pass the event
-					PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(player);
+					PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(player, true);
 					plugin.getServer().getPluginManager().callEvent(ev);
 					if (ev.isCancelled()) return true;
 					
-					plugin.unDisguisePlayer(player);
+					plugin.unDisguisePlayer(player, ev.getShowPlayer());
 					player.sendMessage(ChatColor.GOLD + "You were undisguised.");
 					if (isConsole) {
 						sender.sendMessage(player.getName() + " was undisguised.");
@@ -1728,11 +1728,11 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 			if (currentPlayer == sender) continue;
 			if (plugin.disguiseDB.containsKey(currentPlayer.getName())) {
 				// Pass the event
-				PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(currentPlayer);
+				PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(currentPlayer, true);
 				plugin.getServer().getPluginManager().callEvent(ev);
 				if (ev.isCancelled()) continue;
 				
-				plugin.unDisguisePlayer(currentPlayer);
+				plugin.unDisguisePlayer(currentPlayer, ev.getShowPlayer());
 				undisguisedPlayers.add(currentPlayer.getName());
 				currentPlayer.sendMessage(ChatColor.GOLD + "You were undisguised by " + ChatColor.DARK_GREEN + sender.getName());
 			}

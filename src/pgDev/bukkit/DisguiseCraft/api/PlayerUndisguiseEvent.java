@@ -25,9 +25,11 @@ public class PlayerUndisguiseEvent extends Event implements Cancellable {
     
     // Actual event things
     Player player;
+    boolean show;
     
-    public PlayerUndisguiseEvent(Player player) {
+    public PlayerUndisguiseEvent(Player player, boolean show) {
     	this.player = player;
+    	this.show = show;
     }
     
     /**
@@ -36,6 +38,21 @@ public class PlayerUndisguiseEvent extends Event implements Cancellable {
 	 */
     public Player getPlayer() {
     	return player;
+    }
+    
+    /**
+     * Get whether or not the player will be made visible
+     * @return True if the player will be shown
+     */
+    public boolean getShowPlayer() {
+    	return show;
+    }
+    
+    /**
+     * Set whether or not the player will be made visible
+     */
+    public void setShowPlayer(boolean show) {
+    	this.show = show;
     }
     
     // Cancel methods

@@ -112,13 +112,22 @@ public class DisguiseCraftAPI {
 	 * @return true for success, false if canceled
 	 */
 	public boolean undisguisePlayer(Player player) {
+		return undisguisePlayer(player, true);
+	}
+	
+	/**
+	 * Remove the disguise from a player, choosing whether or not the player should be made visible
+	 * @param player The player to undisguise
+	 * @return true for success, false if canceled
+	 */
+	public boolean undisguisePlayer(Player player, boolean show) {
 		// Pass the event
-		PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(player);
+		PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(player, show);
 		plugin.getServer().getPluginManager().callEvent(ev);
 		if (ev.isCancelled()) {
 			return false;
 		} else {
-			plugin.unDisguisePlayer(player);
+			plugin.unDisguisePlayer(player, ev.getShowPlayer());
 			return true;
 		}
 	}

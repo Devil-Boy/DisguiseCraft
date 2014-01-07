@@ -98,10 +98,10 @@ public class DCMainListener implements Listener {
 		if (plugin.disguiseDB.containsKey(player.getName())) {
 			plugin.disguiseIDs.remove(plugin.disguiseDB.get(player.getName()).entityID);
 			if (DisguiseCraft.pluginSettings.quitUndisguise) {
-				plugin.unDisguisePlayer(player);
+				plugin.unDisguisePlayer(player, true);
 				plugin.disguiseQuitters.add(player.getName());
 			} else {
-				plugin.undisguiseToWorld(player, player.getWorld());
+				plugin.undisguiseToWorld(player, player.getWorld(), true);
 			}
 		}
 		

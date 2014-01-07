@@ -227,7 +227,7 @@ public class DisguiseCraft extends JavaPlugin {
         	
         	// Remove disguises
         	for (Player disguised : disguiseIDs.values()) {
-        		unDisguisePlayer(disguised);
+        		unDisguisePlayer(disguised, true);
         	}
         	
         	// Wipe config
@@ -374,11 +374,11 @@ public class DisguiseCraft extends JavaPlugin {
     }
     
     public void changeDisguise(Player player, Disguise newDisguise) {
-    	unDisguisePlayer(player);
+    	unDisguisePlayer(player, false);
     	disguisePlayer(player, newDisguise);
     }
     
-    public void unDisguisePlayer(Player player) {
+    public void unDisguisePlayer(Player player, boolean show) {
     	String name = player.getName();
     	if (disguiseDB.containsKey(name)) {
     		Disguise disguise = disguiseDB.get(name);
@@ -387,7 +387,7 @@ public class DisguiseCraft extends JavaPlugin {
     			resetPlayerName(player);
     		}
     		
-    		undisguiseToWorld(player, player.getWorld());
+    		undisguiseToWorld(player, player.getWorld(), show);
     		disguiseIDs.remove(disguise.entityID);
     		disguiseDB.remove(name);
     		
@@ -611,7 +611,7 @@ public class DisguiseCraft extends JavaPlugin {
     	}
     }
     
-    public void undisguiseToWorld(final Player player, final World world) {
+    public void undisguiseToWorld(final Player player, final World world, final boolean show) {
     	Runnable undisguiseExec = new Runnable() {
     		@Override
     		public void run() {
@@ -625,7 +625,10 @@ public class DisguiseCraft extends JavaPlugin {
     	    	for (Player observer : world.getPlayers()) {
     	    		if (observer != player) {
     	    			sendPacketsToObserver(observer, toSend);
-    					observer.showPlayer(player);
+    	    			
+    	    			if (show) {
+    	    				observer.showPlayer(player);
+    	    			}
     	    		}
     	    	}
     		}
