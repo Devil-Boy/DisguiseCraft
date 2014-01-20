@@ -24,6 +24,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import pgDev.bukkit.DisguiseCraft.api.DisguiseCraftAPI;
@@ -82,7 +83,7 @@ public class DisguiseCraft extends JavaPlugin {
     public LinkedList<String> disguiseQuitters = new LinkedList<String>();
     public ConcurrentHashMap<Integer, Player> disguiseIDs = new ConcurrentHashMap<Integer, Player>();
     public ConcurrentHashMap<Integer, DroppedDisguise> droppedDisguises = new ConcurrentHashMap<Integer, DroppedDisguise>();
-    public ConcurrentHashMap<String, Integer> positionUpdaters = new ConcurrentHashMap<String, Integer>();
+    public ConcurrentHashMap<String, BukkitTask> positionUpdaters = new ConcurrentHashMap<String, BukkitTask>();
     
     // Custom display nick saving
     public HashMap<String, String> customNick = new HashMap<String, String>();
@@ -723,15 +724,20 @@ public class DisguiseCraft extends JavaPlugin {
     public void setPositionUpdater(String player, Disguise disguise) {
     	if (DisguiseCraft.pluginSettings.movementUpdateThreading) {
     		Player thePlayer = getServer().getPlayerExact(player);
-    		positionUpdaters.put(player, getServer().getScheduler().scheduleSyncRepeatingTask(this, new DCPlayerPositionUpdater(this, thePlayer, disguise), 1, pluginSettings.movementUpdateFrequency));
+    		if (thePlayer == null) {
+    			logger.log(Level.SEVERE, "Player \"" + player + "\" could not be found on the server. No position updater made");
+    		} else {
+    			positionUpdaters.put(player, getServer().getScheduler().runTaskTimer(this, new DCPlayerPositionUpdater(this, thePlayer, disguise), 1, pluginSettings.movementUpdateFrequency));
+    		}
     	}
     }
     
     public void removePositionUpdater(String player) {
     	if (DisguiseCraft.pluginSettings.movementUpdateThreading) {
-			if (positionUpdaters.remove(player) != null) {
-				getServer().getScheduler().cancelTask(positionUpdaters.get(player));
-			}
+    		BukkitTask positionUpdater = positionUpdaters.remove(player);
+    		if (positionUpdater != null) {
+    			positionUpdater.cancel();
+    		}
 		}
     }
 }
