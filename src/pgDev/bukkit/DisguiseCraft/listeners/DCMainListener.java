@@ -60,7 +60,7 @@ public class DCMainListener implements Listener {
 				}
 				
 				// Start position updater
-				plugin.setPositionUpdater(player, disguise);
+				plugin.setPositionUpdater(player.getName(), disguise);
 			} else {
 				plugin.disguiseDB.remove(player.getName());
 				player.sendMessage(ChatColor.RED + "You do not have the permissions required to wear your disguise in this world.");
@@ -109,7 +109,7 @@ public class DCMainListener implements Listener {
 		plugin.halfUndisguiseAllToPlayer(player);
 		
 		// Stop position updater
-		plugin.removePositionUpdater(player);
+		plugin.removePositionUpdater(player.getName());
 	}
 	
 	@EventHandler

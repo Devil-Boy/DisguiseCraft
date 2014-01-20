@@ -82,7 +82,7 @@ public class DisguiseCraft extends JavaPlugin {
     public LinkedList<String> disguiseQuitters = new LinkedList<String>();
     public ConcurrentHashMap<Integer, Player> disguiseIDs = new ConcurrentHashMap<Integer, Player>();
     public ConcurrentHashMap<Integer, DroppedDisguise> droppedDisguises = new ConcurrentHashMap<Integer, DroppedDisguise>();
-    public ConcurrentHashMap<Player, Integer> positionUpdaters = new ConcurrentHashMap<Player, Integer>();
+    public ConcurrentHashMap<String, Integer> positionUpdaters = new ConcurrentHashMap<String, Integer>();
     
     // Custom display nick saving
     public HashMap<String, String> customNick = new HashMap<String, String>();
@@ -370,7 +370,7 @@ public class DisguiseCraft extends JavaPlugin {
     	disguiseToWorld(player, player.getWorld());
     	
     	// Start position updater
-		setPositionUpdater(player, disguise);
+		setPositionUpdater(player.getName(), disguise);
     }
     
     public void changeDisguise(Player player, Disguise newDisguise) {
@@ -392,7 +392,7 @@ public class DisguiseCraft extends JavaPlugin {
     		disguiseDB.remove(name);
     		
     		// Stop position updater
-    		removePositionUpdater(player);
+    		removePositionUpdater(player.getName());
     	}
     }
     
@@ -720,15 +720,16 @@ public class DisguiseCraft extends JavaPlugin {
 		}
     }
     
-    public void setPositionUpdater(Player player, Disguise disguise) {
+    public void setPositionUpdater(String player, Disguise disguise) {
     	if (DisguiseCraft.pluginSettings.movementUpdateThreading) {
-    		positionUpdaters.put(player, getServer().getScheduler().scheduleSyncRepeatingTask(this, new DCPlayerPositionUpdater(this, player, disguise), 1, pluginSettings.movementUpdateFrequency));
+    		Player thePlayer = getServer().getPlayerExact(player);
+    		positionUpdaters.put(player, getServer().getScheduler().scheduleSyncRepeatingTask(this, new DCPlayerPositionUpdater(this, thePlayer, disguise), 1, pluginSettings.movementUpdateFrequency));
     	}
     }
     
-    public void removePositionUpdater(Player player) {
+    public void removePositionUpdater(String player) {
     	if (DisguiseCraft.pluginSettings.movementUpdateThreading) {
-			if (positionUpdaters.containsKey(player)) {
+			if (positionUpdaters.remove(player) != null) {
 				getServer().getScheduler().cancelTask(positionUpdaters.get(player));
 			}
 		}
