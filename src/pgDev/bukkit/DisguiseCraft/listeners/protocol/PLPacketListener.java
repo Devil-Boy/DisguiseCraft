@@ -3,7 +3,7 @@ package pgDev.bukkit.DisguiseCraft.listeners.protocol;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_7_R1.EnumEntityUseAction;
+import net.minecraft.server.v1_7_R2.EnumEntityUseAction;
 
 import org.bukkit.entity.Player;
 
