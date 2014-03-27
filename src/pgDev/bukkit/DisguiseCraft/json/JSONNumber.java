@@ -12,10 +12,17 @@ public class JSONNumber extends JSONValue {
 
 	private double parsed;
 	
+	/**
+	 * Gets the wrapped double value
+	 * @return The internal double value
+	 */
 	public double get() {
 		return parsed;
 	}
 	
+	/**
+	 * Returns this number back to JSON form
+	 */
 	@Override
 	public String toString() {
 		String output = Double.toString(parsed);
@@ -27,10 +34,20 @@ public class JSONNumber extends JSONValue {
 		return output;
 	}
 	
+	/**
+	 * Parses this number as a double
+	 * @param toParse The String containing the number
+	 * @return The JSONNumber object containing the numerical data
+	 * @throws IllegalArgumentException If parsing of the number failed
+	 */
 	public static JSONNumber parseNumber(String toParse) {
 		JSONNumber n = new JSONNumber();
 		
-		n.parsed = Double.parseDouble(toParse);
+		try {
+			n.parsed = Double.parseDouble(toParse);
+		} catch (Exception e) { // NumberFormatException | NullPointerException
+			throw new IllegalArgumentException("Number could not be parsed", e);
+		}
 		
 		return n;
 	}

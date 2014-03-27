@@ -16,10 +16,18 @@ public class JSONObject extends JSONValue {
 
 	private Map<String, JSONValue> map = new LinkedHashMap<String, JSONValue>();
 	
+	/**
+	 * Gets the JSONValue linked to the specified key
+	 * @param key The key linked to the value you want
+	 * @return The JSONValue-wrapped data
+	 */
 	public JSONValue get(String key) {
 		return map.get(key);
 	}
 	
+	/**
+	 * Returns this object back to JSON form
+	 */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -46,10 +54,20 @@ public class JSONObject extends JSONValue {
 		return sb.toString();
 	}
 	
+	/**
+	 * Gets a set of the entries in the internal map
+	 * @return The entrySet() result from the internal map
+	 */
 	public Set<Map.Entry<String, JSONValue>> entrySet() {
 		return map.entrySet();
 	}
 	
+	/**
+	 * Parses the JSON-formatted data as an object (key-value map)
+	 * @param toParse The data String to parse
+	 * @return A JSONObject containing all the parsed data values
+	 * @throw IllegalArgumentException If a formatting error prevents parsing
+	 */
 	public static JSONObject parseObject(String toParse) {
 		// Find and remove starting bracket
 		if (toParse.startsWith("{")) {

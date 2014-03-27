@@ -1,8 +1,5 @@
 package pgDev.bukkit.DisguiseCraft.json;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-
 /**
  * This class merely wraps a String in a JSON value
  * 
@@ -15,40 +12,116 @@ public class JSONString extends JSONValue {
 	
 	private String parsed;
 	
+	/**
+	 * Gets the wrapped String
+	 * @return The String contained in this wrapper
+	 */
 	public String get() {
 		return parsed;
 	}
 	
+	/**
+	 * Returns this String back to JSON form
+	 * Only '\', '"', and control characters are escaped
+	 */
 	@Override
 	public String toString() {
-		return "\"" + parsed + "\"";
+		StringBuilder sb = new StringBuilder(parsed);
+		
+		for (int i=0; i < sb.length(); i++) {
+			char c = sb.charAt(i);
+			
+			switch (c) {
+			case '"':
+			case '\\':
+			case '/':
+				sb.insert(i, '\\');
+				i++;
+				break;
+			case '\b':
+				sb.replace(i, i+1, "\\b");
+				i++;
+				break;
+			case '\f':
+				sb.replace(i, i+1, "\\f");
+				i++;
+				break;
+			case '\n':
+				sb.replace(i, i+1, "\\n");
+				i++;
+				break;
+			case '\r':
+				sb.replace(i, i+1, "\\r");
+				i++;
+				break;
+			case '\t':
+				sb.replace(i, i+1, "\\t");
+				i++;
+				break;
+			}
+		}
+		
+		return "\"" + sb.toString() + "\"";
 	}
 
+	/**
+	 * Parses this JSON String by converting all escapes into Java chars
+	 * @param toParse The JSON String data to parse
+	 * @return A JSONString object with an internal String containing the parsed data
+	 * @throws If formatting issues prevent proper parsing
+	 */
 	public static JSONString parseString(String toParse) {
-		JSONString s = new JSONString();
-		s.parsed = toParse;
-		
 		// Find and remove beginning quote
-		if (s.parsed.startsWith("\"")) {
-			s.parsed = s.parsed.substring(1, s.parsed.length());
+		if (toParse.startsWith("\"")) {
+			toParse = toParse.substring(1, toParse.length());
 		} else {
 			throw new IllegalArgumentException("No beginning quote found");
 		}
 		
 		// Find and remove ending quote
-		if (s.parsed.endsWith("\"")) {
-			s.parsed = s.parsed.substring(0, s.parsed.length() - 1);
+		if (toParse.endsWith("\"")) {
+			toParse = toParse.substring(0, toParse.length() - 1);
 		} else {
 			throw new IllegalArgumentException("No ending quote found");
 		}
 		
 		// Try to decode
-		try {
-			s.parsed = URLDecoder.decode(s.parsed, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		StringBuilder sb = new StringBuilder(toParse);
+		for (int i=0; i < sb.length(); i++) {
+			char c = sb.charAt(i);
+			
+			if (c == '\\') {
+				switch (sb.charAt(i + 1)) {
+				case '"':
+				case '\\':
+				case '/':
+					sb.deleteCharAt(i);
+					break;
+				case 'b':
+					sb.replace(i, i+2, "\b");
+					break;
+				case 'f':
+					sb.replace(i, i+2, "\f");
+					break;
+				case 'n':
+					sb.replace(i, i+2, "\n");
+					break;
+				case 'r':
+					sb.replace(i, i+2, "\r");
+					break;
+				case 't':
+					sb.replace(i, i+2, "\t");
+					break;
+				case 'u':
+					char decoded = (char) Integer.parseInt(sb.substring(i+2, i+6), 16);
+					sb.delete(i, i+6);
+					sb.insert(i, decoded);
+				}
+			}
 		}
 		
+		JSONString s = new JSONString();
+		s.parsed = sb.toString();
 		return s;
 	}
 }

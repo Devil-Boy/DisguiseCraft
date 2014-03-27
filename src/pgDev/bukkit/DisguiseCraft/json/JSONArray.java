@@ -16,14 +16,26 @@ public class JSONArray extends JSONValue implements Iterable<JSONValue> {
 
 	private List<JSONValue> list = new ArrayList<JSONValue>();
 	
+	/**
+	 * Gets the value at the specified index
+	 * @param index The index from which you want data from
+	 * @return The JSONValue at the specified index
+	 */
 	public JSONValue get(int index) {
 		return list.get(index);
 	}
 	
+	/**
+	 * Gets the number of stored values
+	 * @return The size of the internal list
+	 */
 	public int size() {
 		return list.size();
 	}
 	
+	/**
+	 * Returns this back to a JSON-formatted array
+	 */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -48,11 +60,20 @@ public class JSONArray extends JSONValue implements Iterable<JSONValue> {
 		return sb.toString();
 	}
 	
+	/**
+	 * Gets an iterator from the internal list
+	 */
 	@Override
 	public Iterator<JSONValue> iterator() {
 		return list.iterator();
 	}
 	
+	/**
+	 * Parses the array into an internal JSONValue list
+	 * @param toParse The JSON-formatted String to parse
+	 * @return A JSONArray containing all the data values
+	 * @throws IllegalArgumentException If formatting errors prevent parsing
+	 */
 	public static JSONArray parseArray(String toParse) {
 		// Find and remove starting bracket
 		if (toParse.startsWith("[")) {

@@ -5,58 +5,87 @@ import java.net.URL;
 import java.util.logging.Level;
 
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
+import pgDev.bukkit.DisguiseCraft.json.JSONArray;
+import pgDev.bukkit.DisguiseCraft.json.JSONObject;
+import pgDev.bukkit.DisguiseCraft.json.JSONString;
+import pgDev.bukkit.DisguiseCraft.json.JSONValue;
 
 
 public class DCUpdateChecker {
 	
-	public static String dcPage = "http://dev.bukkit.org/server-mods/disguisecraft/";
+	public static String dcInfoQuery = "https://api.curseforge.com/servermods/files?projectIds=37008";
 	
 	public static String getLatestVersion() {
 		try {
-			URL devPage = new URL(dcPage);
+			URL devPage = new URL(dcInfoQuery);
 			BufferedReader in = new BufferedReader(new InputStreamReader(devPage.openStream()));
 			
-			String importantLine = "";
+			// Just in case the response has newlines
+			StringBuilder sb = new StringBuilder();
+			
 			String line;
 			while ((line = in.readLine()) != null) {
-				if (line.trim().equalsIgnoreCase("<dt>Recent files</dt>")) {
-					importantLine = filterHTML(in.readLine());
-				}
+				sb.append(line);
 			}
 			
 			in.close();
 			
-			if (importantLine.equals("")) {
-				return "Error while checking!";
-			}
-			String[] files = importantLine.split("R: ");
-			return files[1].trim();
+			// Pull latest version out of JSON response
+			JSONArray fileList = (JSONArray) JSONValue.parse(sb.toString());
+			JSONObject latestFile = (JSONObject) fileList.get(fileList.size() - 1);
+			JSONString fileName = (JSONString) latestFile.get("name");
+			
+			return fileName.get();
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.WARNING , "Error checking for updates", e);
 		}
 		return "Error during check!";
 	}
 	
-	// Filter out HTML
-	public static String filterHTML(String toFilter) {
-		String HTMLfiltered = "";
-		boolean HTMLtag = false;
-		for (int i=0; i<toFilter.length(); i++) {
-			if (toFilter.charAt(i) == '<') {
-				HTMLtag = true;
-			} else if (toFilter.charAt(i) == '>') {
-				if (HTMLtag == false) {
-					HTMLfiltered = HTMLfiltered + toFilter.charAt(i);
-				}
-				else {
-					HTMLtag = false;
-				}
-			} else {
-				if (HTMLtag == false) {
-					HTMLfiltered = HTMLfiltered + toFilter.charAt(i);
+	// Compare version Strings
+	public static boolean isUpToDate(String current, String latest) {
+		// Strip letters and whitespace
+		current = current.replace(" ", "").replaceAll("[^\\d.]", "");
+		latest = latest.replace(" ", "").replaceAll("[^\\d.]", "");
+		
+		// Quick match compare
+		if (current.equals(latest)) {
+			return true;
+		}
+		
+		// Split into comparable segments
+		String[] cSegments = current.split("\\.");
+		String[] lSegments = latest.split("\\.");
+		
+		// Compare the versions
+		try {
+			for (int i=0; i < cSegments.length || i < lSegments.length; i++) {
+				if (i >= cSegments.length) {
+					if (i >= lSegments.length) {
+						return true;
+					} else {
+						if (Integer.decode(lSegments[i]) > 0) {
+							return false;
+						} else {
+							return true;
+						}
+					}
+				} else if (i >= lSegments.length) {
+					return true;
+				} else {
+					if (Integer.decode(cSegments[i]) > Integer.decode(lSegments[i])) {
+						return true;
+					} else if (Integer.decode(lSegments[i]) > Integer.decode(cSegments[i])) {
+						return false;
+					}
 				}
 			}
+		} catch (NumberFormatException e) {
+			DisguiseCraft.logger.log(Level.WARNING, "Version numbers could not be parsed", e);
 		}
-		return HTMLfiltered;
+		
+		// Shouldn't get here
+		DisguiseCraft.logger.log(Level.WARNING, "Version numbers were not correctly parsed");
+		return true;
 	}
 }

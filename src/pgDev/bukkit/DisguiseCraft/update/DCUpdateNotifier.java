@@ -19,10 +19,10 @@ public class DCUpdateNotifier  implements Runnable {
 	@Override
 	public void run() {
 		if (player.isOnline()) {
-			String update = DCUpdateChecker.getLatestVersion();
+			String latestVersion = DCUpdateChecker.getLatestVersion();
 			try {
-				if (Integer.parseInt(plugin.pdfFile.getVersion().replace(".", "")) < Integer.parseInt(update.split(" ")[0].replace("v", "").replace(".", ""))) {
-					player.sendMessage(ChatColor.BLUE + "There is a new update for DisguiseCraft available: " + update);
+				if (DCUpdateChecker.isUpToDate(plugin.pdfFile.getVersion(), latestVersion)) {
+					player.sendMessage(ChatColor.BLUE + "There is a new update for DisguiseCraft available: " + latestVersion);
 				}
 			} catch (NumberFormatException e) {
 				DisguiseCraft.logger.log(Level.WARNING, "Could not parse version updates.");

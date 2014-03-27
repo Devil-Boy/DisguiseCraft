@@ -10,6 +10,13 @@ package pgDev.bukkit.DisguiseCraft.json;
  */
 public abstract class JSONValue {
 	
+	/**
+	 * Parses the JSON-formatted String as well as any nested values
+	 * It determines the value type based on the first character
+	 * @param toParse The String to parse
+	 * @return A JSONValue whose class is based on data type
+	 * @throws IllegalArgumentException If the data type could not be identified
+	 */
 	public static JSONValue parse(String toParse) {
 		// Strip whitespace
 		toParse = toParse.trim();
