@@ -1,6 +1,7 @@
 package pgDev.bukkit.DisguiseCraft.json;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -11,13 +12,9 @@ import java.util.List;
  * 
  * @author Devil Boy
  */
-public class JSONArray extends JSONValue {
+public class JSONArray extends JSONValue implements Iterable<JSONValue> {
 
 	private List<JSONValue> list = new ArrayList<JSONValue>();
-	
-	private JSONArray(String unparsed) {
-		super(unparsed);
-	}
 	
 	public JSONValue get(int index) {
 		return list.get(index);
@@ -27,7 +24,36 @@ public class JSONArray extends JSONValue {
 		return list.size();
 	}
 	
-	public static JSONArray parseList(String toParse) {
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append('[');
+		
+		for (int i=0; i < list.size(); i++) {
+			if (i != 0) {
+				sb.append(',');
+			}
+			
+			JSONValue v = list.get(i);
+			if (v == null) {
+				sb.append("null");
+			} else {
+				sb.append(list.get(i).toString());
+			}
+		}
+		
+		sb.append(']');
+		
+		return sb.toString();
+	}
+	
+	@Override
+	public Iterator<JSONValue> iterator() {
+		return list.iterator();
+	}
+	
+	public static JSONArray parseArray(String toParse) {
 		// Find and remove starting bracket
 		if (toParse.startsWith("[")) {
 			toParse = toParse.substring(1, toParse.length());
@@ -43,35 +69,42 @@ public class JSONArray extends JSONValue {
 		}
 		
 		// Construct the JSONArray
-		JSONArray a = new JSONArray(toParse);
+		JSONArray a = new JSONArray();
 		
 		// Parse values
 		boolean quoteDepth = false;
 		int bracketDepth = 0;
 		int lastIndex = 0;
 		for (int i=0; i < toParse.length(); i++) {
+			char c = toParse.charAt(i);
+			
 			// Check for escape character
-			if (toParse.charAt(i) == '\\') {
+			if (c == '\\') {
 				i++;
 			} else {
 				// Check for quotations
-				if (toParse.charAt(i) == '"') {
+				if (c == '"') {
 					quoteDepth = !quoteDepth;
 				}
 				
 				if (!quoteDepth) {
 					// We're assuming brackets are correctly matched (no [{]}'s)
-					if (toParse.charAt(i) == '[' || toParse.charAt(i) == '{') {
+					if (c == '[' || c == '{') {
 						bracketDepth++;
-					} else if (toParse.charAt(i) == ']' || toParse.charAt(i) == '}') {
+					} else if (c == ']' || c == '}') {
 						if (bracketDepth <= 0) {
 							throw new IllegalArgumentException("Close bracket found before an open bracket");
 						} else {
 							bracketDepth--;
 						}
-					} else if (toParse.charAt(i) == ',') {
-						// Add value
-						a.list.add(JSONValue.parse(toParse.substring(lastIndex, i)));
+					}
+					
+					if (bracketDepth == 0) {
+						if( c == ',') {
+							// Add value
+							a.list.add(JSONValue.parse(toParse.substring(lastIndex, i)));
+							lastIndex = i + 1;
+						}
 					}
 				}
 			}

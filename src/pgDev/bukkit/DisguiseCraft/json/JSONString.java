@@ -14,17 +14,18 @@ import java.net.URLDecoder;
 public class JSONString extends JSONValue {
 	
 	private String parsed;
-
-	private JSONString(String unparsed) {
-		super(unparsed);
-	}
 	
 	public String get() {
 		return parsed;
 	}
+	
+	@Override
+	public String toString() {
+		return "\"" + parsed + "\"";
+	}
 
 	public static JSONString parseString(String toParse) {
-		JSONString s = new JSONString(toParse);
+		JSONString s = new JSONString();
 		s.parsed = toParse;
 		
 		// Find and remove beginning quote

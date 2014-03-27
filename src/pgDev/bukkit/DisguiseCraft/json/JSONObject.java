@@ -1,7 +1,8 @@
 package pgDev.bukkit.DisguiseCraft.json;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class handles the parsing of JSON objects
@@ -13,14 +14,40 @@ import java.util.Map;
  */
 public class JSONObject extends JSONValue {
 
-	private Map<String, JSONValue> map = new HashMap<String, JSONValue>();
-	
-	private JSONObject(String unparsed) {
-		super(unparsed);
-	}
+	private Map<String, JSONValue> map = new LinkedHashMap<String, JSONValue>();
 	
 	public JSONValue get(String key) {
 		return map.get(key);
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append('{');
+		
+		for (Map.Entry<String, JSONValue> e : map.entrySet()) {
+			if (sb.length() > 1) {
+				sb.append(',');
+			}
+			
+			sb.append("\"" + e.getKey() + "\":");
+			
+			JSONValue v = e.getValue();
+			if (v == null) {
+				sb.append("null");
+			} else {
+				sb.append(e.getValue().toString());
+			}
+		}
+		
+		sb.append('}');
+		
+		return sb.toString();
+	}
+	
+	public Set<Map.Entry<String, JSONValue>> entrySet() {
+		return map.entrySet();
 	}
 	
 	public static JSONObject parseObject(String toParse) {
@@ -39,10 +66,58 @@ public class JSONObject extends JSONValue {
 		}
 		
 		// Construct the JSONObject
-		JSONObject o = new JSONObject(toParse);
+		JSONObject o = new JSONObject();
 		
 		// Parse pairs
-		//TODO: Write parser
+		boolean quoteDepth = false;
+		int bracketDepth = 0;
+		int lastIndex = 0;
+		String lastKey = null;
+		for (int i=0; i < toParse.length(); i++) {
+			char c = toParse.charAt(i);
+			
+			// Check for escape character
+			if (c == '\\') {
+				i++;
+			} else {
+				// Check for quotations
+				if (c == '"') {
+					quoteDepth = !quoteDepth;
+				}
+				
+				if (!quoteDepth) {
+					// We're assuming brackets are correctly matched (no [{]}'s)
+					if (c == '[' || c == '{') {
+						bracketDepth++;
+					} else if (c == ']' || c == '}') {
+						if (bracketDepth <= 0) {
+							throw new IllegalArgumentException("Close bracket found before an open bracket");
+						} else {
+							bracketDepth--;
+						}
+					}
+						
+					if (bracketDepth == 0) {
+						if (c == ':') {
+							// Save key
+							lastKey = JSONString.parseString(toParse.substring(lastIndex, i).trim()).get();
+							lastIndex = i + 1;
+						} else if (c == ',') {
+							if (lastKey == null) {
+								throw new IllegalArgumentException("Pair missing a key");
+							} else {
+								// Add pair
+								o.map.put(lastKey, JSONValue.parse(toParse.substring(lastIndex, i)));
+								lastIndex = i + 1;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// Add last pair
+		o.map.put(lastKey, JSONValue.parse(toParse.substring(lastIndex, toParse.length())));
 		
 		return o;
 	}

@@ -9,18 +9,29 @@ package pgDev.bukkit.DisguiseCraft.json;
  * @author Devil Boy
  */
 public abstract class JSONValue {
-	String unparsed;
-	
-	protected JSONValue(String unparsed) {
-		this.unparsed = unparsed;
-	}
 	
 	public static JSONValue parse(String toParse) {
-		//TODO: Actually write parser
-		if (toParse.startsWith("\"")) {
+		// Strip whitespace
+		toParse = toParse.trim();
+		
+		// Parse based on first character
+		char c = toParse.charAt(0);
+		if (c == '"') {
 			return JSONString.parseString(toParse);
+		} else if (Character.isDigit(c) || c == '-') {
+			return JSONNumber.parseNumber(toParse);
+		} else if (c == '{') {
+			return JSONObject.parseObject(toParse);
+		} else if (c == '[') {
+			return JSONArray.parseArray(toParse);
+		} else if (c == 't' || c == 'f') {
+			return JSONBoolean.parseBoolean(toParse);
+		} else if (c == 'n') {
+			if (toParse.equalsIgnoreCase("null")) {
+				return null;
+			}
 		}
 		
-		return null;
+		throw new IllegalArgumentException("Could not identify value type");
 	}
 }
