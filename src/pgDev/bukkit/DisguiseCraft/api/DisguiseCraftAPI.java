@@ -2,6 +2,7 @@ package pgDev.bukkit.DisguiseCraft.api;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
@@ -26,7 +27,7 @@ public class DisguiseCraftAPI {
 	 * @return true if disguised, false otherwise
 	 */
 	public boolean isDisguised(Player player) {
-		return plugin.disguiseDB.containsKey(player.getName());
+		return plugin.disguiseDB.containsKey(player.getUniqueId());
 	}
 	
 	/**
@@ -35,7 +36,7 @@ public class DisguiseCraftAPI {
 	 * @return The disguise object (null if not disguised)
 	 */
 	public Disguise getDisguise(Player player) {
-		return plugin.disguiseDB.get(player.getName());
+		return plugin.disguiseDB.get(player.getUniqueId());
 	}
 
 	/**
@@ -52,14 +53,14 @@ public class DisguiseCraftAPI {
 	}
 	
 	/**
-	 * Provides a set with the names of players who are disguised
+	 * Provides a set with the UUIDs of players who are disguised
 	 * in DisguiseCraft's database, including offline players
 	 * 
 	 * Changes to the database are reflected in this set. Do not
 	 * use this set to remove players from the database.
 	 * @return The set of all disguised players
 	 */
-	public Set<String> getAllDisguisedPlayers() {
+	public Set<UUID> getAllDisguisedPlayers() {
 		return plugin.disguiseDB.keySet();
 	}
 	

@@ -19,8 +19,8 @@ public class PlayerAnimationListener implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	public void onAnimation(PlayerAnimationEvent event) {
 		if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
-			if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
-				Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
+			if (plugin.disguiseDB.containsKey(event.getPlayer().getUniqueId())) {
+				Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getUniqueId());
 				if (disguise.type.isPlayer() || disguise.type == DisguiseType.IronGolem ||
 						disguise.type == DisguiseType.Zombie || disguise.type == DisguiseType.PigZombie || disguise.type == DisguiseType.Skeleton ||
 						disguise.type == DisguiseType.Giant) {

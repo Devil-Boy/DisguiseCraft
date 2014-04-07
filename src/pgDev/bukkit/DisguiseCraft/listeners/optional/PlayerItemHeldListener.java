@@ -18,8 +18,8 @@ public class PlayerItemHeldListener implements Listener {
 	
 	@EventHandler
 	public void onHeldItemChange(PlayerItemHeldEvent event) {
-		if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
-			Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
+		if (plugin.disguiseDB.containsKey(event.getPlayer().getUniqueId())) {
+			Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getUniqueId());
 			if (disguise.type.isPlayer() || disguise.type == DisguiseType.Zombie || disguise.type == DisguiseType.PigZombie || disguise.type == DisguiseType.Skeleton) {
 				ItemStack heldItem = event.getPlayer().getInventory().getItem(event.getNewSlot());
 				plugin.sendPacketToWorld(event.getPlayer().getWorld(), disguise.packetGenerator.getEquipmentChangePacket((short) 0, heldItem));

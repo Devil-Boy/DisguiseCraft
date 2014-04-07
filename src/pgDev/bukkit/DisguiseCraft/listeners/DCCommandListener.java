@@ -17,6 +17,7 @@ import org.bukkit.permissions.Permission;
 
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
+import pgDev.bukkit.DisguiseCraft.update.DCUpdateNotifier;
 import pgDev.bukkit.DisguiseCraft.api.*;
 
 public class DCCommandListener implements CommandExecutor, TabCompleter {
@@ -30,9 +31,19 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 	
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		// Quick Output
-		if (args.length != 0 && args[0].equalsIgnoreCase("subtypes")) {
-			sender.sendMessage(ChatColor.DARK_GREEN + "Available subtypes: " + ChatColor.GREEN + DisguiseType.subTypes);
-			return true;
+		if (args.length != 0) {
+			if (args[0].equalsIgnoreCase("subtypes")) {
+				sender.sendMessage(ChatColor.DARK_GREEN + "Available subtypes: " + ChatColor.GREEN + DisguiseType.subTypes);
+				return true;
+			} else if (args[0].equalsIgnoreCase("update")) {
+				if (sender instanceof Player && !((Player) sender).hasPermission("disguisecraft.update")) {
+					sender.sendMessage(ChatColor.RED + "You do not have permission to check for updates");
+				} else {
+					sender.sendMessage(ChatColor.BLUE + "Checking for update...");
+					plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new DCUpdateNotifier(plugin, sender, true));
+				}
+				return true;
+			}
 		}
 		
 		// Differentiate console input
@@ -119,8 +130,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					}
 					
 					// Tell of current disguise
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName());
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId());
 						if (disguise.type.isPlayer()) {
 							player.sendMessage(ChatColor.GOLD + "You are currently disguised as " + ChatColor.DARK_RED + disguise.data.getFirst() + ".");
 						} else {
@@ -148,11 +159,12 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				}
+			} else if (args[0].equals("update")) {
 			} else if (args[0].equalsIgnoreCase("send") || args[0].equalsIgnoreCase("s")) {
 				if (isConsole) {
 					sender.sendMessage(ChatColor.RED + "You cannot send a disguise from the console. Just disguise the player instead.");
 				} else {
-					if (plugin.disguiseDB.containsKey(player.getName())) {
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
 						if (player.hasPermission("disguisecraft.other.disguise")) {
 							if (args.length < 2) {
 								sender.sendMessage(ChatColor.RED + "You must specify a player.");
@@ -160,7 +172,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 								if (args[1].equals("*")) {
 									for (Player receiver : plugin.getServer().getOnlinePlayers()) {
 										if (receiver == player) continue; 
-										Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+										Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 										disguise.entityID = plugin.getNextAvailableID();
 										
 										// Pass the event
@@ -168,7 +180,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 										plugin.getServer().getPluginManager().callEvent(ev);
 										if (ev.isCancelled()) continue;
 										
-										if (plugin.disguiseDB.containsKey(receiver.getName())) {
+										if (plugin.disguiseDB.containsKey(receiver.getUniqueId())) {
 											plugin.changeDisguise(receiver, disguise);
 										} else {
 											plugin.disguisePlayer(receiver, disguise);
@@ -190,7 +202,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									if (receiver == null) {
 										sender.sendMessage(ChatColor.RED + "The player you specified could not be found.");
 									} else {
-										Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+										Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 										disguise.entityID = plugin.getNextAvailableID();
 										
 										// Pass the event
@@ -198,7 +210,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 										plugin.getServer().getPluginManager().callEvent(ev);
 										if (ev.isCancelled()) return true;
 										
-										if (plugin.disguiseDB.containsKey(receiver.getName())) {
+										if (plugin.disguiseDB.containsKey(receiver.getUniqueId())) {
 											plugin.changeDisguise(receiver, disguise);
 										} else {
 											plugin.disguisePlayer(receiver, disguise);
@@ -227,8 +239,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				}
 			} else if (args[0].equalsIgnoreCase("nopickup") || args[0].equalsIgnoreCase("np")) {
 				if (isConsole || player.hasPermission("disguisecraft.nopickup")) {
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName());
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId());
 						if (disguise.data.remove("nopickup")) {
 							sender.sendMessage(ChatColor.GOLD + "Item pickup enabled");
 						} else {
@@ -243,8 +255,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				}
 			} else if (args[0].equalsIgnoreCase("blocklock") || args[0].equalsIgnoreCase("bl")) {
 				if (isConsole || player.hasPermission("disguisecraft.blocklock")) {
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName());
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId());
 						if (disguise.data.remove("blocklock")) {
 							sender.sendMessage(ChatColor.GOLD + "Block lock disabled");
 						} else {
@@ -260,8 +272,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				}
 			} else if (args[0].equalsIgnoreCase("noarmor") || args[0].equalsIgnoreCase("na")) {
 				if (isConsole || player.hasPermission("disguisecraft.noarmor")) {
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName());
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId());
 						if (disguise.data.remove("noarmor")) {
 							sender.sendMessage(ChatColor.GOLD + "No-armor disabled");
 						} else {
@@ -283,8 +295,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					} else {
 						if (type.canBeBaby()) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".baby")) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData("baby");
 									
 									// Pass the event
@@ -303,9 +315,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as a Baby " + plugin.disguiseDB.get(player.getName()).type.name());
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as a Baby " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as a Baby " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as a Baby " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								}
 							} else {
 								player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a Baby " + type.name());
@@ -315,8 +327,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				} else { // Current mob
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						if (disguise.data != null && disguise.data.contains("baby")) {
 							sender.sendMessage(ChatColor.RED + "Already in baby form.");
 						} else {
@@ -374,8 +386,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 								co = "-Collared ";
 							}
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + c + args[0].toLowerCase())) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData("tamed").addSingleData(args[0].toLowerCase());
 									
 									// Pass the event
@@ -394,9 +406,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + co + " " + plugin.disguiseDB.get(player.getName()).type.name());
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + co + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + co + " " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + co + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								}
 							} else {
 								player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as " + a + WordUtils.capitalize(args[0].toLowerCase()) + co + " " + type.name());
@@ -406,8 +418,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				} else { // Current mob
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						if (disguise.data != null && disguise.data.contains(args[0].toLowerCase())) {
 							sender.sendMessage(ChatColor.RED + "Already " + args[0] + ".");
 						} else {
@@ -463,8 +475,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					} else {
 						if (type == DisguiseType.Creeper) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".charged")) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData("charged");
 									
 									// Pass the event
@@ -483,9 +495,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as a Charged " + plugin.disguiseDB.get(player.getName()).type.name());
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as a Charged " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as a Charged " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as a Charged " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								}
 							} else {
 								player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a Charged " + type.name());
@@ -495,8 +507,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				} else { // Current mob
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						if (disguise.data != null && disguise.data.contains("charged")) {
 							sender.sendMessage(ChatColor.RED + "Already charged.");
 						} else {
@@ -539,8 +551,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					} else {
 						if (type == DisguiseType.Slime || type == DisguiseType.MagmaCube) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".size." + args[0].toLowerCase())) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
 									
 									// Pass the event
@@ -559,9 +571,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								}
 							} else {
 								player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + type.name());
@@ -571,8 +583,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				} else { // Current mob
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						if (disguise.data != null && disguise.data.contains(args[0].toLowerCase())) {
 							sender.sendMessage(ChatColor.RED + "Already " + args[0] + ".");
 						} else {
@@ -623,8 +635,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					} else {
 						if (type == DisguiseType.Wolf) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + "." + args[0].toLowerCase())) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
 									
 									// Pass the event
@@ -645,9 +657,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 								}
 								
 								
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								}
 							} else {
 								player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as " + a + WordUtils.capitalize(args[0].toLowerCase()) + " " + type.name());
@@ -657,8 +669,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				} else { // Current mob
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						if (disguise.data.contains(args[0].toLowerCase())) {
 							sender.sendMessage(ChatColor.RED + "Already " + args[0] + ".");
 						} else {
@@ -700,8 +712,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					} else {
 						if (type == DisguiseType.Ocelot) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".cat." + args[0].toLowerCase())) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
 									
 									// Pass the event
@@ -732,8 +744,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				} else { // Current mob
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						if (disguise.data != null && disguise.data.contains(args[0].toLowerCase())) {
 							sender.sendMessage(ChatColor.RED + "Already a " + args[0] + " cat.");
 						} else {
@@ -783,8 +795,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
 						if (isConsole || (player.hasPermission("disguisecraft.burning") && player.hasPermission("disguisecraft.mob." + type.name().toLowerCase()))) {
-							if (plugin.disguiseDB.containsKey(player.getName())) {
-								Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+							if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+								Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 								disguise.setType(type).setSingleData("burning");
 								
 								// Pass the event
@@ -803,17 +815,17 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 								
 								plugin.disguisePlayer(player, disguise);
 							}
-							player.sendMessage(ChatColor.GOLD + "You have been disguised as a Burning " + plugin.disguiseDB.get(player.getName()).type.name());
+							player.sendMessage(ChatColor.GOLD + "You have been disguised as a Burning " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 							if (isConsole) {
-								sender.sendMessage(player.getName() + " was disguised as a Burning " + plugin.disguiseDB.get(player.getName()).type.name());
+								sender.sendMessage(player.getName() + " was disguised as a Burning " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 							}
 						} else {
 							player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a Burning " + type.name());
 						}
 					}
 				} else { // Current mob
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						if (disguise.data != null && disguise.data.contains("burning")) {
 							sender.sendMessage(ChatColor.RED + "Already burning.");
 						} else {
@@ -851,8 +863,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					} else {
 						if (type == DisguiseType.Pig || type == DisguiseType.Horse) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".saddled")) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData("saddled");
 									
 									// Pass the event
@@ -871,9 +883,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as a Saddled " + plugin.disguiseDB.get(player.getName()).type.name());
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as a Saddled " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as a Saddled " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as a Saddled " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								}
 							} else {
 								player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a Saddled " + type.name());
@@ -883,8 +895,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				} else { // Current mob
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						if (disguise.data != null && disguise.data.contains("saddled")) {
 							sender.sendMessage(ChatColor.RED + "Already saddled.");
 						} else {
@@ -930,8 +942,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 								if (type.getId() > 127) {
 									sender.sendMessage(ChatColor.RED + "Endermen cannot hold blocks with IDs over 127");
 								} else {
-									if (plugin.disguiseDB.containsKey(player.getName())) {
-										Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+									if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+										Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 										if (disguise.type == DisguiseType.Enderman) {
 											Integer currentHold = disguise.getBlockID();
 											if (currentHold != null) {
@@ -967,8 +979,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					player.sendMessage(ChatColor.RED + "You do not have the permissions to hold blocks with your disguise");
 				}
 			} else if (args[0].equalsIgnoreCase("blockdata") || args[0].equalsIgnoreCase("bd")) {
-				if (plugin.disguiseDB.containsKey(player.getName())) {
-					Disguise disguise = plugin.disguiseDB.get(player.getName());
+				if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+					Disguise disguise = plugin.disguiseDB.get(player.getUniqueId());
 					if (isConsole || (disguise.type == DisguiseType.Enderman && player.hasPermission("disguisecraft.mob.enderman.hold.metadata"))
 							|| (disguise.type == DisguiseType.FallingBlock && player.hasPermission("disguisecraft.object.block.fallingblock.material.metadata"))) {
 						if (args.length > 1) {
@@ -1020,8 +1032,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					} else {
 						if (type == DisguiseType.Villager) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".occupation." + args[0].toLowerCase())) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
 									
 									// Pass the event
@@ -1040,9 +1052,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								}
 							} else {
 								player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + type.name());
@@ -1052,8 +1064,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				} else { // Current mob
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						if (disguise.data != null && disguise.data.contains(args[0].toLowerCase())) {
 							sender.sendMessage(ChatColor.RED + "Already a " + args[0] + ".");
 						} else {
@@ -1110,8 +1122,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					} else {
 						if (type == DisguiseType.Horse) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".type." + args[0].toLowerCase())) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
 									
 									// Pass the event
@@ -1130,9 +1142,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								}
 							} else {
 								player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + type.name());
@@ -1142,8 +1154,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				} else { // Current mob
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						if (disguise.data != null && disguise.data.contains(args[0].toLowerCase())) {
 							sender.sendMessage(ChatColor.RED + "Already a " + args[0] + " Horse");
 						} else {
@@ -1188,8 +1200,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						if (args[0].equalsIgnoreCase("donkey") || args[0].equalsIgnoreCase("mule")) {
 							DisguiseType type = DisguiseType.Horse;
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".type." + args[0].toLowerCase())) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
 									
 									// Pass the event
@@ -1208,9 +1220,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								}
 							} else {
 								player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + type.name());
@@ -1231,8 +1243,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 						if (type == DisguiseType.Zombie || type == DisguiseType.PigZombie) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".infected")) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData("infected");
 									
 									// Pass the event
@@ -1251,9 +1263,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as an Infected " + plugin.disguiseDB.get(player.getName()).type.name());
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as an Infected " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as an Infected " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as an Infected " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 								}
 							} else {
 								player.sendMessage(ChatColor.RED + "You do not have permission to disguise as an Infected " + type.name());
@@ -1263,8 +1275,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						}
 					}
 				} else { // Current mob
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						if (disguise.data != null && disguise.data.contains("infected")) {
 							sender.sendMessage(ChatColor.RED + "Already infected.");
 						} else {
@@ -1297,8 +1309,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 			} else if (args[0].equalsIgnoreCase("witherskeleton") || (args[0].equalsIgnoreCase("wither") && (args.length > 1 && args[1].equalsIgnoreCase("skeleton")))) {
 				DisguiseType type = DisguiseType.Skeleton;
 				if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".wither")) {
-					if (plugin.disguiseDB.containsKey(player.getName())) {
-						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 						disguise.setType(type).setSingleData("wither");
 						
 						// Pass the event
@@ -1317,9 +1329,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						
 						plugin.disguisePlayer(player, disguise);
 					}
-					player.sendMessage(ChatColor.GOLD + "You have been disguised as a Wither " + plugin.disguiseDB.get(player.getName()).type.name());
+					player.sendMessage(ChatColor.GOLD + "You have been disguised as a Wither " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 					if (isConsole) {
-						sender.sendMessage(player.getName() + " was disguised as a Wither " + plugin.disguiseDB.get(player.getName()).type.name());
+						sender.sendMessage(player.getName() + " was disguised as a Wither " + plugin.disguiseDB.get(player.getUniqueId()).type.name());
 					}
 				} else {
 					player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a Wither " + type.name());
@@ -1332,8 +1344,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					// hopper
 					DisguiseType type = DisguiseType.Minecart;
 					if (isConsole || player.hasPermission("disguisecraft.object.vehicle.minecart.hopper")) {
-						if (plugin.disguiseDB.containsKey(player.getName())) {
-							Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+						if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+							Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 							disguise.setType(type).setSingleData("cartType:" + cartID);
 							
 							// Pass the event
@@ -1372,8 +1384,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 							// minecart type
 							DisguiseType type = DisguiseType.Minecart;
 							if (isConsole || player.hasPermission("disguisecraft.object.vehicle.minecart." + args[0])) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 									disguise.setType(type).setSingleData("cartType:" + cartID);
 									
 									// Pass the event
@@ -1407,8 +1419,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					} else {
 						// just subtype
 						Disguise disguise = null;
-						if (plugin.disguiseDB.containsKey(player.getName())) {
-							disguise = plugin.disguiseDB.get(player.getName());
+						if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+							disguise = plugin.disguiseDB.get(player.getUniqueId());
 							if (disguise.type != DisguiseType.Minecart) disguise = null;
 						}
 						
@@ -1428,8 +1440,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 								DisguiseType type = DisguiseType.FallingBlock;
 								if (isConsole || player.hasPermission(permission)) {
 									String newData = "blockID:" + block.getId();
-									if (plugin.disguiseDB.containsKey(player.getName())) {
-										disguise = plugin.disguiseDB.get(player.getName()).clone();
+									if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+										disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 										disguise.setType(type).setSingleData(newData);
 										
 										// Pass the event
@@ -1460,7 +1472,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 							}
 						} else {
 							// in minecart disguise
-							disguise = plugin.disguiseDB.get(player.getName()).clone();
+							disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 							if (disguise.data.contains("cartType:" + cartID)) {
 								sender.sendMessage(ChatColor.RED + "Already a " + o + " Minecart");
 							} else {
@@ -1492,7 +1504,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				}
 			} else if (args[0].equalsIgnoreCase("drop")) {
 				if (isConsole || player.hasPermission("disguisecraft.drop")) {
-					if (plugin.disguiseDB.containsKey(player.getName())) {
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
 						plugin.dropDisguise(player);
 						player.sendMessage(ChatColor.GOLD + "Your disguise has been dropped");
 						if (isConsole) {
@@ -1516,8 +1528,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					
 					if (isConsole || player.hasPermission(permission)) {
 						if (args[1].length() <= 16) {
-							if (plugin.disguiseDB.containsKey(player.getName())) {
-								Disguise disguise = plugin.disguiseDB.get(player.getName());
+							if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+								Disguise disguise = plugin.disguiseDB.get(player.getUniqueId());
 								
 								// Temporary fix
 								if (disguise.type.isPlayer()) {
@@ -1563,8 +1575,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					if (isConsole || (type.isMob() && player.hasPermission("disguisecraft.mob." + type.name().toLowerCase()))
 							|| (type.isVehicle() && player.hasPermission("disguisecraft.object.vehicle." + type.name().toLowerCase()))
 							|| (type.isBlock() && player.hasPermission("disguisecraft.object.block." + type.name().toLowerCase()))) {
-						if (plugin.disguiseDB.containsKey(player.getName())) {
-							Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+						if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+							Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 							disguise.setType(type).clearData();
 							
 							// Pass the event
@@ -1609,8 +1621,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						type = DisguiseType.FallingBlock;
 						if (isConsole || player.hasPermission("disguisecraft.object.block.fallingblock.material")) {
 							String newData = "blockID:" + block.getId();
-							if (plugin.disguiseDB.containsKey(player.getName())) {
-								Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+							if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+								Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
 								disguise.setType(type).setSingleData(newData);
 								
 								// Pass the event
@@ -1656,7 +1668,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 								for (Entity ent : ents) {
 									if (ent instanceof Player) {
 										Player p = (Player) ent;
-										if (plugin.disguiseDB.containsKey(p.getName())) {
+										if (plugin.disguiseDB.containsKey(p.getUniqueId())) {
 											// Pass the event
 											PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(p, true);
 											plugin.getServer().getPluginManager().callEvent(ev);
@@ -1681,7 +1693,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						if ((toUndisguise = plugin.getServer().getPlayer(args[0])) == null) {
 							sender.sendMessage(ChatColor.RED + "The given player could not be found.");
 						} else {
-							if (plugin.disguiseDB.containsKey(toUndisguise.getName())) {
+							if (plugin.disguiseDB.containsKey(toUndisguise.getUniqueId())) {
 								// Pass the event
 								PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(toUndisguise, true);
 								plugin.getServer().getPluginManager().callEvent(ev);
@@ -1699,7 +1711,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					sender.sendMessage(ChatColor.RED + "You do not have the permission to undisguise other players.");
 				}
 			} else {
-				if (plugin.disguiseDB.containsKey(player.getName())) {
+				if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
 					// Pass the event
 					PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(player, true);
 					plugin.getServer().getPluginManager().callEvent(ev);
@@ -1726,7 +1738,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 		LinkedList<String> undisguisedPlayers = new LinkedList<String>();
 		for (Player currentPlayer : plugin.getServer().getOnlinePlayers()) {
 			if (currentPlayer == sender) continue;
-			if (plugin.disguiseDB.containsKey(currentPlayer.getName())) {
+			if (plugin.disguiseDB.containsKey(currentPlayer.getUniqueId())) {
 				// Pass the event
 				PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(currentPlayer, true);
 				plugin.getServer().getPluginManager().callEvent(ev);
@@ -1806,7 +1818,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
     public LinkedList<String> playerNames(String start, boolean disguised) {
     	LinkedList<String> names = new LinkedList<String>();
     	for (Player player : plugin.getServer().getOnlinePlayers()) {
-    		if (!disguised && plugin.disguiseDB.containsKey(player.getName())) {
+    		if (!disguised && plugin.disguiseDB.containsKey(player.getUniqueId())) {
     			continue;
     		}
     		if (player.getDisplayName().toLowerCase().startsWith(start.toLowerCase())) {

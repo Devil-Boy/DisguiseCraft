@@ -18,9 +18,9 @@ public class EntityDeathListener implements Listener {
 	public void onDeath(EntityDeathEvent event) {
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
-			if (plugin.disguiseDB.containsKey(player.getName())) {
+			if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
 				// Send death packets
-				plugin.sendPacketToWorld(player.getWorld(), plugin.disguiseDB.get(player.getName()).packetGenerator.getStatusPacket(3));
+				plugin.sendPacketToWorld(player.getWorld(), plugin.disguiseDB.get(player.getUniqueId()).packetGenerator.getStatusPacket(3));
 			}
 		}
 	}

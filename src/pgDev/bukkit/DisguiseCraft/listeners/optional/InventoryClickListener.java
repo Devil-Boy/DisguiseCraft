@@ -23,8 +23,8 @@ public class InventoryClickListener implements Listener {
 		HumanEntity entity = event.getWhoClicked();
 		if (entity instanceof Player) {
 			Player player = (Player) entity;
-			if (plugin.disguiseDB.containsKey(player.getName())) {
-				Disguise disguise = plugin.disguiseDB.get(player.getName());
+			if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+				Disguise disguise = plugin.disguiseDB.get(player.getUniqueId());
 				if (!disguise.data.contains("noarmor")) {
 					plugin.getServer().getScheduler().runTask(plugin, new ArmorUpdater(plugin, player, disguise));
 				}

@@ -16,8 +16,8 @@ public class PlayerToggleSneakListener implements Listener {
 	
 	@EventHandler(ignoreCancelled = true)
 	public void onSneak(PlayerToggleSneakEvent event) {
-		if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
-			Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
+		if (plugin.disguiseDB.containsKey(event.getPlayer().getUniqueId())) {
+			Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getUniqueId());
 			if (disguise.type.isHumanoid()) {
 				disguise.setCrouch(event.isSneaking());
 				plugin.sendPacketToWorld(event.getPlayer().getWorld(), disguise.packetGenerator.getEntityMetadataPacket());

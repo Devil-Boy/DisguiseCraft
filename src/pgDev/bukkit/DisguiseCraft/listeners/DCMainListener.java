@@ -2,7 +2,6 @@ package pgDev.bukkit.DisguiseCraft.listeners;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -48,8 +47,8 @@ public class DCMainListener implements Listener {
 		}
 		
 		// Has a disguise?
-		if (plugin.disguiseDB.containsKey(player.getName())) {
-			Disguise disguise = plugin.disguiseDB.get(player.getName());
+		if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+			Disguise disguise = plugin.disguiseDB.get(player.getUniqueId());
 			if (disguise.hasPermission(player)) {
 				plugin.disguiseIDs.put(disguise.entityID, player);
 				plugin.disguiseToWorld(player, player.getWorld());
@@ -60,9 +59,9 @@ public class DCMainListener implements Listener {
 				}
 				
 				// Start position updater
-				plugin.setPositionUpdater(player.getName(), disguise);
+				plugin.setPositionUpdater(player.getUniqueId(), disguise);
 			} else {
-				plugin.disguiseDB.remove(player.getName());
+				plugin.disguiseDB.remove(player.getUniqueId());
 				player.sendMessage(ChatColor.RED + "You do not have the permissions required to wear your disguise in this world.");
 			}
 		}
@@ -95,8 +94,8 @@ public class DCMainListener implements Listener {
 		Player player = event.getPlayer();
 		
 		// Undisguise them because they left
-		if (plugin.disguiseDB.containsKey(player.getName())) {
-			plugin.disguiseIDs.remove(plugin.disguiseDB.get(player.getName()).entityID);
+		if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+			plugin.disguiseIDs.remove(plugin.disguiseDB.get(player.getUniqueId()).entityID);
 			if (DisguiseCraft.pluginSettings.quitUndisguise) {
 				plugin.unDisguisePlayer(player, true);
 				plugin.disguiseQuitters.add(player.getName());
@@ -109,7 +108,7 @@ public class DCMainListener implements Listener {
 		plugin.halfUndisguiseAllToPlayer(player);
 		
 		// Stop position updater
-		plugin.removePositionUpdater(player.getName());
+		plugin.removePositionUpdater(player.getUniqueId());
 	}
 	
 	@EventHandler
@@ -121,9 +120,9 @@ public class DCMainListener implements Listener {
 	@EventHandler(priority = EventPriority.LOW)
 	public void onRespawn(PlayerRespawnEvent event) {
 		Player player = event.getPlayer();
-		if (plugin.disguiseDB.containsKey(player.getName())) {
+		if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
 			// Respawn disguise
-			plugin.sendPacketToWorld(player.getWorld(), plugin.disguiseDB.get(player.getName()).packetGenerator.getSpawnPacket(event.getRespawnLocation()));
+			plugin.sendPacketToWorld(player.getWorld(), plugin.disguiseDB.get(player.getUniqueId()).packetGenerator.getSpawnPacket(event.getRespawnLocation()));
 		}
 		
 		//Show the disguises to the player (in later ticks)
@@ -134,12 +133,12 @@ public class DCMainListener implements Listener {
 	public void onTarget(EntityTargetEvent event) {
 		if (event.getTarget() instanceof Player) {
 			Player player = (Player) event.getTarget();
-			if (plugin.disguiseDB.containsKey(player.getName())) {
+			if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
 				if (player.hasPermission("disguisecraft.notarget")) {
 					if (player.hasPermission("disguisecraft.notarget.strict")) {
 						event.setCancelled(true);
 					} else {
-						if (!plugin.disguiseDB.get(player.getName()).type.isPlayer() && (event.getReason() == TargetReason.CLOSEST_PLAYER || event.getReason() == TargetReason.RANDOM_TARGET)) {
+						if (!plugin.disguiseDB.get(player.getUniqueId()).type.isPlayer() && (event.getReason() == TargetReason.CLOSEST_PLAYER || event.getReason() == TargetReason.RANDOM_TARGET)) {
 							event.setCancelled(true);
 						}
 					}
@@ -150,8 +149,8 @@ public class DCMainListener implements Listener {
 	
 	@EventHandler(ignoreCancelled = true)
 	public void onPickup(PlayerPickupItemEvent event) {
-		if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
-			Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getName());
+		if (plugin.disguiseDB.containsKey(event.getPlayer().getUniqueId())) {
+			Disguise disguise = plugin.disguiseDB.get(event.getPlayer().getUniqueId());
 			if (disguise.data != null && disguise.data.contains("nopickup")) {
 				event.setCancelled(true);
 			}

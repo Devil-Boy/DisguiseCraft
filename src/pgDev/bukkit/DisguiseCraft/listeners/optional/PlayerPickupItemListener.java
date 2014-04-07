@@ -18,9 +18,9 @@ public class PlayerPickupItemListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPickup(PlayerPickupItemEvent event) {
 		Player player = event.getPlayer();
-		if (plugin.disguiseDB.containsKey(player.getName())) {
-			if (!plugin.disguiseDB.get(player.getName()).type.isObject()) {
-				plugin.sendPacketToWorld(player.getWorld(), plugin.disguiseDB.get(player.getName()).packetGenerator.getPickupPacket(event.getItem().getEntityId()));
+		if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+			if (!plugin.disguiseDB.get(player.getUniqueId()).type.isObject()) {
+				plugin.sendPacketToWorld(player.getWorld(), plugin.disguiseDB.get(player.getUniqueId()).packetGenerator.getPickupPacket(event.getItem().getEntityId()));
 			}
 		}
 	}

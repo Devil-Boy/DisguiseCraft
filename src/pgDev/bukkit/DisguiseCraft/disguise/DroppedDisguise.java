@@ -1,6 +1,7 @@
 package pgDev.bukkit.DisguiseCraft.disguise;
 
 import java.util.LinkedList;
+import java.util.UUID;
 
 import net.minecraft.server.v1_7_R2.Packet;
 
@@ -15,9 +16,9 @@ import org.bukkit.entity.Player;
  */
 public class DroppedDisguise extends Disguise {
 	/**
-	 * The name of the player who created this disguise.
+	 * The unique ID of the player who created this disguise.
 	 */
-	public String owner;
+	public UUID owner;
 	/**
 	 * The location of this disguise.
 	 */
@@ -29,7 +30,7 @@ public class DroppedDisguise extends Disguise {
 	 * @param owner The name of the owner (currently arbitrary)
 	 * @param location The location of this disguise
 	 */
-	public DroppedDisguise(Disguise disguise, String owner, Location location) {
+	public DroppedDisguise(Disguise disguise, UUID owner, Location location) {
 		super(disguise.entityID, disguise.data, disguise.type);
 		this.owner = owner;
 		this.location = location;

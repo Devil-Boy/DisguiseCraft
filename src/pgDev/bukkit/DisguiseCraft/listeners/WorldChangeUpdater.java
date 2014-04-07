@@ -24,9 +24,9 @@ public class WorldChangeUpdater implements Runnable {
 		plugin.showWorldDisguises(event.getPlayer());
 		
 		// Handle disguise wearer going through a portal
-		if (plugin.disguiseDB.containsKey(event.getPlayer().getName())) {
+		if (plugin.disguiseDB.containsKey(event.getPlayer().getUniqueId())) {
 			Player disguisee = event.getPlayer();
-			Disguise disguise = plugin.disguiseDB.get(disguisee.getName());
+			Disguise disguise = plugin.disguiseDB.get(disguisee.getUniqueId());
 			
 			plugin.undisguiseToWorld(disguisee, event.getFrom(), true);
 			

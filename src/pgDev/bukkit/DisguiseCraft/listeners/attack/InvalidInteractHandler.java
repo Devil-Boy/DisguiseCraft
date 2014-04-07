@@ -29,7 +29,7 @@ public class InvalidInteractHandler implements Runnable {
 				plugin.attackProcessor.incrementAmount();
 			} else {
 				if (player.getItemInHand().getType() == Material.SHEARS) {
-					Disguise disguise = plugin.disguiseDB.get(attacked.getName());
+					Disguise disguise = plugin.disguiseDB.get(attacked.getUniqueId());
 					if (disguise.type == DisguiseType.MushroomCow) {
 						if (player.hasPermission("disguisecraft.seer")) {
 							((CraftPlayer) player).getHandle().playerConnection.sendPacket(disguise.packetGenerator.getMobSpawnPacket(attacked.getLocation(), attacked.getName()));

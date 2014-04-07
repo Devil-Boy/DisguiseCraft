@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,14 +80,14 @@ public class DisguiseCraft extends JavaPlugin {
     PLPacketListener packetListener; // Not a real listener o.o
     
     // Disguise database
-    public ConcurrentHashMap<String, Disguise> disguiseDB = new ConcurrentHashMap<String, Disguise>();
+    public ConcurrentHashMap<UUID, Disguise> disguiseDB = new ConcurrentHashMap<UUID, Disguise>();
     public LinkedList<String> disguiseQuitters = new LinkedList<String>();
     public ConcurrentHashMap<Integer, Player> disguiseIDs = new ConcurrentHashMap<Integer, Player>();
     public ConcurrentHashMap<Integer, DroppedDisguise> droppedDisguises = new ConcurrentHashMap<Integer, DroppedDisguise>();
-    public ConcurrentHashMap<String, BukkitTask> positionUpdaters = new ConcurrentHashMap<String, BukkitTask>();
+    public ConcurrentHashMap<UUID, BukkitTask> positionUpdaters = new ConcurrentHashMap<UUID, BukkitTask>();
     
     // Custom display nick saving
-    public HashMap<String, String> customNick = new HashMap<String, String>();
+    public HashMap<UUID, String> customNick = new HashMap<UUID, String>();
     
     // Plugin Configuration
     static public DCConfig pluginSettings;
@@ -361,17 +362,17 @@ public class DisguiseCraft extends JavaPlugin {
     
     public void disguisePlayer(Player player, Disguise disguise) {
     	if (disguise.type.isPlayer()) {
-    		if (!customNick.containsKey(player.getName()) && !player.getName().equals(player.getDisplayName())) {
-        		customNick.put(player.getName(), player.getDisplayName());
+    		if (!customNick.containsKey(player.getUniqueId()) && !player.getName().equals(player.getDisplayName())) {
+        		customNick.put(player.getUniqueId(), player.getDisplayName());
         	}
     		player.setDisplayName(disguise.data.getFirst());
     	}
-    	disguiseDB.put(player.getName(), disguise);
+    	disguiseDB.put(player.getUniqueId(), disguise);
     	disguiseIDs.put(disguise.entityID, player);
     	disguiseToWorld(player, player.getWorld());
     	
     	// Start position updater
-		setPositionUpdater(player.getName(), disguise);
+		setPositionUpdater(player.getUniqueId(), disguise);
     }
     
     public void changeDisguise(Player player, Disguise newDisguise) {
@@ -380,9 +381,9 @@ public class DisguiseCraft extends JavaPlugin {
     }
     
     public void unDisguisePlayer(Player player, boolean show) {
-    	String name = player.getName();
-    	if (disguiseDB.containsKey(name)) {
-    		Disguise disguise = disguiseDB.get(name);
+    	UUID uid = player.getUniqueId();
+    	if (disguiseDB.containsKey(uid)) {
+    		Disguise disguise = disguiseDB.get(uid);
     		
     		if (disguise.type.isPlayer()) {
     			resetPlayerName(player);
@@ -390,17 +391,17 @@ public class DisguiseCraft extends JavaPlugin {
     		
     		undisguiseToWorld(player, player.getWorld(), show);
     		disguiseIDs.remove(disguise.entityID);
-    		disguiseDB.remove(name);
+    		disguiseDB.remove(uid);
     		
     		// Stop position updater
-    		removePositionUpdater(player.getName());
+    		removePositionUpdater(player.getUniqueId());
     	}
     }
     
     public void dropDisguise(Player player) {
-    	String name = player.getName();
-    	if (disguiseDB.containsKey(name)) {
-    		DroppedDisguise disguise = new DroppedDisguise(disguiseDB.get(player.getName()), player.getName(), player.getLocation());
+    	UUID uid = player.getUniqueId();
+    	if (disguiseDB.containsKey(uid)) {
+    		DroppedDisguise disguise = new DroppedDisguise(disguiseDB.get(player.getUniqueId()), player.getUniqueId(), player.getLocation());
     		
     		if (disguise.type.isPlayer()) {
     			resetPlayerName(player);
@@ -410,7 +411,7 @@ public class DisguiseCraft extends JavaPlugin {
     		
     		// More Database Handling
     		disguiseIDs.remove(disguise.entityID);
-    		disguiseDB.remove(name);
+    		disguiseDB.remove(uid);
     		droppedDisguises.put(disguise.entityID, disguise);
     	}
     }
@@ -426,8 +427,8 @@ public class DisguiseCraft extends JavaPlugin {
     
     public void halfUndisguiseAllToPlayer(Player observer) {
     	World world = observer.getWorld();
-    	for (String name : disguiseDB.keySet()) {
-    		Player disguised = getServer().getPlayer(name);
+    	for (UUID uid : disguiseDB.keySet()) {
+    		Player disguised = getServer().getPlayer(uid);
     		if (disguised != null) {
     			if (world == disguised.getWorld()) {
     				observer.showPlayer(disguised);
@@ -442,7 +443,7 @@ public class DisguiseCraft extends JavaPlugin {
     
     public void sendMovement(Player disguised, Player observer, Vector vector, Location to) {
     	LinkedList<Packet> toSend = new LinkedList<Packet>();
-		Disguise disguise = disguiseDB.get(disguised.getName());
+		Disguise disguise = disguiseDB.get(disguised.getUniqueId());
 		
 		// Block lock
 		if (disguise.data.contains("blocklock")) {
@@ -517,7 +518,7 @@ public class DisguiseCraft extends JavaPlugin {
     		@Override
     		public void run() {
     			LinkedList<Packet> toSend = new LinkedList<Packet>();
-    			Disguise disguise = disguiseDB.get(player.getName());
+    			Disguise disguise = disguiseDB.get(player.getUniqueId());
     			
     			if (disguise.type.isPlayer()) { // Player disguise
     				if (!(pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib)) {
@@ -565,7 +566,7 @@ public class DisguiseCraft extends JavaPlugin {
     		@Override
     		public void run() {
     			LinkedList<Packet> toSend = new LinkedList<Packet>();
-    			Disguise disguise = disguiseDB.get(player.getName());
+    			Disguise disguise = disguiseDB.get(player.getUniqueId());
     			
     			if (disguise.type.isPlayer()) { // Player disguise
     				if (!(pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib)) {
@@ -617,7 +618,7 @@ public class DisguiseCraft extends JavaPlugin {
     		@Override
     		public void run() {
     			LinkedList<Packet> toSend = new LinkedList<Packet>();
-    			Disguise disguise = disguiseDB.get(player.getName());
+    			Disguise disguise = disguiseDB.get(player.getUniqueId());
     			toSend.add(disguise.packetGenerator.getEntityDestroyPacket());
     			if (disguise.type.isPlayer() && !(pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib)) {
     				toSend.add(disguise.packetGenerator.getPlayerInfoPacket(player, false));
@@ -647,7 +648,7 @@ public class DisguiseCraft extends JavaPlugin {
     		@Override
     		public void run() {
     			LinkedList<Packet> toSend = new LinkedList<Packet>();
-    			Disguise disguise = disguiseDB.get(player.getName());
+    			Disguise disguise = disguiseDB.get(player.getUniqueId());
     			toSend.add(disguise.packetGenerator.getEntityDestroyPacket());
     			if (disguise.type.isPlayer() && !(pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib)) {
     				toSend.add(disguise.packetGenerator.getPlayerInfoPacket(player, false));
@@ -695,14 +696,14 @@ public class DisguiseCraft extends JavaPlugin {
     }
     
     public void showWorldDisguises(Player observer) {
-    	for (String disguisedName : disguiseDB.keySet()) {
-			Player disguised = getServer().getPlayer(disguisedName);
+    	for (UUID disguisedUID : disguiseDB.keySet()) {
+			Player disguised = getServer().getPlayer(disguisedUID);
 			if (disguised != null && disguised != observer) {
 				if (disguised.getWorld() == observer.getWorld()) {
 					disguiseToPlayer(disguised, observer);
 
 					if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
-						((CraftPlayer) observer).getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(disguisedName, true, ((CraftPlayer) disguised).getHandle().ping));
+						((CraftPlayer) observer).getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(getServer().getPlayer(disguisedUID).getName(), true, ((CraftPlayer) disguised).getHandle().ping));
 					}
 				}
 			}
@@ -710,8 +711,8 @@ public class DisguiseCraft extends JavaPlugin {
     }
     
     public void resetWorldDisguises(Player observer) {
-    	for (String disguisedName : disguiseDB.keySet()) {
-			Player disguised = getServer().getPlayer(disguisedName);
+    	for (UUID disguisedUID : disguiseDB.keySet()) {
+			Player disguised = getServer().getPlayer(disguisedUID);
 			if (disguised != null && disguised != observer) {
 				if (disguised.getWorld() == observer.getWorld()) {
 					undisguiseToPlayer(disguised, observer);
@@ -721,20 +722,20 @@ public class DisguiseCraft extends JavaPlugin {
 		}
     }
     
-    public void setPositionUpdater(String player, Disguise disguise) {
+    public void setPositionUpdater(UUID playerUID, Disguise disguise) {
     	if (DisguiseCraft.pluginSettings.movementUpdateThreading) {
-    		Player thePlayer = getServer().getPlayerExact(player);
+    		Player thePlayer = getServer().getPlayer(playerUID);
     		if (thePlayer == null) {
-    			logger.log(Level.SEVERE, "Player \"" + player + "\" could not be found on the server. No position updater made");
+    			logger.log(Level.SEVERE, "The player with UID \"" + playerUID + "\" could not be found on the server. No position updater made");
     		} else {
-    			positionUpdaters.put(player, getServer().getScheduler().runTaskTimer(this, new DCPlayerPositionUpdater(this, thePlayer, disguise), 1, pluginSettings.movementUpdateFrequency));
+    			positionUpdaters.put(playerUID, getServer().getScheduler().runTaskTimer(this, new DCPlayerPositionUpdater(this, thePlayer, disguise), 1, pluginSettings.movementUpdateFrequency));
     		}
     	}
     }
     
-    public void removePositionUpdater(String player) {
+    public void removePositionUpdater(UUID playerUID) {
     	if (DisguiseCraft.pluginSettings.movementUpdateThreading) {
-    		BukkitTask positionUpdater = positionUpdaters.remove(player);
+    		BukkitTask positionUpdater = positionUpdaters.remove(playerUID);
     		if (positionUpdater != null) {
     			positionUpdater.cancel();
     		}
