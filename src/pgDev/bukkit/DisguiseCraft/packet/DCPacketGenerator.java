@@ -4,32 +4,32 @@ import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_7_R2.DataWatcher;
-import net.minecraft.server.v1_7_R2.MathHelper;
-import net.minecraft.server.v1_7_R2.Packet;
-import net.minecraft.server.v1_7_R2.PacketPlayOutAnimation;
-import net.minecraft.server.v1_7_R2.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_7_R2.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.v1_7_R2.PacketPlayOutCollect;
-import net.minecraft.server.v1_7_R2.PacketPlayOutSpawnEntity;
-import net.minecraft.server.v1_7_R2.PacketPlayOutSpawnEntityLiving;
-import net.minecraft.server.v1_7_R2.PacketPlayOutEntityVelocity;
-import net.minecraft.server.v1_7_R2.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_7_R2.PacketPlayOutEntityLook;
-import net.minecraft.server.v1_7_R2.PacketPlayOutRelEntityMoveLook;
-import net.minecraft.server.v1_7_R2.PacketPlayOutEntityTeleport;
-import net.minecraft.server.v1_7_R2.PacketPlayOutEntityHeadRotation;
-import net.minecraft.server.v1_7_R2.PacketPlayOutEntityStatus;
-import net.minecraft.server.v1_7_R2.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_7_R2.PacketPlayOutEntityEquipment;
+import net.minecraft.server.v1_7_R3.DataWatcher;
+import net.minecraft.server.v1_7_R3.MathHelper;
+import net.minecraft.server.v1_7_R3.Packet;
+import net.minecraft.server.v1_7_R3.PacketPlayOutAnimation;
+import net.minecraft.server.v1_7_R3.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_7_R3.PacketPlayOutNamedEntitySpawn;
+import net.minecraft.server.v1_7_R3.PacketPlayOutCollect;
+import net.minecraft.server.v1_7_R3.PacketPlayOutSpawnEntity;
+import net.minecraft.server.v1_7_R3.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.server.v1_7_R3.PacketPlayOutEntityVelocity;
+import net.minecraft.server.v1_7_R3.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_7_R3.PacketPlayOutEntityLook;
+import net.minecraft.server.v1_7_R3.PacketPlayOutRelEntityMoveLook;
+import net.minecraft.server.v1_7_R3.PacketPlayOutEntityTeleport;
+import net.minecraft.server.v1_7_R3.PacketPlayOutEntityHeadRotation;
+import net.minecraft.server.v1_7_R3.PacketPlayOutEntityStatus;
+import net.minecraft.server.v1_7_R3.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_7_R3.PacketPlayOutEntityEquipment;
 import net.minecraft.util.com.mojang.authlib.GameProfile;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import org.bukkit.craftbukkit.v1_7_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_7_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R3.inventory.CraftItemStack;
 
 import pgDev.bukkit.DisguiseCraft.*;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
@@ -170,7 +170,7 @@ public class DCPacketGenerator {
 			metadataField.setAccessible(true);
 			
 			idField.set(packet, d.entityID);
-			profileField.set(packet, new GameProfile(d.data.getFirst(), d.data.getFirst())); // Constructor: public GameProfile(String id, String name)
+			profileField.set(packet, new GameProfile(null, d.data.getFirst())); // Constructor: public GameProfile(UUID id, String name)
 			xField.set(packet, locVars[0]);
 			yField.set(packet, locVars[1]);
 			zField.set(packet, locVars[2]);

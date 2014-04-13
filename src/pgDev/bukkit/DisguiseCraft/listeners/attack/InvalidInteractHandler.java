@@ -1,7 +1,7 @@
 package pgDev.bukkit.DisguiseCraft.listeners.attack;
 
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_7_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import pgDev.bukkit.DisguiseCraft.*;

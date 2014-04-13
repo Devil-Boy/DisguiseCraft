@@ -3,7 +3,7 @@ package pgDev.bukkit.DisguiseCraft.disguise;
 import java.util.LinkedList;
 import java.util.UUID;
 
-import net.minecraft.server.v1_7_R2.Packet;
+import net.minecraft.server.v1_7_R3.Packet;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

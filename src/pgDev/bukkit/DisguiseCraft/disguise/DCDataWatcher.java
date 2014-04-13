@@ -6,9 +6,9 @@ import java.util.logging.Level;
 
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
 
-import net.minecraft.server.v1_7_R2.DataWatcher;
-import net.minecraft.server.v1_7_R2.Entity;
-import net.minecraft.server.v1_7_R2.WatchableObject;
+import net.minecraft.server.v1_7_R3.DataWatcher;
+import net.minecraft.server.v1_7_R3.Entity;
+import net.minecraft.server.v1_7_R3.WatchableObject;
 import net.minecraft.util.org.apache.commons.lang3.ObjectUtils;
 
 public class DCDataWatcher extends DataWatcher {
