@@ -2,6 +2,7 @@ package pgDev.bukkit.DisguiseCraft.packet;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import net.minecraft.server.v1_7_R3.DataWatcher;
@@ -33,6 +34,7 @@ import org.bukkit.craftbukkit.v1_7_R3.inventory.CraftItemStack;
 
 import pgDev.bukkit.DisguiseCraft.*;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
+import pgDev.bukkit.DisguiseCraft.mojangauth.UUIDCache;
 
 public class DCPacketGenerator {
 	final Disguise d;
@@ -170,7 +172,7 @@ public class DCPacketGenerator {
 			metadataField.setAccessible(true);
 			
 			idField.set(packet, d.entityID);
-			profileField.set(packet, new GameProfile(null, d.data.getFirst())); // Constructor: public GameProfile(UUID id, String name)
+			profileField.set(packet, new GameProfile(UUIDCache.retrieve(d.data.getFirst()), d.data.getFirst())); // Constructor: public GameProfile(UUID id, String name)
 			xField.set(packet, locVars[0]);
 			yField.set(packet, locVars[1]);
 			zField.set(packet, locVars[2]);

@@ -17,6 +17,7 @@ import org.bukkit.permissions.Permission;
 
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
+import pgDev.bukkit.DisguiseCraft.mojangauth.UUIDCache;
 import pgDev.bukkit.DisguiseCraft.update.DCUpdateNotifier;
 import pgDev.bukkit.DisguiseCraft.api.*;
 
@@ -1525,6 +1526,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						plugin.getServer().getPluginManager().addPermission(new Permission(permission).addParent("disguisecraft.player.*", true));
 					} catch (Exception e) {
 					}
+					
+					// Lookup and cache UUID (Commands should hopefully be async)
+					UUIDCache.cache(args[1]);
 					
 					if (isConsole || player.hasPermission(permission)) {
 						if (args[1].length() <= 16) {
