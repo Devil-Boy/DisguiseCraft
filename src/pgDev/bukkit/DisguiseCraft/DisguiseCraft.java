@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -38,6 +39,8 @@ import pgDev.bukkit.DisguiseCraft.listeners.movement.DCPlayerMoveListener;
 import pgDev.bukkit.DisguiseCraft.listeners.movement.DCPlayerPositionUpdater;
 import pgDev.bukkit.DisguiseCraft.listeners.protocol.DCPacketInListener;
 import pgDev.bukkit.DisguiseCraft.listeners.protocol.PLPacketListener;
+import pgDev.bukkit.DisguiseCraft.mojangauth.EmptyUUIDS;
+import pgDev.bukkit.DisguiseCraft.mojangauth.ProfileCache;
 import pgDev.bukkit.DisguiseCraft.packet.MovementValues;
 import pgDev.bukkit.DisguiseCraft.stats.Metrics;
 import pgDev.bukkit.DisguiseCraft.stats.Metrics.Graph;
@@ -81,20 +84,24 @@ public class DisguiseCraft extends JavaPlugin {
     PLPacketListener packetListener; // Not a real listener o.o
     
     // Disguise database
-    public ConcurrentHashMap<UUID, Disguise> disguiseDB = new ConcurrentHashMap<UUID, Disguise>();
-    public LinkedList<String> disguiseQuitters = new LinkedList<String>();
-    public ConcurrentHashMap<Integer, Player> disguiseIDs = new ConcurrentHashMap<Integer, Player>();
-    public ConcurrentHashMap<Integer, DroppedDisguise> droppedDisguises = new ConcurrentHashMap<Integer, DroppedDisguise>();
-    public ConcurrentHashMap<UUID, BukkitTask> positionUpdaters = new ConcurrentHashMap<UUID, BukkitTask>();
+    public Map<UUID, Disguise> disguiseDB = new ConcurrentHashMap<UUID, Disguise>();
+    public List<String> disguiseQuitters = new LinkedList<String>();
+    public Map<Integer, Player> disguiseIDs = new ConcurrentHashMap<Integer, Player>();
+    public Map<Integer, DroppedDisguise> droppedDisguises = new ConcurrentHashMap<Integer, DroppedDisguise>();
+    public Map<UUID, BukkitTask> positionUpdaters = new ConcurrentHashMap<UUID, BukkitTask>();
     
     // Custom display nick saving
-    public HashMap<UUID, String> customNick = new HashMap<UUID, String>();
+    public Map<UUID, String> customNick = new HashMap<UUID, String>();
     
     // Plugin Configuration
     static public DCConfig pluginSettings;
     
     // Attack processor thread
     public AttackProcessor attackProcessor = new AttackProcessor(this);
+    
+    // Mojang auth handlers
+    public static ProfileCache profileCache;
+    public static EmptyUUIDS emptyUUIDs;
     
     @Override
     public void onLoad() {
@@ -108,6 +115,14 @@ public class DisguiseCraft extends JavaPlugin {
     	if (!DynamicClassFunctions.setPackages()) {
     		logger.log(Level.WARNING, "NMS/OBC package could not be detected, using " + DynamicClassFunctions.nmsPackage + " and " + DynamicClassFunctions.obcPackage);
     	}
+    	
+    	// Initialize auth handlers
+    	try {
+			profileCache = new ProfileCache();
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "The GameProfile cache failed to initialize", e);
+		}
+    	emptyUUIDs = new EmptyUUIDS();
     }
     
     @Override

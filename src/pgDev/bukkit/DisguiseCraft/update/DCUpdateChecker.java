@@ -1,41 +1,29 @@
 package pgDev.bukkit.DisguiseCraft.update;
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.logging.Level;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
-import pgDev.bukkit.DisguiseCraft.json.JSONArray;
-import pgDev.bukkit.DisguiseCraft.json.JSONObject;
-import pgDev.bukkit.DisguiseCraft.json.JSONString;
-import pgDev.bukkit.DisguiseCraft.json.JSONValue;
 
 
 public class DCUpdateChecker {
-	
 	public static String dcInfoQuery = "https://api.curseforge.com/servermods/files?projectIds=37008";
+	
+	static JSONParser parser = new JSONParser();
 	
 	public static String getLatestVersion() {
 		try {
 			URL devPage = new URL(dcInfoQuery);
-			BufferedReader in = new BufferedReader(new InputStreamReader(devPage.openStream()));
 			
-			// Just in case the response has newlines
-			StringBuilder sb = new StringBuilder();
+			JSONArray fileArray = (JSONArray) parser.parse(new InputStreamReader(devPage.openStream()));
+			JSONObject latestFile = (JSONObject) fileArray.get(fileArray.size() - 1);
+			String fileName = (String) latestFile.get("name");
 			
-			String line;
-			while ((line = in.readLine()) != null) {
-				sb.append(line);
-			}
-			
-			in.close();
-			
-			// Pull latest version out of JSON response
-			JSONArray fileList = (JSONArray) JSONValue.parse(sb.toString());
-			JSONObject latestFile = (JSONObject) fileList.get(fileList.size() - 1);
-			JSONString fileName = (JSONString) latestFile.get("name");
-			
-			return fileName.get();
+			return fileName;
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.WARNING , "Error checking for updates", e);
 		}

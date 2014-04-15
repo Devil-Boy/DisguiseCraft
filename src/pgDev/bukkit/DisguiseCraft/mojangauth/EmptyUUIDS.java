@@ -11,9 +11,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class EmptyUUIDS {
 	static final String LOOKUP_URL = "https://sessionserver.mojang.com/session/minecraft/profile/";
 	
-	static Queue<UUID> cache = new ConcurrentLinkedQueue<UUID>();
+	Queue<UUID> cache;
 	
-	static UUID findEmptyUUID() throws Exception {
+	public EmptyUUIDS() {
+		cache = new ConcurrentLinkedQueue<UUID>();
+	}
+	
+	 UUID findEmptyUUID() throws Exception {
 		UUID output = null;
 		do {
 			output = UUID.randomUUID();
@@ -21,7 +25,7 @@ public class EmptyUUIDS {
 		return output;
 	}
 	
-	static boolean checkIfEmpty(UUID uid) throws Exception {
+	boolean checkIfEmpty(UUID uid) throws Exception {
 		HttpURLConnection connection = (HttpURLConnection) new URL(LOOKUP_URL + uid.toString().replace("-", "")).openConnection();
 		BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		

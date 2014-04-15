@@ -34,7 +34,7 @@ import org.bukkit.craftbukkit.v1_7_R3.inventory.CraftItemStack;
 
 import pgDev.bukkit.DisguiseCraft.*;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
-import pgDev.bukkit.DisguiseCraft.mojangauth.UUIDCache;
+import pgDev.bukkit.DisguiseCraft.mojangauth.ProfileCache;
 
 public class DCPacketGenerator {
 	final Disguise d;
@@ -172,7 +172,7 @@ public class DCPacketGenerator {
 			metadataField.setAccessible(true);
 			
 			idField.set(packet, d.entityID);
-			profileField.set(packet, new GameProfile(UUIDCache.retrieve(d.data.getFirst()), d.data.getFirst())); // Constructor: public GameProfile(UUID id, String name)
+			profileField.set(packet, new GameProfile(DisguiseCraft.profileCache.retrieveUUID(d.data.getFirst()), d.data.getFirst())); // Constructor: public GameProfile(UUID id, String name)
 			xField.set(packet, locVars[0]);
 			yField.set(packet, locVars[1]);
 			zField.set(packet, locVars[2]);

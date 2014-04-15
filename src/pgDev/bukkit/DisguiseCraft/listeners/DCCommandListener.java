@@ -3,6 +3,11 @@ package pgDev.bukkit.DisguiseCraft.listeners;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import net.minecraft.util.com.mojang.authlib.GameProfile;
+import net.minecraft.util.com.mojang.authlib.properties.Property;
+import net.minecraft.util.com.mojang.authlib.properties.PropertyMap;
 
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
@@ -17,7 +22,7 @@ import org.bukkit.permissions.Permission;
 
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
-import pgDev.bukkit.DisguiseCraft.mojangauth.UUIDCache;
+import pgDev.bukkit.DisguiseCraft.mojangauth.ProfileCache;
 import pgDev.bukkit.DisguiseCraft.update.DCUpdateNotifier;
 import pgDev.bukkit.DisguiseCraft.api.*;
 
@@ -1528,7 +1533,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					}
 					
 					// Lookup and cache UUID (Commands should hopefully be async)
-					UUIDCache.cache(args[1]);
+					DisguiseCraft.profileCache.cache(args[1]);
 					
 					if (isConsole || player.hasPermission(permission)) {
 						if (args[1].length() <= 16) {
