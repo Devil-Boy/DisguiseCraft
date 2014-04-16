@@ -79,7 +79,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		int[] locVars = getLocationVariables(loc);
 		byte[] yp = getYawPitch(loc);
 		int eID = d.entityID;
-		WrappedGameProfile gp = new WrappedGameProfile(d.data.getFirst(), d.data.getFirst());
+		WrappedGameProfile gp = new WrappedGameProfile(DisguiseCraft.profileCache.retrieveUUID(d.data.getFirst()), d.data.getFirst());
         int xPos = locVars[0];
         int yPos = locVars[1];
         int zPos = locVars[2];
