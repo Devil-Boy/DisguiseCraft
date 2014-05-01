@@ -1,9 +1,16 @@
 package pgDev.bukkit.DisguiseCraft.listeners;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import net.minecraft.util.com.mojang.authlib.GameProfile;
 import net.minecraft.util.com.mojang.authlib.properties.Property;
@@ -28,6 +35,10 @@ import pgDev.bukkit.DisguiseCraft.api.*;
 
 public class DCCommandListener implements CommandExecutor, TabCompleter {
 	final DisguiseCraft plugin;
+	
+	Executor executor = Executors.newCachedThreadPool();
+	
+	Set<UUID> disguising = Collections.newSetFromMap(new ConcurrentHashMap<UUID, Boolean>());
 	
 	public static String[] subCommands = new String[] {"subtypes", "send", "nopickup", "blocklock", "noarmor", "drop"};
 	
@@ -67,6 +78,16 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				isConsole = true;
 				args = Arrays.copyOfRange(args, 1, args.length);
 			}
+		}
+		
+		// Check if we're busy with the player
+		if (disguising.contains(player.getUniqueId())) {
+			if (isConsole) {
+				sender.sendMessage(ChatColor.RED + "That player is still being disguised as a player");
+			} else {
+				sender.sendMessage(ChatColor.RED + "You are still being disguised as a player");
+			}
+			return true;
 		}
 		
 		// Pass the event
@@ -1346,53 +1367,77 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				args[0] = args[0].toLowerCase().replace("chest", "storage").replace("furnace", "powered").replace("mobspawner", "spawner");
 				int cartID = DisguiseType.getMinecartTypeID(args[0]);
 				
-				if (cartID == 5) {
-					// hopper
-					DisguiseType type = DisguiseType.Minecart;
-					if (isConsole || player.hasPermission("disguisecraft.object.vehicle.minecart.hopper")) {
-						if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
-							Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
-							disguise.setType(type).setSingleData("cartType:" + cartID);
+				String o = WordUtils.capitalize(args[0]);
+				if (cartID == 3) {
+					o = "TNT";
+				}
+				
+				// others
+				if (args.length > 1) {
+					// specified entity
+					if (args[1].equalsIgnoreCase("minecart")) {
+						// minecart type
+						DisguiseType type = DisguiseType.Minecart;
+						if (isConsole || player.hasPermission("disguisecraft.object.vehicle.minecart." + args[0])) {
+							if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+								Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
+								disguise.setType(type).setSingleData("cartType:" + cartID);
+								
+								// Pass the event
+								PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+								plugin.getServer().getPluginManager().callEvent(ev);
+								if (ev.isCancelled()) return true;
+								
+								plugin.changeDisguise(player, disguise);
+							} else {
+								Disguise disguise = new Disguise(plugin.getNextAvailableID(), "cartType:" + cartID, type);
+								
+								// Pass the event
+								PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+								plugin.getServer().getPluginManager().callEvent(ev);
+								if (ev.isCancelled()) return true;
+								
+								plugin.disguisePlayer(player, disguise);
+							}
 							
-							// Pass the event
-							PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
-							plugin.getServer().getPluginManager().callEvent(ev);
-							if (ev.isCancelled()) return true;
-							
-							plugin.changeDisguise(player, disguise);
+							player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + o + " Minecart");
+							if (isConsole) {
+								sender.sendMessage(player.getName() + " was disguised as a " + o + " Minecart");
+							}
 						} else {
-							Disguise disguise = new Disguise(plugin.getNextAvailableID(), "cartType:" + cartID, type);
-							
-							// Pass the event
-							PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
-							plugin.getServer().getPluginManager().callEvent(ev);
-							if (ev.isCancelled()) return true;
-							
-							plugin.disguisePlayer(player, disguise);
-						}
-						player.sendMessage(ChatColor.GOLD + "You have been disguised as a Hopper Minecart");
-						if (isConsole) {
-							sender.sendMessage(player.getName() + " was disguised as a Hopper Minecart");
+							player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a " + o + " Minecart");
 						}
 					} else {
-						player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a Hopper Minecart");
+						// something else
+						sender.sendMessage(ChatColor.RED + "Only Minecarts can be of type: " + o);
 					}
-				} else if (cartID < 5) {
-					String o = WordUtils.capitalize(args[0]);
-					if (cartID == 3) {
-						o = "TNT";
+				} else {
+					// just subtype
+					Disguise disguise = null;
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						disguise = plugin.disguiseDB.get(player.getUniqueId());
+						if (disguise.type != DisguiseType.Minecart) disguise = null;
 					}
 					
-					// others
-					if (args.length > 1) {
-						// specified entity
-						if (args[1].equalsIgnoreCase("minecart")) {
-							// minecart type
-							DisguiseType type = DisguiseType.Minecart;
-							if (isConsole || player.hasPermission("disguisecraft.object.vehicle.minecart." + args[0])) {
+					if (disguise == null) {
+						// not minecart disguised
+						// Fallingblock-type check
+						Material block = Material.matchMaterial(remainingWords(args, 0));
+						if (block != null && block.isBlock() && block != Material.AIR) {
+							String permission = "disguisecraft.object.block.fallingblock." + block.name().toLowerCase();
+							
+							// Dynamically add the player name as a child for the disguisecraft.player.* node
+							try {
+								plugin.getServer().getPluginManager().addPermission(new Permission(permission).addParent("disguisecraft.object.block.fallingblock.*", true));
+							} catch (Exception e) {
+							}
+							
+							DisguiseType type = DisguiseType.FallingBlock;
+							if (isConsole || player.hasPermission(permission)) {
+								String newData = "blockID:" + block.getId();
 								if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
-									disguise.setType(type).setSingleData("cartType:" + cartID);
+									disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
+									disguise.setType(type).setSingleData(newData);
 									
 									// Pass the event
 									PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
@@ -1401,7 +1446,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.changeDisguise(player, disguise);
 								} else {
-									Disguise disguise = new Disguise(plugin.getNextAvailableID(), "cartType:" + cartID, type);
+									disguise = new Disguise(plugin.getNextAvailableID(), newData, type);
 									
 									// Pass the event
 									PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
@@ -1410,100 +1455,43 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as " + block.name());
+								if (isConsole) {
+									sender.sendMessage(player.getName() + " was disguised as " + block.name());
+								}
+							} else {
+								player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a block of that material");
+							}
+						} else {
+							sender.sendMessage(ChatColor.RED + "That disguise type was not recognized.");
+						}
+					} else {
+						// in minecart disguise
+						disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
+						if (disguise.data.contains("cartType:" + cartID)) {
+							sender.sendMessage(ChatColor.RED + "Already a " + o + " Minecart");
+						} else {
+							Integer oldID = disguise.getMinecartType();
+							if (oldID != null) {
+								disguise.data.remove("cartType:" + oldID);
+							}
+							
+							disguise.addSingleData("cartType:" + cartID);
+							
+							// Check for permissions
+							if (isConsole || player.hasPermission("disguisecraft.object.vehicle.minecart." + args[0])) {
+								// Pass the event
+								PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+								plugin.getServer().getPluginManager().callEvent(ev);
+								if (ev.isCancelled()) return true;
 								
+								plugin.changeDisguise(player, disguise);
 								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + o + " Minecart");
 								if (isConsole) {
 									sender.sendMessage(player.getName() + " was disguised as a " + o + " Minecart");
 								}
 							} else {
-								player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a " + o + " Minecart");
-							}
-						} else {
-							// something else
-							sender.sendMessage(ChatColor.RED + "Only Minecarts can be of type: " + o);
-						}
-					} else {
-						// just subtype
-						Disguise disguise = null;
-						if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
-							disguise = plugin.disguiseDB.get(player.getUniqueId());
-							if (disguise.type != DisguiseType.Minecart) disguise = null;
-						}
-						
-						if (disguise == null) {
-							// not minecart disguised
-							// Fallingblock-type check
-							Material block = Material.matchMaterial(remainingWords(args, 0));
-							if (block != null && block.isBlock() && block != Material.AIR) {
-								String permission = "disguisecraft.object.block.fallingblock." + block.name().toLowerCase();
-								
-								// Dynamically add the player name as a child for the disguisecraft.player.* node
-								try {
-									plugin.getServer().getPluginManager().addPermission(new Permission(permission).addParent("disguisecraft.object.block.fallingblock.*", true));
-								} catch (Exception e) {
-								}
-								
-								DisguiseType type = DisguiseType.FallingBlock;
-								if (isConsole || player.hasPermission(permission)) {
-									String newData = "blockID:" + block.getId();
-									if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
-										disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
-										disguise.setType(type).setSingleData(newData);
-										
-										// Pass the event
-										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
-										plugin.getServer().getPluginManager().callEvent(ev);
-										if (ev.isCancelled()) return true;
-										
-										plugin.changeDisguise(player, disguise);
-									} else {
-										disguise = new Disguise(plugin.getNextAvailableID(), newData, type);
-										
-										// Pass the event
-										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
-										plugin.getServer().getPluginManager().callEvent(ev);
-										if (ev.isCancelled()) return true;
-										
-										plugin.disguisePlayer(player, disguise);
-									}
-									player.sendMessage(ChatColor.GOLD + "You have been disguised as " + block.name());
-									if (isConsole) {
-										sender.sendMessage(player.getName() + " was disguised as " + block.name());
-									}
-								} else {
-									player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a block of that material");
-								}
-							} else {
-								sender.sendMessage(ChatColor.RED + "That disguise type was not recognized.");
-							}
-						} else {
-							// in minecart disguise
-							disguise = plugin.disguiseDB.get(player.getUniqueId()).clone();
-							if (disguise.data.contains("cartType:" + cartID)) {
-								sender.sendMessage(ChatColor.RED + "Already a " + o + " Minecart");
-							} else {
-								Integer oldID = disguise.getMinecartType();
-								if (oldID != null) {
-									disguise.data.remove("cartType:" + oldID);
-								}
-								
-								disguise.addSingleData("cartType:" + cartID);
-								
-								// Check for permissions
-								if (isConsole || player.hasPermission("disguisecraft.object.vehicle.minecart." + args[0])) {
-									// Pass the event
-									PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
-									plugin.getServer().getPluginManager().callEvent(ev);
-									if (ev.isCancelled()) return true;
-									
-									plugin.changeDisguise(player, disguise);
-									player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + o + " Minecart");
-									if (isConsole) {
-										sender.sendMessage(player.getName() + " was disguised as a " + o + " Minecart");
-									}
-								} else {
-									player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as a " + o + " Minecart");
-								}
+								player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as a " + o + " Minecart");
 							}
 						}
 					}
@@ -1523,60 +1511,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					sender.sendMessage(ChatColor.RED + "You don't have permission to drop your disguise");
 				}
 			} else if (args[0].equalsIgnoreCase("player") || args[0].equalsIgnoreCase("p") || args[0].equalsIgnoreCase("pl") || args[0].equalsIgnoreCase("plyr")) {
-				if (args.length > 1) {
-					String permission = "disguisecraft.player." + args[1].toLowerCase();
-					
-					// Dynamically add the player name as a child for the disguisecraft.player.* node
-					try {
-						plugin.getServer().getPluginManager().addPermission(new Permission(permission).addParent("disguisecraft.player.*", true));
-					} catch (Exception e) {
-					}
-					
-					// Lookup and cache UUID (Commands should hopefully be async)
-					DisguiseCraft.profileCache.cache(args[1]);
-					
-					if (isConsole || player.hasPermission(permission)) {
-						if (args[1].length() <= 16) {
-							if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
-								Disguise disguise = plugin.disguiseDB.get(player.getUniqueId());
-								
-								// Temporary fix
-								if (disguise.type.isPlayer()) {
-									player.sendMessage(ChatColor.RED + "You'll have to undisguise first. We're still having unusual issues updating the player list when you switch between player disguises.");
-									return true;
-								}
-								
-								disguise.setType(DisguiseType.Player).setSingleData(args[1]);
-								
-								// Pass the event
-								PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
-								plugin.getServer().getPluginManager().callEvent(ev);
-								if (ev.isCancelled()) return true;
-								
-								plugin.changeDisguise(player, disguise);
-							} else {
-								Disguise disguise = new Disguise(plugin.getNextAvailableID(), args[1], DisguiseType.Player);
-								
-								// Pass the event
-								PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
-								plugin.getServer().getPluginManager().callEvent(ev);
-								if (ev.isCancelled()) return true;
-								
-								plugin.disguisePlayer(player, disguise);
-							}
-							player.sendMessage(ChatColor.GOLD + "You have been disguised as the player: " + args[1]);
-							if (isConsole) {
-								sender.sendMessage(player.getName() + " was disguised as the player: " + args[1]);
-							}
-						} else {
-							sender.sendMessage(ChatColor.RED + "The specified player name is too long. (Must be 16 characters or less)");
-						}
-					} else {
-						sender.sendMessage(ChatColor.RED + "You do not have the permission to diguise as the player: " + args[1]);
-					}
-				} else {
-					sender.sendMessage(ChatColor.RED + "You must specify the player to disguise as.");
-				}
+				playerDisguiseCommand(sender, isConsole, player, args);
 			} else {
 				DisguiseType type = DisguiseType.fromString(args[0]);
 				if (type != null) {
@@ -1741,6 +1676,78 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 			}
 		}
 		return true;
+	}
+	
+	public void playerDisguiseCommand(final CommandSender sender, final boolean isConsole, final Player player, final String[] args) {
+		disguising.add(player.getUniqueId());
+		
+		if (plugin.getServer().isPrimaryThread()) {
+			executor.execute(new Runnable() {
+				@Override
+				public void run() {
+					playerDisguiseCommand(sender, isConsole, player, args);
+				}
+			});
+		} else {
+			if (args.length > 1) {
+				String permission = "disguisecraft.player." + args[1].toLowerCase();
+				
+				// Dynamically add the player name as a child for the disguisecraft.player.* node
+				try {
+					plugin.getServer().getPluginManager().addPermission(new Permission(permission).addParent("disguisecraft.player.*", true));
+				} catch (Exception e) {
+				}
+				
+				// Lookup and cache UUID (Commands should hopefully be async)
+				DisguiseCraft.profileCache.cache(args[1]);
+				
+				// Remove him from disguising list
+				disguising.remove(player.getUniqueId());
+				
+				if (isConsole || player.hasPermission(permission)) {
+					if (args[1].length() <= 16) {
+						if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+							Disguise disguise = plugin.disguiseDB.get(player.getUniqueId());
+							
+							// Temporary fix
+							if (disguise.type.isPlayer()) {
+								player.sendMessage(ChatColor.RED + "You'll have to undisguise first. We're still having unusual issues updating the player list when you switch between player disguises.");
+								return;
+							}
+							
+							disguise.setType(DisguiseType.Player).setSingleData(args[1]);
+							
+							// Pass the event
+							PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+							plugin.getServer().getPluginManager().callEvent(ev);
+							if (ev.isCancelled()) return;
+							
+							plugin.changeDisguise(player, disguise);
+						} else {
+							Disguise disguise = new Disguise(plugin.getNextAvailableID(), args[1], DisguiseType.Player);
+							
+							// Pass the event
+							PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+							plugin.getServer().getPluginManager().callEvent(ev);
+							if (ev.isCancelled()) return;
+							
+							plugin.disguisePlayer(player, disguise);
+						}
+						player.sendMessage(ChatColor.GOLD + "You have been disguised as the player: " + args[1]);
+						if (isConsole) {
+							sender.sendMessage(player.getName() + " was disguised as the player: " + args[1]);
+						}
+					} else {
+						sender.sendMessage(ChatColor.RED + "The specified player name is too long. (Must be 16 characters or less)");
+					}
+				} else {
+					sender.sendMessage(ChatColor.RED + "You do not have the permission to diguise as the player: " + args[1]);
+				}
+			} else {
+				sender.sendMessage(ChatColor.RED + "You must specify the player to disguise as.");
+				disguising.remove(player.getUniqueId());
+			}
+		}
 	}
 	
 	public void undisguiseAllCommand(CommandSender sender) {
