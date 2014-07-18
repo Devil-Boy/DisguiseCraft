@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_7_R3.DataWatcher;
-import net.minecraft.server.v1_7_R3.Entity;
-import net.minecraft.server.v1_7_R3.WatchableObject;
-import net.minecraft.server.v1_7_R3.World;
+import net.minecraft.server.v1_7_R4.DataWatcher;
+import net.minecraft.server.v1_7_R4.Entity;
+import net.minecraft.server.v1_7_R4.WatchableObject;
+import net.minecraft.server.v1_7_R4.World;
 
-import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
 import org.bukkit.entity.Animals;
 
 import pgDev.bukkit.DisguiseCraft.*;

@@ -8,10 +8,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_7_R3.EntityHuman;
+import net.minecraft.server.v1_7_R4.EntityHuman;
 import net.minecraft.util.com.mojang.authlib.GameProfile;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;

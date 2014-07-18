@@ -5,19 +5,19 @@ import java.lang.reflect.Modifier;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_7_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R4.CraftServer;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
 import pgDev.bukkit.DisguiseCraft.listeners.PlayerInvalidInteractEvent;
-import net.minecraft.server.v1_7_R3.Entity;
-import net.minecraft.server.v1_7_R3.EntityPlayer;
-import net.minecraft.server.v1_7_R3.MinecraftServer;
-import net.minecraft.server.v1_7_R3.NetworkManager;
-import net.minecraft.server.v1_7_R3.PacketPlayInUseEntity;
-import net.minecraft.server.v1_7_R3.PlayerConnection;
-import net.minecraft.server.v1_7_R3.WorldServer;
+import net.minecraft.server.v1_7_R4.Entity;
+import net.minecraft.server.v1_7_R4.EntityPlayer;
+import net.minecraft.server.v1_7_R4.MinecraftServer;
+import net.minecraft.server.v1_7_R4.NetworkManager;
+import net.minecraft.server.v1_7_R4.PacketPlayInUseEntity;
+import net.minecraft.server.v1_7_R4.PlayerConnection;
+import net.minecraft.server.v1_7_R4.WorldServer;
 
 public class DCPacketInListener extends PlayerConnection {
 	public static boolean hookFail;

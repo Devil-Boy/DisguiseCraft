@@ -1,8 +1,8 @@
 package pgDev.bukkit.DisguiseCraft.listeners.attack;
 
-import net.minecraft.server.v1_7_R3.EntityPlayer;
+import net.minecraft.server.v1_7_R4.EntityPlayer;
 
-import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 public class PlayerAttack {
