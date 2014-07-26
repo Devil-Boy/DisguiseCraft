@@ -26,27 +26,42 @@ public class DCUpdateNotifier  implements Runnable {
 	
 	@Override
 	public void run() {
-		String latestVersion = DCUpdateChecker.getLatestVersion();
+		boolean success = true;
+		String latestVersion = null;
 		try {
-			if (DCUpdateChecker.isUpToDate(DisguiseCraft.pdfFile.getVersion(), latestVersion)) {
-				if (notifyNone) {
-					// Check if player is still online
-					if (toNotify instanceof Player && !((Player) toNotify).isOnline()) {
-						DisguiseCraft.logger.log(Level.INFO, "Player " + ((Player) toNotify).getDisplayName() + " went offline before we could tell him that there are DisguiseCraft updates");
-					} else {
-						toNotify.sendMessage(ChatColor.BLUE + "There are no new updates");
+			latestVersion = DCUpdateChecker.getLatestVersion();
+			
+			try {
+				if (DCUpdateChecker.isUpToDate(DisguiseCraft.pdfFile.getVersion(), latestVersion)) {
+					// Up to date
+					if (notifyNone) {
+						notify("There are no new DisguiseCraft updates", false);
 					}
-				}
-			} else {
-				// Check if player is still online
-				if (toNotify instanceof Player && !((Player) toNotify).isOnline()) {
-					DisguiseCraft.logger.log(Level.INFO, "Player " + ((Player) toNotify).getDisplayName() + " went offline before we could tell him that DisguiseCraft v" + latestVersion + " is now available");
 				} else {
-					toNotify.sendMessage(ChatColor.BLUE + "There is a new update for DisguiseCraft available: " + latestVersion);
+					// Out of date
+					notify("There is a new update for DisguiseCraft available: " + latestVersion, false);
 				}
+			} catch (NumberFormatException e) {
+				DisguiseCraft.logger.log(Level.WARNING, "Could not parse version updates.");
+				success = false;
 			}
-		} catch (NumberFormatException e) {
-			DisguiseCraft.logger.log(Level.WARNING, "Could not parse version updates.");
+		} catch (DCUpdateException e) {
+			DisguiseCraft.logger.log(Level.WARNING, e.getMessage());
+			success = false;
+		}
+		
+		if (!success) {
+			notify("DisguiseCraft failed to check for updates, see the console log for more information", true);
+		}
+	}
+	
+	public void notify(String message, boolean error) {
+		if (toNotify instanceof Player && !((Player) toNotify).isOnline()) {
+			// Player went offline
+			DisguiseCraft.logger.log(Level.INFO, "Player " + ((Player) toNotify).getDisplayName() + " went offline before we could tell him: " + message);
+		} else {
+			// Player is still online
+			toNotify.sendMessage(((error) ? ChatColor.RED : ChatColor.BLUE) + message);
 		}
 	}
 }

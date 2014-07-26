@@ -18,7 +18,7 @@ public class DCUpdateChecker {
 	
 	static JSONParser parser = new JSONParser();
 	
-	public static String getLatestVersion() {
+	public static String getLatestVersion() throws DCUpdateException {
 		URLConnection connection = null;
 		
 		// Connect
@@ -29,11 +29,9 @@ public class DCUpdateChecker {
 			// Set user agent
 			connection.setRequestProperty("User-Agent", "DisguiseCraft Update Checker");
 		} catch (MalformedURLException e) {
-			DisguiseCraft.logger.log(Level.WARNING , "Update URL was malformed", e);
-			return "Malformed URL during check!";
+			throw new DCUpdateException("Update URL was malformed", e);
 		} catch (IOException e) {
-			DisguiseCraft.logger.log(Level.WARNING , "Unable to connect to Curse for updates: " + e.getMessage());
-			return "Unable to connect during check!";
+			throw new DCUpdateException("Unable to connect to Curse for updates: " + e.getMessage(), e);
 		}
 		
 		// Parse
@@ -44,9 +42,8 @@ public class DCUpdateChecker {
 			
 			return fileName;
 		} catch (Exception e) {
-			DisguiseCraft.logger.log(Level.WARNING , "Error checking for updates", e);
+			throw new DCUpdateException("Unable to parse the response from Curse", e);
 		}
-		return "Error during check!";
 	}
 	
 	// Compare version Strings
@@ -65,34 +62,28 @@ public class DCUpdateChecker {
 		String[] lSegments = latest.split("\\.");
 		
 		// Compare the versions
-		try {
-			for (int i=0; i < cSegments.length || i < lSegments.length; i++) {
-				if (i >= cSegments.length) {
-					if (i >= lSegments.length) {
-						return true;
-					} else {
-						if (Integer.decode(lSegments[i]) > 0) {
-							return false;
-						} else {
-							return true;
-						}
-					}
-				} else if (i >= lSegments.length) {
+		for (int i=0; i < cSegments.length || i < lSegments.length; i++) {
+			if (i >= cSegments.length) {
+				if (i >= lSegments.length) {
 					return true;
 				} else {
-					if (Integer.decode(cSegments[i]) > Integer.decode(lSegments[i])) {
-						return true;
-					} else if (Integer.decode(lSegments[i]) > Integer.decode(cSegments[i])) {
+					if (Integer.decode(lSegments[i]) > 0) {
 						return false;
+					} else {
+						return true;
 					}
 				}
+			} else if (i >= lSegments.length) {
+				return true;
+			} else {
+				if (Integer.decode(cSegments[i]) > Integer.decode(lSegments[i])) {
+					return true;
+				} else if (Integer.decode(lSegments[i]) > Integer.decode(cSegments[i])) {
+					return false;
+				}
 			}
-		} catch (NumberFormatException e) {
-			DisguiseCraft.logger.log(Level.WARNING, "Version numbers could not be parsed", e);
 		}
 		
-		// Shouldn't get here
-		DisguiseCraft.logger.log(Level.WARNING, "Version numbers were not correctly parsed");
-		return true;
+		throw new NumberFormatException("Version parse loop failed");
 	}
 }
