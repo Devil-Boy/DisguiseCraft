@@ -28,7 +28,7 @@ public class DCUpdateNotifier  implements Runnable {
 	public void run() {
 		String latestVersion = DCUpdateChecker.getLatestVersion();
 		try {
-			if (DCUpdateChecker.isUpToDate(plugin.pdfFile.getVersion(), latestVersion)) {
+			if (DCUpdateChecker.isUpToDate(DisguiseCraft.pdfFile.getVersion(), latestVersion)) {
 				if (notifyNone) {
 					// Check if player is still online
 					if (toNotify instanceof Player && !((Player) toNotify).isOnline()) {

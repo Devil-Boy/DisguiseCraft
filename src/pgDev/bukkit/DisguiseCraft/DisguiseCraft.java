@@ -55,7 +55,7 @@ import com.comphenix.protocol.ProtocolManager;
  * @author PG Dev Team (Devil Boy)
  */
 public class DisguiseCraft extends JavaPlugin {
-	public PluginDescriptionFile pdfFile;
+	public static PluginDescriptionFile pdfFile;
 	
 	// Fail check
 	public boolean loadFailure = false;

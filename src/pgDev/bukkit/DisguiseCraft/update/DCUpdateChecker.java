@@ -1,6 +1,9 @@
 package pgDev.bukkit.DisguiseCraft.update;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.logging.Level;
 
 import org.json.simple.JSONArray;
@@ -16,10 +19,26 @@ public class DCUpdateChecker {
 	static JSONParser parser = new JSONParser();
 	
 	public static String getLatestVersion() {
+		URLConnection connection = null;
+		
+		// Connect
 		try {
 			URL devPage = new URL(dcInfoQuery);
+			connection = devPage.openConnection();
 			
-			JSONArray fileArray = (JSONArray) parser.parse(new InputStreamReader(devPage.openStream()));
+			// Set user agent
+			connection.setRequestProperty("User-Agent", "DisguiseCraft Update Checker");
+		} catch (MalformedURLException e) {
+			DisguiseCraft.logger.log(Level.WARNING , "Update URL was malformed", e);
+			return "Malformed URL during check!";
+		} catch (IOException e) {
+			DisguiseCraft.logger.log(Level.WARNING , "Unable to connect to Curse for updates: " + e.getMessage());
+			return "Unable to connect during check!";
+		}
+		
+		// Parse
+		try {
+			JSONArray fileArray = (JSONArray) parser.parse(new InputStreamReader(connection.getInputStream()));
 			JSONObject latestFile = (JSONObject) fileArray.get(fileArray.size() - 1);
 			String fileName = (String) latestFile.get("name");
 			
