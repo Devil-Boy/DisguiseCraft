@@ -5,32 +5,34 @@ import java.util.LinkedList;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_7_R4.DataWatcher;
-import net.minecraft.server.v1_7_R4.MathHelper;
-import net.minecraft.server.v1_7_R4.Packet;
-import net.minecraft.server.v1_7_R4.PacketPlayOutAnimation;
-import net.minecraft.server.v1_7_R4.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_7_R4.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.v1_7_R4.PacketPlayOutCollect;
-import net.minecraft.server.v1_7_R4.PacketPlayOutSpawnEntity;
-import net.minecraft.server.v1_7_R4.PacketPlayOutSpawnEntityLiving;
-import net.minecraft.server.v1_7_R4.PacketPlayOutEntityVelocity;
-import net.minecraft.server.v1_7_R4.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_7_R4.PacketPlayOutEntityLook;
-import net.minecraft.server.v1_7_R4.PacketPlayOutRelEntityMoveLook;
-import net.minecraft.server.v1_7_R4.PacketPlayOutEntityTeleport;
-import net.minecraft.server.v1_7_R4.PacketPlayOutEntityHeadRotation;
-import net.minecraft.server.v1_7_R4.PacketPlayOutEntityStatus;
-import net.minecraft.server.v1_7_R4.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_7_R4.PacketPlayOutEntityEquipment;
-import net.minecraft.util.com.mojang.authlib.GameProfile;
+import net.minecraft.server.v1_8_R1.DataWatcher;
+import net.minecraft.server.v1_8_R1.EntityPlayer;
+import net.minecraft.server.v1_8_R1.EnumPlayerInfoAction;
+import net.minecraft.server.v1_8_R1.MathHelper;
+import net.minecraft.server.v1_8_R1.Packet;
+import net.minecraft.server.v1_8_R1.PacketPlayOutAnimation;
+import net.minecraft.server.v1_8_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_8_R1.PacketPlayOutNamedEntitySpawn;
+import net.minecraft.server.v1_8_R1.PacketPlayOutCollect;
+import net.minecraft.server.v1_8_R1.PacketPlayOutSpawnEntity;
+import net.minecraft.server.v1_8_R1.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.server.v1_8_R1.PacketPlayOutEntityVelocity;
+import net.minecraft.server.v1_8_R1.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_8_R1.PacketPlayOutEntityLook;
+import net.minecraft.server.v1_8_R1.PacketPlayOutRelEntityMoveLook;
+import net.minecraft.server.v1_8_R1.PacketPlayOutEntityTeleport;
+import net.minecraft.server.v1_8_R1.PacketPlayOutEntityHeadRotation;
+import net.minecraft.server.v1_8_R1.PacketPlayOutEntityStatus;
+import net.minecraft.server.v1_8_R1.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_8_R1.PacketPlayOutEntityEquipment;
+
+import com.mojang.authlib.GameProfile;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
 
 import pgDev.bukkit.DisguiseCraft.*;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
@@ -283,7 +285,7 @@ public class DCPacketGenerator {
 	
 	public PacketPlayOutEntityLook getEntityLookPacket(Location loc) {
 		byte[] yp = getYawPitch(loc);
-		return new PacketPlayOutEntityLook(d.entityID, yp[0], yp[1]);
+		return new PacketPlayOutEntityLook(d.entityID, yp[0], yp[1], true); // For now lets just set onGround to true
 	}
 	
 	public PacketPlayOutRelEntityMoveLook getEntityMoveLookPacket(Location loc) {
@@ -296,7 +298,7 @@ public class DCPacketGenerator {
 		
 		return new PacketPlayOutRelEntityMoveLook(d.entityID,
 				(byte) movement.x, (byte) movement.y, (byte) movement.z,
-				yp[0], yp[1]);
+				yp[0], yp[1], true); // Again just setting onGround to true
 	}
 	
 	public PacketPlayOutEntityTeleport getEntityTeleportPacket(Location loc) {
@@ -312,7 +314,7 @@ public class DCPacketGenerator {
 		
 		return new PacketPlayOutEntityTeleport(d.entityID,
 				x, y, z,
-				yp[0], yp[1]);
+				yp[0], yp[1], true); // Still just setting onGround to true
 	}
 	
 	public PacketPlayOutEntityMetadata getEntityMetadataPacket() {
@@ -321,14 +323,12 @@ public class DCPacketGenerator {
 	
 	public PacketPlayOutPlayerInfo getPlayerInfoPacket(Player player, boolean show) {
 		if (d.type.isPlayer()) {
-			int ping;
+			EntityPlayer ep = ((CraftPlayer) player).getHandle();
 			if (show) {
-				ping = ((CraftPlayer) player).getHandle().ping;
+				return new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.ADD_PLAYER, ep);
 			} else {
-				ping = 9999;
+				return new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.REMOVE_PLAYER, ep);
 			}
-			
-			return new PacketPlayOutPlayerInfo(d.data.getFirst(), show, ping);
 		} else {
 			return null;
 		}

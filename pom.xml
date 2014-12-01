@@ -16,31 +16,23 @@
   
   <repositories>
     <repository>
-      <id>bukkit-repo</id>
-      <url>http://repo.bukkit.org/content/groups/public</url>
-    </repository>
-    <repository>
-      <id>comphenix-rep</id>
-      <name>Comphenix Repository</name>
-      <url>http://repo.comphenix.net/content/groups/public</url>
-    </repository>
-    <repository>
-      <id>comphenix-main-repo</id>
-      <name>Comphenix Backup Repository</name>
-      <url>http://assets.comphenix.net/plugin/repository/everything/</url>
+      <id>shadowvolt-repo</id>
+      <url>http://ci.shadowvolt.com/plugin/repository/everything/</url>
     </repository>
   </repositories>
   
   <dependencies>
     <dependency>
-      <groupId>org.bukkit</groupId>
-      <artifactId>craftbukkit</artifactId>
-      <version>1.7.10-R0.1-SNAPSHOT</version>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot</artifactId>
+      <version>1.8-R0.1-SNAPSHOT</version>
+      <!--<scope>system</scope>
+      <systemPath>D:\Dropbox\Java Programs\bukkit-apis\spigot-1.8-R0.1-SNAPSHOT.jar</systemPath>-->
     </dependency>
     <dependency>
       <groupId>com.comphenix.protocol</groupId>
       <artifactId>ProtocolLib</artifactId>
-      <version>3.4.0-SNAPSHOT</version>
+      <version>3.6.0-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
   </dependencies>
@@ -88,7 +80,7 @@
           <show>public</show>
           <links>
             <link>http://jd.bukkit.org/apidocs/</link>
-            <link>http://aadnk.github.com/ProtocolLib/Javadoc/</link>
+            <link>http://ci.shadowvolt.com/job/ProtocolLib/javadoc/</link>
           </links>
           <footer>Generated on ${maven.build.timestamp}</footer>
           <sourcepath>/src/pgDev/bukkit/DisguiseCraft:/src/pgDe/.bukkit/DisguiseCraft/api:/src/pgDev/bukkit/DisguiseCraft/disguise</sourcepath>

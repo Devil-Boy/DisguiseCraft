@@ -14,13 +14,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.minecraft.server.v1_7_R4.Packet;
-import net.minecraft.server.v1_7_R4.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_8_R1.EnumPlayerInfoAction;
+import net.minecraft.server.v1_8_R1.Packet;
+import net.minecraft.server.v1_8_R1.PacketPlayOutPlayerInfo;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -557,7 +558,7 @@ public class DisguiseCraft extends JavaPlugin {
     				if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
     					packetListener.recentlyDisguised.add(player.getName());
     				} else {
-    					toSend.add(new PacketPlayOutPlayerInfo(player.getName(), true, ((CraftPlayer) player).getHandle().ping));
+    					toSend.add(new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.ADD_PLAYER, ((CraftPlayer) player).getHandle()));
     				}
     			} else {
     				toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
@@ -607,7 +608,7 @@ public class DisguiseCraft extends JavaPlugin {
     		    			if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
     		    				packetListener.recentlyDisguised.add(player.getName());
     		    			} else {
-    		    				toSend.add(new PacketPlayOutPlayerInfo(player.getName(), true, ((CraftPlayer) player).getHandle().ping));
+    		    				toSend.add(new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.ADD_PLAYER, ((CraftPlayer) player).getHandle()));
     		    			}
     					} else {
     						toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
@@ -719,7 +720,7 @@ public class DisguiseCraft extends JavaPlugin {
 					disguiseToPlayer(disguised, observer);
 
 					if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
-						((CraftPlayer) observer).getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(getServer().getPlayer(disguisedUID).getName(), true, ((CraftPlayer) disguised).getHandle().ping));
+						((CraftPlayer) observer).getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.ADD_PLAYER, ((CraftPlayer) getServer().getPlayer(disguisedUID)).getHandle()));
 					}
 				}
 			}

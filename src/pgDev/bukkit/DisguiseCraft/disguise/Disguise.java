@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.Map;
 
-import net.minecraft.server.v1_7_R4.DataWatcher;
+import net.minecraft.server.v1_8_R1.DataWatcher;
 
 import org.bukkit.Material;
 import org.bukkit.Sound;

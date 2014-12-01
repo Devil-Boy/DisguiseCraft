@@ -2,8 +2,8 @@ package pgDev.bukkit.DisguiseCraft.mojangauth;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.util.com.mojang.authlib.GameProfile;
-import net.minecraft.util.com.mojang.authlib.properties.Property;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

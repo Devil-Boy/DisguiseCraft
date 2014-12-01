@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,7 +21,7 @@ public class DCConfig {
 	public boolean upToDate = true;
 	
 	// List of Optionals
-	ConcurrentHashMap<String, Class<?>> optionals = new ConcurrentHashMap<String, Class<?>>();
+	Map<String, Class<?>> optionals = new ConcurrentHashMap<String, Class<?>>();
 	
 	// List of Config Options
 	public boolean disguisePVP;
