@@ -556,14 +556,14 @@ public class DisguiseCraft extends JavaPlugin {
     				
     				// Keep them in tab list
     				if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
-    					packetListener.recentlyDisguised.add(player.getName());
+    					packetListener.recentlyDisguised.add(player.getUniqueId());
     				} else {
     					toSend.add(new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.ADD_PLAYER, ((CraftPlayer) player).getHandle()));
     				}
     			} else {
     				toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
     				if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
-    					packetListener.recentlyDisguised.add(player.getName());
+    					packetListener.recentlyDisguised.add(player.getUniqueId());
     				}
     			}
     			observer.hidePlayer(player);
@@ -606,14 +606,14 @@ public class DisguiseCraft extends JavaPlugin {
     		    			
     		    			// Keep them in tab list
     		    			if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
-    		    				packetListener.recentlyDisguised.add(player.getName());
+    		    				packetListener.recentlyDisguised.add(player.getUniqueId());
     		    			} else {
     		    				toSend.add(new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.ADD_PLAYER, ((CraftPlayer) player).getHandle()));
     		    			}
     					} else {
     						toSend.addFirst(disguise.packetGenerator.getSpawnPacket(player, null));
     						if (pluginSettings.noTabHide && protocolHook == ProtocolHook.ProtocolLib) {
-    							packetListener.recentlyDisguised.add(player.getName());
+    							packetListener.recentlyDisguised.add(player.getUniqueId());
     						}
     					}
     		    		observer.hidePlayer(player);

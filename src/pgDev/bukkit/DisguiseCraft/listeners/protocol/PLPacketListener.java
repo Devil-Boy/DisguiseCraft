@@ -1,9 +1,11 @@
 package pgDev.bukkit.DisguiseCraft.listeners.protocol;
 
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_8_R1.EnumEntityUseAction;
+import net.minecraft.server.v1_8_R1.PlayerInfoData;
 
 import org.bukkit.entity.Player;
 
@@ -22,7 +24,7 @@ public class PLPacketListener {
 	final DisguiseCraft plugin;
 	ProtocolManager pM = DisguiseCraft.protocolManager;
 	
-	public ConcurrentLinkedQueue<String> recentlyDisguised;
+	public ConcurrentLinkedQueue<UUID> recentlyDisguised;
 	
 	public PLPacketListener(final DisguiseCraft plugin) {
 		this.plugin = plugin;
@@ -42,7 +44,7 @@ public class PLPacketListener {
 			            try {
 			            	PacketContainer packet = event.getPacket();
 			                int target = packet.getSpecificModifier(int.class).read(0);
-			                String action = packet.getSpecificModifier(EnumEntityUseAction.class).read(0).name();
+			                String action = packet.getEntityUseActions().read(0).name();
 			                
 			                if (packet.getEntityModifier(player.getWorld()).read(0) == null) {
 			                	PlayerInvalidInteractEvent newEvent = new PlayerInvalidInteractEvent(player, target, action);
@@ -58,7 +60,7 @@ public class PLPacketListener {
 	
 	public void setupTabListListener() {
 		// Make database
-		recentlyDisguised = new ConcurrentLinkedQueue<String>();
+		recentlyDisguised = new ConcurrentLinkedQueue<UUID>();
 		
 		// Set up listener
 		AdapterParameteters ap = PacketAdapter.params();
@@ -71,7 +73,9 @@ public class PLPacketListener {
 			    public void onPacketSending(PacketEvent event) {
 			        if (event.getPacketType() == PacketType.Play.Server.PLAYER_INFO) {
 			        	try {
-				        	if (recentlyDisguised.remove(event.getPacket().getStrings().read(0))) {
+			        		// Check the first player in the list
+			        		PlayerInfoData playerInfoData = (PlayerInfoData) event.getPacket().getSpecificModifier(List.class).read(0);
+				        	if (recentlyDisguised.remove(playerInfoData.a().getId())) {
 				        		event.setCancelled(true);
 				        	}
 			        	} catch (FieldAccessException e) {
