@@ -79,11 +79,15 @@
           
           <show>public</show>
           <links>
-            <link>http://jd.bukkit.org/apidocs/</link>
+            <link>http://jd.bukkit.org/rb/apidocs/</link>
             <link>http://ci.shadowvolt.com/job/ProtocolLib/javadoc/</link>
           </links>
           <footer>Generated on ${maven.build.timestamp}</footer>
-          <sourcepath>/src/pgDev/bukkit/DisguiseCraft:/src/pgDe/.bukkit/DisguiseCraft/api:/src/pgDev/bukkit/DisguiseCraft/disguise</sourcepath>
+          <sourceFileIncludes>
+          	<include>pgDev/bukkit/DisguiseCraft/*.java</include>
+          	<include>pgDev/bukkit/DisguiseCraft/api/*.java</include>
+          	<include>pgDev/bukkit/DisguiseCraft/disguise/*.java</include>
+          </sourceFileIncludes>
         </configuration>
       </plugin>
     </plugins>
