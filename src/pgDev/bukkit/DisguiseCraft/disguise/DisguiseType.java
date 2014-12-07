@@ -36,8 +36,10 @@ public enum DisguiseType {
 	Creeper(50),
 	EnderDragon(63),
 	Enderman(58),
+	Endermite(67),
 	Ghast(56),
 	Giant(53),
+	Guardian(68),
 	Horse(100),
 	IronGolem(99),
 	MagmaCube(62),
@@ -45,6 +47,7 @@ public enum DisguiseType {
 	Ocelot(98),
 	Pig(90),
 	PigZombie(57),
+	Rabbit(101),
 	Sheep(91),
 	Silverfish(60),
 	Skeleton(51),
@@ -240,7 +243,7 @@ public enum DisguiseType {
 			return copyDataWatcher(modelData.get(id));
 		} else {
 			try {
-				return new DCDataWatcher(null);
+				return new DCDataWatcher();
 			} catch (Exception e) {
 				DisguiseCraft.logger.log(Level.SEVERE, "Could not construct a new DataWatcher", e);
 				return null;
@@ -250,7 +253,7 @@ public enum DisguiseType {
 	
 	@SuppressWarnings("unchecked")
 	public static DataWatcher copyDataWatcher(DataWatcher dw) {
-		DataWatcher w = new DCDataWatcher(null);
+		DataWatcher w = new DCDataWatcher();
 		
 		// Clone Map
 		try {

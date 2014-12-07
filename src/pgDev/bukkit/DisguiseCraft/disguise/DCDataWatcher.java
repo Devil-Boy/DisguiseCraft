@@ -12,15 +12,15 @@ import net.minecraft.server.v1_8_R1.WatchableObject;
 import org.apache.commons.lang3.ObjectUtils;
 
 public class DCDataWatcher extends DataWatcher {
-	static Method iMethod;
+	static Method getWatchableMethod;
 	static Field eBoolean;
 	
 	static {
 		try {
-			iMethod = DataWatcher.class.getDeclaredMethod("i", int.class);
-			iMethod.setAccessible(true);
+			getWatchableMethod = DataWatcher.class.getDeclaredMethod("j", int.class);
+			getWatchableMethod.setAccessible(true);
 		} catch (Exception e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Could not find a required i(int) method in the DataWatchers",e);
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not find a required method in the DataWatchers",e);
 		}
 		
 		try {
@@ -31,17 +31,17 @@ public class DCDataWatcher extends DataWatcher {
 		}
 	}
 
-	public DCDataWatcher(Entity arg0) {
-		super(arg0);
+	public DCDataWatcher() {
+		super(null);
 	}
 	
 	@Override
 	public void watch(int paramInt, Object paramObject) {
 		WatchableObject localWatchableObject = null;
 		try {
-			localWatchableObject = (WatchableObject) iMethod.invoke(this, paramInt);
+			localWatchableObject = (WatchableObject) getWatchableMethod.invoke(this, paramInt);
 		} catch (Exception e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Error while invoking i(int) method in a DataWatcher", e);
+			DisguiseCraft.logger.log(Level.SEVERE, "Error while invoking method in a DataWatcher", e);
 		}
 		
 		if (ObjectUtils.notEqual(paramObject, localWatchableObject.b())) {
