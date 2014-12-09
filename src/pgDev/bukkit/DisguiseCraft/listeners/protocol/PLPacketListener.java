@@ -74,7 +74,7 @@ public class PLPacketListener {
 			        if (event.getPacketType() == PacketType.Play.Server.PLAYER_INFO) {
 			        	try {
 			        		// Check the first player in the list
-			        		PlayerInfoData playerInfoData = (PlayerInfoData) event.getPacket().getSpecificModifier(List.class).read(0);
+			        		PlayerInfoData playerInfoData = (PlayerInfoData) event.getPacket().getSpecificModifier(List.class).read(0).get(0);
 				        	if (recentlyDisguised.remove(playerInfoData.a().getId())) {
 				        		event.setCancelled(true);
 				        	}

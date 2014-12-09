@@ -7,19 +7,12 @@ import org.bukkit.event.player.PlayerEvent;
 public class PlayerInvalidInteractEvent extends PlayerEvent {
     private static final HandlerList handlers = new HandlerList();
     private final int target;
-    private final boolean action;
+    private final String action;
 
     public PlayerInvalidInteractEvent(final Player player, final int target, final String action) {
         super(player);
         this.target = target;
-        
-        if (action.equalsIgnoreCase("ATTACK")) {
-        	this.action = true;
-        } else if (action.equalsIgnoreCase("INTERACT")) {
-        	this.action = false;
-        } else {
-        	throw new IllegalArgumentException("Unidentified action type");
-        }
+        this.action = action;
     }
 
     /**
@@ -32,11 +25,11 @@ public class PlayerInvalidInteractEvent extends PlayerEvent {
     }
 
     /**
-     * Gets whether the player left- or right-clicked
+     * Gets the player's action
      *
-     * @return True is left-click, False is right-click
+     * @return INTERACT, ATTACK, or INTERACT_AT
      */
-    public boolean getAction() {
+    public String getAction() {
         return action;
     }
 

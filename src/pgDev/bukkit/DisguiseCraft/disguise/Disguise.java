@@ -228,8 +228,8 @@ public class Disguise {
 	public DataWatcher mobNameData(String name) {
 		DataWatcher out = DisguiseType.copyDataWatcher(metadata);
 		try {
-			out.watch(10, name);
-			out.watch(11, (byte) 1);
+			out.watch(2, name); // Previously index 10
+			out.watch(3, (byte) 1); // Previously index 11
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not edit metadata in DataWatcher for a " + type.name() + " disguise", e);
 		}
@@ -276,7 +276,7 @@ public class Disguise {
 				if (type == DisguiseType.Zombie || type == DisguiseType.PigZombie) {
 					mWatch(12, (byte) 1);
 				} else {
-					mWatch(12, -23999);
+					mWatch(12, (byte) -1); // Previously int -23999
 				}
 			}
 			

@@ -23,11 +23,12 @@ public class InvalidInteractHandler implements Runnable {
 		if (plugin.disguiseIDs.containsKey(event.getTarget())) {
 			Player player = event.getPlayer();
 			Player attacked = plugin.disguiseIDs.get(event.getTarget());
-			if (event.getAction()) {
+			if (event.getAction().equals("ATTACK")) {
 				// Send attack to queue
 				plugin.attackProcessor.queue.offer(new PlayerAttack(player, attacked));
 				plugin.attackProcessor.incrementAmount();
-			} else {
+			} else if (event.getAction().equals("INTERACT")) {
+				// Respawn a mooshroom if it gets right-clicked
 				if (player.getItemInHand().getType() == Material.SHEARS) {
 					Disguise disguise = plugin.disguiseDB.get(attacked.getUniqueId());
 					if (disguise.type == DisguiseType.MushroomCow) {
