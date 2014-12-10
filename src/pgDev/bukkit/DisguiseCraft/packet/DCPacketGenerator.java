@@ -174,7 +174,7 @@ public class DCPacketGenerator {
 			metadataField.setAccessible(true);
 			
 			idField.set(packet, d.entityID);
-			profileField.set(packet, new GameProfile(DisguiseCraft.profileCache.retrieveUUID(d.data.getFirst()), d.data.getFirst())); // Constructor: public GameProfile(UUID id, String name)
+			profileField.set(packet, DisguiseCraft.profileCache.retrieveUUID(d.data.getFirst())); // Previously: GameProfile(UUID id, String name)
 			xField.set(packet, locVars[0]);
 			yField.set(packet, locVars[1]);
 			zField.set(packet, locVars[2]);

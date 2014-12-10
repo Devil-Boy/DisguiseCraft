@@ -1,5 +1,6 @@
 package pgDev.bukkit.DisguiseCraft.packet;
 
+import java.util.UUID;
 import java.util.logging.Level;
 
 import net.minecraft.server.v1_8_R1.DataWatcher;
@@ -79,7 +80,6 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		int[] locVars = getLocationVariables(loc);
 		byte[] yp = getYawPitch(loc);
 		int eID = d.entityID;
-		WrappedGameProfile gp = new WrappedGameProfile(DisguiseCraft.profileCache.retrieveUUID(d.data.getFirst()), d.data.getFirst());
         int xPos = locVars[0];
         int yPos = locVars[1];
         int zPos = locVars[2];
@@ -97,10 +97,10 @@ public class PLPacketGenerator extends DCPacketGenerator {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the integers for a player disguise!", e);
 		}
 		try {
-			pC.getGameProfiles().
-				write(0, gp);
+			pC.getSpecificModifier(UUID.class).
+				write(0, DisguiseCraft.profileCache.retrieveUUID(d.data.getFirst()));
 		} catch (FieldAccessException e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the GameProfile for a player disguise!", e);
+			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the UUID for a player disguise!", e);
 		}
 		try {
 			pC.getBytes().
