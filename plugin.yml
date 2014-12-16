@@ -94,8 +94,10 @@ permissions:
             disguisecraft.mob.enderman: true
             disguisecraft.mob.enderman.hold: true
             disguisecraft.mob.enderman.hold.metadata: true
+            disguisecraft.mob.endermite: true
             disguisecraft.mob.ghast: true
             disguisecraft.mob.giant: true
+            disguisecraft.mob.guardian: true
             disguisecraft.mob.horse: true
             disguisecraft.mob.horse.saddled: true
             disguisecraft.mob.horse.type.*: true
@@ -112,6 +114,7 @@ permissions:
             disguisecraft.mob.pig.saddled: true
             disguisecraft.mob.pigzombie: true
             disguisecraft.mob.pigzombie.baby: true
+            disguisecraft.mob.rabbit: true
             disguisecraft.mob.sheep: true
             disguisecraft.mob.sheep.baby: true
             disguisecraft.mob.sheep.color.*: true
@@ -165,22 +168,28 @@ permissions:
         description: Can disguise as a charged creeper.
     disguisecraft.mob.enderdragon:
         default: op
-        description: Can disguise as a ender dragon.
+        description: Can disguise as an ender dragon.
     disguisecraft.mob.enderman:
         default: op
-        description: Can disguise as a enderman.
+        description: Can disguise as an enderman.
     disguisecraft.mob.enderman.hold:
         default: op
         description: Can hold blocks as an enderman.
     disguisecraft.mob.enderman.hold.metadata:
         default: op
         description: Can change the metadata of a held block.
+    disguisecraft.mob.endermite:
+        default: op
+        description: Can disguise as an endermite.
     disguisecraft.mob.ghast:
         default: op
         description: Can disguise as a ghast.
     disguisecraft.mob.giant:
         default: op
         description: Can disguise as a giant.
+    disguisecraft.mob.guardian:
+        default: op
+        description: Can disguise as a guardian.
     disguisecraft.mob.horse:
         default: op
         description: Can disguise as a horse.
@@ -284,6 +293,9 @@ permissions:
     disguisecraft.mob.pigzombie.baby:
         default: op
         description: Can disguise as a baby zombie pigman.
+    disguisecraft.mob.rabbit:
+        default: op
+        description: Can disguise as a rabbit.
     disguisecraft.mob.sheep:
         default: op
         description: Can disguise as a sheep.
