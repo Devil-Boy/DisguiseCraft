@@ -25,9 +25,9 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot</artifactId>
-      <version>1.8-R0.1-SNAPSHOT</version>
-      <!--<scope>system</scope>
-      <systemPath>D:\Dropbox\Java Programs\bukkit-apis\spigot-1.8-R0.1-SNAPSHOT.jar</systemPath>-->
+      <version>1.8.3</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/libs/spigot-1.8.3.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>com.comphenix.protocol</groupId>
