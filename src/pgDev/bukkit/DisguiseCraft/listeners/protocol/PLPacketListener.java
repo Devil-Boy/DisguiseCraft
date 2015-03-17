@@ -5,7 +5,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_8_R1.PlayerInfoData;
+import net.minecraft.server.v1_8_R2.PacketPlayOutPlayerInfo.PlayerInfoData;
 
 import org.bukkit.entity.Player;
 
