@@ -379,7 +379,7 @@ public class Disguise {
 			
 			Integer held = getBlockID();
 			if (held != null && type == DisguiseType.Enderman) {
-				mWatch(16, held.byteValue());
+				mWatch(16, held.shortValue());
 				
 				Byte blockData = getBlockData();
 				if (blockData != null) {
