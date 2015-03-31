@@ -156,4 +156,58 @@ public class DCMainListener implements Listener {
 			}
 		}
 	}
+	
+	@EventHandler(ignoreCancelled = true)
+	public void onPreCommand(PlayerCommandPreprocessEvent event) {
+		// Split the command into its parts
+		String commandArgs[] = event.getMessage().split(" ");
+		if (commandArgs.length > 0 && commandArgs[0].startsWith("/")) {
+			commandArgs[0] = commandArgs[0].substring(1);
+		}
+		
+		// See if its the teleport command
+		if (commandArgs[0].equalsIgnoreCase("tp")) {
+			// See if they have the permission to teleport to disguised players
+			if (event.getPlayer().hasPermission("disguisecraft.teleporttodisguised")) {
+				String target = null;
+				String destination = null;
+				
+				// Check the form they used
+				if (commandArgs.length == 2) {
+					// tp <destination player>
+					destination = commandArgs[1];
+				} else if (commandArgs.length == 3) {
+					// tp <target player> <destination player>
+					target = commandArgs[1];
+					destination = commandArgs[2];
+				}
+				
+				// See if destination player specified is valid
+				Player player = plugin.getServer().getPlayerExact(destination);
+				if (player != null) {
+					// See if the destination player is disguised
+					if (plugin.disguiseDB.containsKey(player.getUniqueId())) {
+						// If the command sender can't see the disguised player, we need to run the teleport
+						if (!event.getPlayer().canSee(player)) {
+							// Parse the target
+							Player toTeleport = null;
+							if (target == null) {
+								toTeleport = event.getPlayer();
+							} else {
+								toTeleport = plugin.getServer().getPlayerExact(target);
+							}
+							
+							// Check that we have somebody to teleport
+							if (toTeleport == null) {
+								event.getPlayer().sendMessage(ChatColor.RED + "Could not find player specified to be teleported");
+							} else {
+								// Run the teleport
+								toTeleport.teleport(player);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

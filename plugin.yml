@@ -74,6 +74,9 @@ permissions:
     disguisecraft.noarmor:
         default: op
         description: Can toggle noarmor option.
+    disguisecraft.teleporttodisguised
+        default: op
+        description: Can teleport to disguised players.
     disguisecraft.player.*:
         default: op
         description: Can disguise as any other player.
