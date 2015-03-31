@@ -157,6 +157,7 @@ public class DCMainListener implements Listener {
 		}
 	}
 	
+	/* Unnecessary workaround
 	@EventHandler(ignoreCancelled = true)
 	public void onPreCommand(PlayerCommandPreprocessEvent event) {
 		// Split the command into its parts
@@ -209,5 +210,5 @@ public class DCMainListener implements Listener {
 				}
 			}
 		}
-	}
+	}*/
 }
