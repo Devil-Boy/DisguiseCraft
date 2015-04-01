@@ -43,7 +43,9 @@ public class ProfileCache {
 			UUID uid = uResponse.get(playerName);
 			if (uid != null) {
 				// Search for GameProfile using UUID
-				return ((CraftOfflinePlayer) Bukkit.getOfflinePlayer(uid)).getProfile();
+				GameProfile profile = ((CraftOfflinePlayer) Bukkit.getOfflinePlayer(uid)).getProfile();
+				cache.put(playerName, profile);
+				return profile;
 				
 				/*
 				ProfileFetcher pFetcher = new ProfileFetcher(Arrays.asList(uid));
