@@ -1,5 +1,11 @@
 package net.hexadigital.disguisecraft.disguises;
 
+/**
+ * This is your average, everyday, and inconspicuous pig
+ *
+ * @author Devil Boy
+ *
+ */
 public interface PigDisguise extends AnimalDisguise, VehicleDisguise {
 
 	/**
