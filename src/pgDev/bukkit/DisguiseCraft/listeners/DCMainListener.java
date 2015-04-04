@@ -130,6 +130,13 @@ public class DCMainListener implements Listener {
 	}
 	
 	@EventHandler(ignoreCancelled = true)
+	public void onTeleport(PlayerTeleportEvent event) {
+		if (event.getFrom().distanceSquared(event.getTo()) > 256) { // 16 * 16 = 256
+			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new DisguiseViewResetter(plugin, event.getPlayer()));
+		}
+	}
+	
+	@EventHandler(ignoreCancelled = true)
 	public void onTarget(EntityTargetEvent event) {
 		if (event.getTarget() instanceof Player) {
 			Player player = (Player) event.getTarget();
