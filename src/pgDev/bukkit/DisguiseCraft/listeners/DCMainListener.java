@@ -130,9 +130,23 @@ public class DCMainListener implements Listener {
 	}
 	
 	@EventHandler(ignoreCancelled = true)
-	public void onTeleport(PlayerTeleportEvent event) {
+	public void onTeleport(final PlayerTeleportEvent event) {
+		// Make sure they are teleporting within the same world
+		if (event.getFrom().getWorld() != event.getTo().getWorld()) {
+			return;
+		}
+		
+		// Check if it was a chunk distance away
 		if (event.getFrom().distanceSquared(event.getTo()) > 256) { // 16 * 16 = 256
+			// As an observer, refresh disguises around you
 			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new DisguiseViewResetter(plugin, event.getPlayer()));
+			
+			// As a disguised, reset your disguise for everybody in the world
+			Player teleporter = event.getPlayer();
+			if (plugin.disguiseDB.containsKey(teleporter.getUniqueId())) {
+				plugin.undisguiseToWorld(teleporter, event.getTo().getWorld(), false);
+				plugin.disguiseToWorld(teleporter, event.getTo().getWorld());
+			}
 		}
 	}
 	
